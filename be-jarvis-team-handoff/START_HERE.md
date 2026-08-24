@@ -14,12 +14,13 @@
 
 ## 1. 새 Codex가 처음 할 일
 
-1. 이 `START_HERE.md`를 끝까지 읽는다.
-2. `docs/PRD.md`와 `docs/VISION_ROADMAP.md`를 끝까지 읽는다.
-3. `data/VISA_COUNTRY_DATABASE.xlsx`의 `요약`, `국가 데이터`, `검증 큐`, `분류 기준`, `출처 로그` 시트를 확인한다.
-4. 현재 실제 비자 웹사이트 코드는 아직 구현되지 않았다고 전제한다.
-5. 작업 전 공식 ESTA 양식·자격·수수료·필수 항목이 현재도 유효한지 미국 정부 공식 출처로 재검증한다.
-6. 아래의 `바로 사용할 Codex 시작 프롬프트`에 적힌 범위부터 구현한다.
+1. 저장소 루트의 `AGENTS.md`와 이 `START_HERE.md`를 끝까지 읽는다.
+2. `docs/DEVELOPMENT_PRIORITY.md`, `docs/PRD.md`, `docs/VISION_ROADMAP.md`를 끝까지 읽는다.
+3. `docs/development-logs/INDEX.md`와 현재 작업 단위의 최신 일지를 읽는다.
+4. `data/VISA_COUNTRY_DATABASE.xlsx`의 `요약`, `국가 데이터`, `검증 큐`, `분류 기준`, `출처 로그` 시트를 확인한다.
+5. 현재 실제 비자 웹사이트 코드는 아직 구현되지 않았다고 전제한다.
+6. 작업 전 공식 ESTA 양식·자격·수수료·필수 항목이 현재도 유효한지 미국 정부 공식 출처로 재검증한다.
+7. `DEVELOPMENT_PRIORITY.md`에서 `진행 중` 작업을 이어가거나 표시된 `다음` 작업 하나만 구현한다.
 
 문서가 충돌하면 다음 순서로 판단한다.
 
@@ -121,7 +122,10 @@ be-jarvis-team-handoff/
 ├─ START_HERE.md                  # 새 Codex가 가장 먼저 읽을 대표 문서
 ├─ docs/
 │  ├─ PRD.md                     # ESTA 24시간 MVP의 상세 구현 명세
-│  └─ VISION_ROADMAP.md          # 큰 문제, 문제 분할, KPI, 확장 순서
+│  ├─ VISION_ROADMAP.md          # 큰 문제, 문제 분할, KPI, 확장 순서
+│  ├─ DEVELOPMENT_PRIORITY.md    # 작업 단위별 구현 순서와 완료 조건
+│  ├─ DEVELOPMENT_LOG_TEMPLATE.md
+│  └─ development-logs/          # 완료·진행 중·막힘 상태의 세션 인계 기록
 ├─ data/
 │  └─ VISA_COUNTRY_DATABASE.xlsx # 199개 국가·지역 마스터와 검증 큐
 ├─ previews/                     # 워크북 시트의 빠른 확인용 이미지
