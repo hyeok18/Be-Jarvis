@@ -125,6 +125,8 @@ be-jarvis-team-handoff/
 │  ├─ VISION_ROADMAP.md          # 큰 문제, 문제 분할, KPI, 확장 순서
 │  ├─ DEVELOPMENT_PRIORITY.md    # 작업 단위별 구현 순서와 완료 조건
 │  ├─ DEVELOPMENT_LOG_TEMPLATE.md
+│  ├─ GITHUB_TEAM_COLLABORATION_GUIDE.txt
+│  │                                # GitHub를 처음 쓰는 팀원을 위한 협업 안내
 │  └─ development-logs/          # 완료·진행 중·막힘 상태의 세션 인계 기록
 ├─ data/
 │  └─ VISA_COUNTRY_DATABASE.xlsx # 199개 국가·지역 마스터와 검증 큐
