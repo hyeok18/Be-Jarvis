@@ -1,15 +1,28 @@
+# Dependencies and build output
+node_modules/
+.next/
+dist/
+build/
+coverage/
+
+# Local configuration
 .env
+.env.*
+!.env.example
 
-# Local runtimes and generated working files
-tools/
-tmp/
+# Editors and operating systems
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Codex working and deliverable folders
+work/
 outputs/
-*.log
-be-jarvis-team-handoff.zip
-be-jarvis-team-handoff/data/generated/
-be-jarvis-team-handoff/starter/
 
-# Local planning/interview artifacts not needed in the repository
-문재.txt
-인터뷰 목록.txt
-프로젝트 계획.pdf
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
