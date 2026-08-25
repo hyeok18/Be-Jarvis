@@ -73,6 +73,7 @@
 ## 6. 남은 위험과 재개 지점
 
 - WU-15 전체 완료 조건은 A의 지도·목록·상세 연결, 브라우저 수동 검증, 공통 회귀와 두 브랜치 통합이다. 따라서 이번 데이터·API 작업만으로 WU-15를 `완료`로 바꾸지 않는다.
+- A의 최신 원격 `codex/kakao-map-update`는 `main`과 merge-base가 없고 저장소가 `Be-Jarvis-main/` 하위에 중첩된 별도 루트다. 현재 파일 경로의 직접 중복은 없지만 그대로 merge할 수 없으므로, A 변경을 최신 `main` 기반 정상 브랜치로 옮긴 뒤 통합해야 한다.
 - A는 성공 응답만 렌더링하고 503에서는 빈 배열·0점으로 대체하지 않아야 한다. `PUBLIC_DATA_UNAVAILABLE` 오류 상태를 명시적으로 보여야 한다.
 - 개인 취향 선택·하드 제외는 기존 로컬 P0 계약을 계속 사용하고 `reactionSummary`에 합산하지 않는다.
 - 통합 직전 A의 활성 브랜치와 공용 문서 충돌을 다시 확인하고, 완료 게이트가 모두 통과한 뒤에만 INDEX와 개발 우선순위를 `완료`로 갱신한다.
@@ -85,4 +86,5 @@
 - 새 문제 또는 막힘: 연결된 Supabase 도구에는 팀 프로젝트가 보이지 않았고 로컬 Docker가 없었다.
 - 해결 또는 시도: 로그인된 Supabase Dashboard에서 정확한 Be-jarvis 프로젝트를 확인하고, SQL Editor의 `BEGIN ... ROLLBACK`으로 pgTAP 12개를 실행했다.
 - 검증 결과: pgTAP 12/12, Vitest 133개, lint·typecheck·build, security/performance advisor 통과.
-- 현재 재개 지점: 데이터·API 브랜치 전달 후 A의 화면 연결과 WU-15 전체 통합 회귀. 전체 완료 전까지 상태는 `진행 중`이다.
+- push 안전 확인: `git fetch --prune origin`은 성공했다. `pnpm run check:push-safety`는 A 브랜치의 merge-base 부재에서 중단됐고 열린 PR은 0개였다. 커밋은 보존하되 원격 push는 하지 않았다.
+- 현재 재개 지점: A 브랜치를 최신 `main` 기반으로 정상화한 뒤 push 안전 검사를 다시 통과시키고, 화면 연결과 WU-15 전체 통합 회귀를 진행한다. 전체 완료 전까지 상태는 `진행 중`이다.
