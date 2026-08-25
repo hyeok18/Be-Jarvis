@@ -26,8 +26,13 @@ export default async function RestaurantDetailPage({
 
   if (!detail) notFound();
 
-  const { restaurant, reactionSummary, personalMatch, creatorVisitSources } =
-    detail;
+  const {
+    restaurant,
+    reactionRestaurantId,
+    reactionSummary,
+    personalMatch,
+    creatorVisitSources,
+  } = detail;
   const address = restaurant.roadAddress ?? restaurant.address ?? "주소 확인 중";
   const kakaoSearchUrl = `https://map.kakao.com/link/search/${encodeURIComponent(restaurant.name)}`;
 
@@ -58,7 +63,10 @@ export default async function RestaurantDetailPage({
 
       <div className="detail-layout">
         <div className="detail-primary-column">
-          <ReactionSelector restaurantId={restaurant.id} />
+          <ReactionSelector
+            restaurantId={restaurant.id}
+            reactionRestaurantId={reactionRestaurantId}
+          />
           <section className="detail-panel" aria-labelledby="public-reactions-title">
             <p className="eyebrow">공개 반응</p>
             <h2 id="public-reactions-title">방문 확인 반응 분포</h2>

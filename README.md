@@ -22,11 +22,12 @@
 - WU-06 공개 지도 셸과 mock 반응·매칭 UI 완료
 - WU-07 Kakao 지도·필터·크리에이터 레이어·fallback 완료
 - WU-08 식당 상세·한 탭 반응·개별 영상 근거 UI 완료
-- 진행 중: WU-09 Auth·반응 생성·변경 백엔드와 WU-08 UI 연결
+- WU-09 Supabase Auth·반응 생성·변경과 WU-08 UI 연결 완료
+- 다음: WU-10 위치 체크인 방문 증명
 
 ## 로컬 실행과 품질 검사
 
-Node.js 20.9 이상과 pnpm 11을 사용합니다.
+Node.js 22 이상과 pnpm 11을 사용합니다. Supabase JS 클라이언트의 현재 지원 범위에 맞춘 계약입니다.
 
 ```powershell
 pnpm install --frozen-lockfile
