@@ -147,3 +147,11 @@
 - 해결 또는 시도: SQL은 바꾸지 않고 로컬 migration 파일명만 원격 이력에 맞췄다. 설치 없이 인앱 브라우저로 동일 수동 검증을 수행했다.
 - 검증 결과: 적용 후 DB 33/33, 함수 적용·anon/authenticated 직접 실행 차단·합성 proof 0건, advisor, 생성 타입, 환경 7키, lint, typecheck, 전체 98개 테스트, production build가 통과했다. 390/1440px 모두 overlay·overflow·console 오류가 없었다.
 - 현재 재개 지점: WU-11 rate limit·위험 신호·보류 큐. PR 병합은 사용자의 지시에 따라 WU-10 완료 뒤 별도 안전 확인 단계에서 진행한다.
+
+### 2026-08-25 — checkpoint 5 (push 보류)
+
+- 추가 구현: 없음. 완료 커밋 뒤 원격 fetch, push safety, GitHub 열린 PR과 원격 브랜치 겹침을 검사했다.
+- 새 문제 또는 막힘: 열린 PR #7 `feat/wu-13-creator-admin`이 WU-10과 `README.md`, `docs/DEVELOPMENT_PRIORITY.md`, `docs/development-logs/INDEX.md`를 함께 수정한다.
+- 해결 또는 시도: `origin/main`이 로컬 기준보다 앞서지 않았고 WU-09는 현재 branch의 부모, mobile prototype은 기존 비활성 이력임을 구분했다. `gh` 부재 시 GitHub 공개 REST API로 PR #7의 open 상태와 head branch를 재확인했다.
+- 검증 결과: `pnpm run check:push-safety`는 활성 WU-13 공용 문서 겹침을 포함해 `PUSH BLOCKED`를 반환했다. force push·임의 WU-13 병합·원격 변경은 수행하지 않았다.
+- 현재 재개 지점: PR #7 통합 담당이 공용 문서를 합친 뒤 WU-10 branch를 최신 `main`에 안전하게 통합하고 push safety를 다시 실행한다.
