@@ -1,0 +1,2 @@
+-- Historical marker for the legacy job-finder RLS migration that already existed
+-- in the reused remote project. The legacy tables are not part of Be-Jarvis.

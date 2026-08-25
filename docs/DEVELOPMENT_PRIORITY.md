@@ -28,17 +28,17 @@
 
 | 순서 | 작업 단위 | 우선순위 | 제목 | 담당 | 선행 조건 | 대상 AC | 상태 | 완료 증거 |
 |---:|---|---|---|---|---|---|---|---|
-| 0 | WU-00 | P0 | 작업 단위·개발일지 운영체계 | 공통 | 없음 | 문서 운영 | 완료 | 기존 운영체계와 일지 |
+| 0 | WU-00 | P0 | 작업 단위·개발일지 운영체계 | 공통 | 없음 | 문서 운영 | 완료 | 개발일지·사전 시간 안내·push 충돌 검사 |
 | 1 | WU-01 | P0 | Next.js 앱 셸과 품질 게이트 | 공통 | WU-00 | AC-27 기반 | 완료 | 앱 셸·환경·품질 명령 통과 |
 | 2 | WU-02 | P0 | 구 별점 도메인 계약 | A1+B2 | WU-01 | 과거 AC | 완료 | 역사 기록이며 WU-20으로 대체됨 |
 | 3 | WU-20 | P0 | 별점 폐지·반응·방문·크리에이터 계약 재설계 | 공통 | WU-02 | AC-01~22 기반 | 완료 | 새 계약·16개 테스트·빌드·390/1440px 검증 통과 |
-| 4 | WU-03 | P0 | Supabase 반응·방문·크리에이터 schema와 RLS | B1 | WU-20 | AC-06~13, AC-26 | **다음** | migration, RLS, GRANT, advisor, DB 타입 |
-| 5 | WU-04 | P0 | 식당·반응·크리에이터 합성 seed | B1+B2 | WU-03 | AC-03~04, AC-15~19 | 대기 | 식당 30곳, 합성 반응·방문·영상 근거 fixture |
-| 6 | WU-05 | P0 | counted-only 집계·방문 검증·moderation 엔진 | B1 | WU-03 | AC-03~14 | 대기 | 집계·토큰·상태·실패 복구 테스트 |
-| 7 | WU-06 | P0 | 공개 지도 셸과 mock 반응·매칭 UI | A1 | WU-20 | AC-01~05, AC-20~22 | 대기 | 세 반응·매칭·금지 필드 없는 mock UI |
+| 4 | WU-03 | P0 | Supabase 반응·방문·크리에이터 schema와 RLS | B1 | WU-20 | AC-06~13, AC-26 | 완료 | 원격 migration·9개 RLS·36개 DB 테스트·advisor·DB 타입 |
+| 5 | WU-04 | P0 | 식당·반응·크리에이터 합성 seed | B1+B2 | WU-03 | AC-03~04, AC-15~19 | 완료 | 원격 seed 2회·fixture 검증 22/22·익명 공개 경계 통과 |
+| 6 | WU-05 | P0 | counted-only 집계·방문 검증·moderation 엔진 | B1 | WU-03 | AC-03~14 | 완료 | 원격 migration·pgTAP 59/59·seed 2회·WU-04 22/22·advisor·전체 품질 게이트 |
+| 7 | WU-06 | P0 | 공개 지도 셸과 mock 반응·매칭 UI | A1 | WU-20 | AC-01~05, AC-20~22 | **다음** | 세 반응·매칭·금지 필드 없는 mock UI |
 | 8 | WU-07 | P0 | Kakao 지도·필터·크리에이터 레이어·fallback | A2 | WU-06 | AC-15, AC-23~25 | 완료 | props 계약 합의, 지도·출처·fallback·390/1440·Tab/Enter·품질 게이트 통과 |
 | 9 | WU-08 | P0 | 식당 상세·한 탭 반응·개별 영상 근거 UI | A1 | WU-06 | AC-01~05, AC-15, AC-17~18 | 대기 | 상세 반응·체크인 상태·YouTube 출처 표시 |
-| 10 | WU-09 | P0 | 일반 사용자 Auth·반응 생성·변경 | B1 | WU-03, WU-08 | AC-05~07, AC-09~10 | 대기 | 소유권·unique·감사 이벤트 검증 |
+| 10 | WU-09 | P0 | 일반 사용자 Auth·반응 생성·변경 | B1 | WU-03, WU-08 | AC-05~07, AC-09~10 | 진행 중 | DB 명령 34/34·API 11개 테스트 완료, WU-08 UI 연결 대기 |
 | 11 | WU-10 | P0 | 위치 체크인 방문 증명 | B1 | WU-03, WU-09 | AC-07~08, AC-13 | 대기 | 거리·정확도·24시간·원본 좌표 비저장 |
 | 12 | WU-11 | P0 | rate limit·위험 신호·보류 큐 | B1+B2 | WU-05, WU-10 | AC-11~14 | 대기 | held/rejected와 마지막 정상 projection |
 | 13 | WU-12 | P0 | YouTube Data API 증분 동기화·stale 처리 | B2 | WU-03, WU-04 | AC-15~19 | 대기 | 공식 API, 30일 refresh, hidden/deleted 처리 |
@@ -152,10 +152,10 @@ WU-20은 기존 ID 사이에 새 번호를 끼우지 않는 운영 규칙에 따
 
 ## 7. 현재 재개 지점
 
-현재 재개 대상은 **WU-03 — Supabase 반응·방문·크리에이터 schema와 RLS**다.
+현재 재개 대상은 **WU-06 — 공개 지도 셸과 mock 반응·매칭 UI**다.
 
-1. [`2026-08-25_WU-20_reaction-creator-contracts.md`](./development-logs/2026-08-25_WU-20_reaction-creator-contracts.md)의 남은 위험과 인계 순서를 읽는다.
-2. Supabase 연결을 읽기 전용으로 확인하고 새 조직·프로젝트·리전·비용이 필요하면 사용자 승인을 받는다.
-3. 반응·방문 증명·감사 이벤트·공개 projection·creator sync 원본을 분리한 migration을 작성한다.
-4. check·unique·FK·partial/composite index, 사용자 소유 RLS, 공개 DTO, 관리자 권한, 명시적 GRANT를 구현한다.
-5. 비로그인·본인·다른 사용자·관리자 실패 경로와 advisor·DB 타입 생성까지 검증한다.
+1. [`2026-08-25_WU-05_reaction-engine.md`](./development-logs/2026-08-25_WU-05_reaction-engine.md)의 공개 summary 계약과 남은 위험을 먼저 읽는다.
+2. 별점·종합점수 없이 세 반응 분포와 데이터 부족 상태를 mock 데이터로 표시한다.
+3. 공개 반응과 분리된 개인 매칭도·제외 음식 UI를 구현한다.
+4. WU-07이 재사용할 카드·목록 선택 계약과 390px/1440px 검증을 남긴다.
+5. 갱신 실패 시 이전 정상 summary를 보존하는 DB 실패·복구 테스트까지 통과한다.

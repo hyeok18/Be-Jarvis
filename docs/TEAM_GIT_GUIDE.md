@@ -50,8 +50,11 @@ git switch -c feat/reaction-submit
 작업 시작 알림 예시:
 
 ```text
-[B1] WU-10 위치 체크인 시작. visit proof migration·server route·테스트 수정 예정.
+[B1] WU-10 위치 체크인 시작. 예상 60~90분. visit proof migration·server route·테스트 수정 예정.
+그동안 팀은 supabase migration·DB 타입·package lock 수정을 피하고 활성 branch·수정 파일을 공유해 주세요.
 ```
+
+모든 작업 시작 알림에는 예상 시간 범위, 변동 요인, 사용자가 기다리는 동안 할 수 있는 준비, 수정 예정 공용 파일을 포함한다. 예상이 크게 바뀌면 새 범위를 바로 공유한다.
 
 ## 4. 로컬 검증과 커밋
 
@@ -72,10 +75,24 @@ pnpm run build
 ```bash
 git add src/domain/reactions.ts tests/reaction.test.ts
 git commit -m "feat: add verified reaction aggregation"
+pnpm run check:push-safety
 git push -u origin feat/reaction-submit
 ```
 
 PR 설명에는 구현, 검증, AI 사용, 위험과 후속 작업을 적는다.
+
+### 푸시 직전 충돌 검사
+
+`check:push-safety`는 먼저 `git fetch --prune origin`을 실행하고 아래 조건을 확인한다.
+
+- 커밋 뒤 작업 트리가 깨끗한가?
+- 현재 branch가 `main`이 아닌가?
+- 추적 중인 같은 원격 branch에 로컬에 없는 commit이 생기지 않았는가?
+- branch를 만든 뒤 `origin/main`이 동일 파일을 수정하지 않았는가?
+- 아직 main에 병합되지 않은 다른 원격 branch가 동일 파일을 수정하지 않았는가?
+- `package.json`, lockfile, migration, seed, 생성 DB 타입, 전역 스타일, 작업 상태 문서 같은 공유 파일을 누가 수정 중인지 팀 채팅과 일치하는가?
+
+검사에서 겹친 branch·파일이 나오면 커밋은 보존하되 푸시를 중단한다. GitHub의 열린 PR과 팀 채팅에서 해당 branch가 실제 활성 상태인지 확인하고, 한 명을 통합 담당으로 정해 최신 commit을 반영·재검증한 뒤 다시 실행한다. 원격 branch 선행 commit, 동일 파일 충돌, 불명확한 담당 상태를 force push로 해결하지 않는다.
 
 ## 5. 제품별 리뷰 체크리스트
 

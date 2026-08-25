@@ -15,6 +15,8 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
+    "test:db": "supabase test db",
+    "check:push-safety": "node scripts/check-push-safety.mjs",
     "check:env": "node scripts/check-env-contract.mjs"
   },
   "dependencies": {
@@ -29,6 +31,7 @@
     "@types/react-dom": "^19.2.5",
     "eslint": "^9.39.5",
     "eslint-config-next": "^16.3.2",
+    "supabase": "2.115.0",
     "tailwindcss": "^4.3.3",
     "typescript": "^6.0.3",
     "vitest": "^4.1.11"
