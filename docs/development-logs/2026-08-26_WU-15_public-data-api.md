@@ -139,3 +139,9 @@
 - 검증 결과: Preview 배포 Ready(34초), 실제 홈의 명시적 장애 화면, Supabase REST 활성 식당 read-only HTTP 401을 확인했다. 기존 로컬 품질 게이트 결과는 유지되며, 이번 세션은 외부 환경 설정만 변경해 lint/typecheck/test/build를 재실행하지 않았다.
 - 변경 파일: Vercel Preview 환경변수 범위(외부 설정)와 이 개발일지·인덱스·우선순위 문서만 변경했다. Production 환경변수, Supabase schema/data, application code, package/lockfile은 수정하지 않았다.
 - 현재 재개 지점: Supabase Dashboard에서 **이 Preview가 읽어야 하는 같은 프로젝트의 새 server secret key**를 다시 발급·검증해 `youtube.env`의 `SUPABASE_SECRET_KEY`를 교체한다. 그 값을 Preview Secret에 갱신하고 재배포한 뒤, 실제 목록 30곳 → 실제 UUID 상세 → confirmed evidence → 반응/check-in 실패·복구 경로 순으로 smoke test한다. 유효한 키를 채팅·Git·개발일지에 붙여넣지 않는다.
+
+### 2026-08-26 — 교체 후 server secret 재검증
+
+- 추가 확인: 사용자가 `youtube.env`의 server secret 교체 완료를 알린 뒤 같은 읽기 전용 REST 검증을 다시 실행했다.
+- 검증 결과: HTTP 401이 계속 발생했다. Vercel에 값을 전송하거나 기존 Preview Secret을 변경하지 않았으므로 Production·Preview의 배포 설정에는 추가 변경이 없다.
+- 현재 재개 지점: `NEXT_PUBLIC_SUPABASE_URL`의 project ref와 Supabase Dashboard에서 선택한 프로젝트가 같은지 먼저 대조한다. 그 정확한 프로젝트의 **Settings → API Keys → Secret keys**에서 새 `sb_secret_...` 키를 만든 뒤 로컬 파일의 해당 변수만 교체하고 재검증한다.
