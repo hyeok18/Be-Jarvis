@@ -67,12 +67,12 @@
 | 정적 검사 | `node node_modules/typescript/bin/tsc --noEmit` | 성공 | 오류 0 |
 | lint | `node node_modules/eslint/bin/eslint.js .` | 성공 | 오류 0 |
 | 빌드 | `node node_modules/next/dist/bin/next build --webpack` | 성공 | Next.js 16.3.2 Webpack production build 성공 |
-| 수동 AC 검증 | 브라우저 390px·1440px | 미실행 | 시각적 브라우저 검증은 아직 미실행 |
+| 수동 AC 검증 | Browser viewport 390x844·1440x900 | 성공 | 홈·상세 백업 화면 모두 가로 overflow 없음, 핵심 문구 표시, 작은 터치 타깃 없음 |
 | 실패·복구 경로 | Webpack dev 서버 HTTP 확인 | 성공 | `/?snapshot=1`, `/restaurants/restaurant-balanced-bowl?snapshot=1`, `/?snapshot=1&cycle=1`, `/restaurants/restaurant-balanced-bowl?snapshot=1&cycle=1` 모두 200, `발표 백업 모드`와 `30초 발표 전환` 문구 포함 |
 
 - 통과한 AC: AC-14 일부, AC-28 일부.
 - 실패한 AC: 없음.
-- 미실행 테스트와 이유: 브라우저 390px/1440px 수동 검증은 현재 자동 판정 도구가 없어 미실행이다. 전체 test는 뒤이어 실행해 통과했다.
+- 미실행 테스트와 이유: 발표 3회 리허설과 Preview smoke는 사용자의 우선순위 조정에 따라 나중 단계로 이월했다.
 - 테스트 데이터 안전 확인: 합성 fixture만 사용했다.
 - 비밀값 노출 확인: 없음.
 
@@ -95,15 +95,15 @@
 
 ## 7. 남은 위험과 미해결 항목
 
-- 남은 위험: 브라우저 390px/1440px 수동 검증과 3회 발표 리허설은 아직 실행하지 않았다.
+- 남은 위험: 3회 발표 리허설과 실제 Preview smoke는 아직 실행하지 않았다.
 - 후속 작업 후보: 실제 30곳 Preview smoke, 발표 체크리스트 3회 리허설, YouTube 키 교체 후 실제 데이터 경로 검증.
 - 사용자 또는 외부 입력이 필요한 사항: 기존 YouTube 키 폐기와 새 서버 전용 키 준비, `codex/mobile-map-prototype` 충돌 처리 담당 확정.
 
 ## 8. 다음 작업에서는 어떻게 해야 하는가
 
-1. `/?snapshot=1&cycle=1`과 `/restaurants/restaurant-balanced-bowl?snapshot=1&cycle=1`을 390px·1440px에서 확인한다.
-2. 발표 흐름을 최소 3회 리허설한다.
-3. 실제 Preview로 돌아가기 전에는 기존 YouTube 키를 폐기하고 새 키·Preview Config를 등록한다.
+1. 발표 흐름을 최소 3회 리허설한다.
+2. 실제 Preview로 돌아가기 전에는 기존 YouTube 키를 폐기하고 새 키·Preview Config를 등록한다.
+3. Preview smoke에서 실제 데이터 경로를 확인한다.
 
 ## 9. 세션 업데이트
 
@@ -146,3 +146,11 @@
 - 해결 또는 시도: 이 저장소 경로만 Git `safe.directory`로 등록한 뒤 번들 Node로 `scripts/check-push-safety.mjs`를 재실행했다.
 - 검증 결과: fetch 이후 `origin/main...origin/codex/kakao-map-update` 비교에서 `no merge base`로 실패했다.
 - 현재 재개 지점: push하지 않는다. `origin/codex/kakao-map-update`를 직접 merge/cherry-pick/전체 복사하지 말고, 팀에서 충돌·브랜치 처리 방침을 먼저 확정해야 한다.
+
+### 2026-08-26 — 390px/1440px 화면 검증과 터치 타깃 보정
+
+- 추가 구현: `map-fallback`의 외부 링크 터치 영역을 44px 수준으로 보정했다.
+- 새 문제 또는 막힘: 최초 390px/1440px 점검에서 `카카오맵에서 보기`, `YouTube 원본 보기` 링크 높이가 19px로 측정됐다.
+- 해결 또는 시도: `.map-fallback li a`에 `inline-flex`, `min-height: 2.75rem`, 보조 padding을 적용했다.
+- 검증 결과: Browser viewport 390x844와 1440x900에서 홈·상세 백업 화면 모두 가로 overflow 없음, 핵심 문구 표시, 작은 터치 타깃 없음. 전체 Vitest 146 passed, 2 skipped. typecheck, lint, Webpack build 성공.
+- 현재 재개 지점: 사용자가 발표 리허설과 발표 자료는 나중에 만들기로 했으므로, 다음은 YouTube 키 교체·Preview smoke 또는 PR 설명 보강 중 하나를 선택하면 된다.

@@ -28,7 +28,7 @@
 - 실제 Preview smoke test
 - Production 배포
 - `codex/mobile-map-prototype` 충돌 조정 후 PR 생성
-- 390px/1440px 브라우저 수동 검증
+- 발표 리허설과 발표 자료 작성
 
 대신 지금 사용할 수 있는 최소 발표 경로를 만들었다.
 
@@ -109,8 +109,8 @@ git diff --name-only origin/main...HEAD
 
 발표 백업 모드 추가 후 아직 미실행:
 
-- 390px/1440px 브라우저 수동 검증
 - Preview smoke
+- 발표 리허설과 발표 자료 작성
 
 Node/PATH 이슈가 있을 때는 아래처럼 번들 Node 절대경로로 실행했다.
 
@@ -188,7 +188,7 @@ push 전 안전검사를 최신 원격 fetch 포함으로 재시도했고, 아�
 
 1. 기존 YouTube 키 폐기와 새 키 준비를 먼저 끝낸다.
 2. `codex/mobile-map-prototype`와 `codex/kakao-map-update`의 처리 방침을 팀에서 확정한다.
-3. 390px/1440px에서 `/?snapshot=1&cycle=1`과 실제 데이터 화면을 확인한다.
+3. 실제 데이터 화면은 Preview smoke에서 다시 확인한다.
 4. 발표 전에는 최소 3회 리허설한다.
 5. 안전검사 통과 후 feature branch만 push하고 PR을 만든다.
 
@@ -214,7 +214,7 @@ Be-Jarvis의 `codex/ui-baseline` 브랜치에서 이어가 주세요.
 - YouTube 키 폐기·신규 키 등록
 - Vercel Preview smoke
 - Production 배포
-- 390px/1440px 수동 검증
+- 발표 리허설과 발표 자료 작성
 - push/PR 충돌 조정
 
 주의:
@@ -227,7 +227,7 @@ Be-Jarvis의 `codex/ui-baseline` 브랜치에서 이어가 주세요.
 
 다음 우선순위:
 1. 발표가 급하면 `/?snapshot=1&cycle=1`을 실행해 30초 자동 순환을 확인하세요.
-2. 시간이 생기면 390px/1440px 브라우저 검증과 3회 리허설을 먼저 하세요.
+2. 시간이 생기면 발표 리허설과 발표 자료를 만드세요.
 3. 세부 구현 단계에서는 YouTube 키 폐기·신규 키 등록과 Preview smoke를 재개하세요.
 4. push 전에는 `git fetch --prune origin`과 `pnpm run check:push-safety`를 실행하고, 위 충돌 브랜치 처리 담당이 정해졌는지 확인하세요.
 ```
