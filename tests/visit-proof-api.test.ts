@@ -130,6 +130,48 @@ describe("POST /api/visits/check-in", () => {
     expect(JSON.stringify(body)).not.toContain(proofId);
   });
 
+  it("runs the abuse guard before creating a proof token or issuing a check-in", async () => {
+    const assessAbuse = vi.fn(async () => ({
+      isAllowed: false,
+      retryAfterSeconds: 30,
+      riskCodes: ["RATE_LIMITED"] as const,
+    }));
+    const dependencies = createDependencies({ assessAbuse });
+
+    const response = await createVisitCheckInPostHandler(dependencies)(
+      createRequest(),
+    );
+
+    expect(response.status).toBe(429);
+    expect(response.headers.get("retry-after")).toBe("30");
+    expect(await readBody(response)).toMatchObject({
+      error: { code: "RATE_LIMITED" },
+    });
+    expect(assessAbuse).toHaveBeenCalledWith(
+      expect.objectContaining({ userId, restaurantId, action: "checkin" }),
+    );
+    expect(dependencies.issueLocationProof).not.toHaveBeenCalled();
+  });
+
+  it("fails closed without exposing a network address when the abuse guard fails", async () => {
+    const dependencies = createDependencies({
+      assessAbuse: vi.fn(async () => {
+        throw new Error("network=2001:db8::18 salt=private-value");
+      }),
+    });
+
+    const response = await createVisitCheckInPostHandler(dependencies)(
+      createRequest(),
+    );
+    const serialized = JSON.stringify(await readBody(response));
+
+    expect(response.status).toBe(503);
+    expect(serialized).toContain("ABUSE_GUARD_UNAVAILABLE");
+    expect(serialized).not.toContain("2001:db8::18");
+    expect(serialized).not.toContain("private-value");
+    expect(dependencies.issueLocationProof).not.toHaveBeenCalled();
+  });
+
   it.each([
     ["ACCURACY_INSUFFICIENT" as const, "정확도가 부족"],
     ["OUT_OF_RANGE" as const, "식당 근처"],

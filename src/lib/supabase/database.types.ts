@@ -448,6 +448,21 @@ export type Database = {
         Args: { p_started_at: string; p_trigger_kind: string }
         Returns: string
       }
+      enforce_reaction_abuse_guard: {
+        Args: {
+          p_action: string
+          p_network_hash: string
+          p_observed_at?: string
+          p_restaurant_id: string
+          p_user_id: string
+        }
+        Returns: {
+          config_version: string
+          is_allowed: boolean
+          retry_after_seconds: number
+          risk_codes: string[]
+        }[]
+      }
       issue_location_visit_proof: {
         Args: {
           p_accuracy_meters: number

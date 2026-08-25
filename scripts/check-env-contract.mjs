@@ -4,6 +4,7 @@ const requiredKeys = [
   "NEXT_PUBLIC_SUPABASE_URL",
   "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
   "SUPABASE_SECRET_KEY",
+  "RATE_LIMIT_NETWORK_SALT",
   "NEXT_PUBLIC_KAKAO_MAP_APP_KEY",
   "KAKAO_REST_API_KEY",
   "YOUTUBE_DATA_API_KEY",
@@ -22,6 +23,7 @@ const presentKeys = new Set(
 const missingKeys = requiredKeys.filter((key) => !presentKeys.has(key));
 const serverKeysWithPublicPrefix = [
   "SUPABASE_SECRET_KEY",
+  "RATE_LIMIT_NETWORK_SALT",
   "KAKAO_REST_API_KEY",
   "YOUTUBE_DATA_API_KEY",
   "CRON_SECRET",

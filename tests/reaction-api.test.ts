@@ -184,6 +184,44 @@ describe("POST /api/reactions", () => {
     });
   });
 
+  it("runs the abuse guard after Auth and blocks a limited request before saving", async () => {
+    const assessAbuse = vi.fn(async () => ({
+      isAllowed: false,
+      retryAfterSeconds: 42,
+      riskCodes: ["RATE_LIMITED"] as const,
+    }));
+    const dependencies = createDependencies({ assessAbuse });
+
+    const response = await createReactionPostHandler(dependencies)(createRequest());
+
+    expect(response.status).toBe(429);
+    expect(response.headers.get("retry-after")).toBe("42");
+    expect(await readBody(response)).toMatchObject({
+      error: { code: "RATE_LIMITED" },
+    });
+    expect(assessAbuse).toHaveBeenCalledWith(
+      expect.objectContaining({ userId, restaurantId, action: "reaction" }),
+    );
+    expect(dependencies.saveReaction).not.toHaveBeenCalled();
+  });
+
+  it("fails closed when the abuse guard is unavailable", async () => {
+    const dependencies = createDependencies({
+      assessAbuse: vi.fn(async () => {
+        throw new Error("network=203.0.113.18 salt=private-value");
+      }),
+    });
+
+    const response = await createReactionPostHandler(dependencies)(createRequest());
+    const serialized = JSON.stringify(await readBody(response));
+
+    expect(response.status).toBe(503);
+    expect(serialized).toContain("ABUSE_GUARD_UNAVAILABLE");
+    expect(serialized).not.toContain("203.0.113.18");
+    expect(serialized).not.toContain("private-value");
+    expect(dependencies.saveReaction).not.toHaveBeenCalled();
+  });
+
   it("returns safe service errors without leaking upstream details", async () => {
     const authFailure = createReactionPostHandler(
       createDependencies({
