@@ -42,7 +42,7 @@
 | 11 | WU-10 | P0 | 위치 체크인 방문 증명 | B1 | WU-03, WU-09 | AC-07~08, AC-13 | 다음 | 거리·정확도·24시간·원본 좌표 비저장 |
 | 12 | WU-11 | P0 | rate limit·위험 신호·보류 큐 | B1+B2 | WU-05, WU-10 | AC-11~14 | 대기 | held/rejected와 마지막 정상 projection |
 | 13 | WU-12 | P0 | YouTube Data API 증분 동기화·stale 처리 | B2 | WU-03, WU-04 | AC-15~19 | 완료 | 공식 API 5개 채널·영상 500개 실제 저장, live sync·42개 전체 테스트·공개 접근 차단·빌드 통과 |
-| 14 | WU-13 | P0 | 크리에이터 후보 확인·sync log 관리자 UI | B2 | WU-08, WU-12 | AC-15, AC-19 | 대기 | candidate→confirmed/rejected 공개 경계 |
+| 14 | WU-13 | P0 | 크리에이터 후보 확인·sync log 관리자 UI | B2 | WU-08, WU-12 | AC-15, AC-19 | 완료 | 관리자 실제 로그인·후보 6건·채널 5개·sync log 조회, 합성 후보 1건 확정 후 candidate 0 재검증 |
 | 15 | WU-14 | P0 | YouTube Cron·인증·동시 실행 방지 | B2 | WU-12 | AC-14, AC-18 | 완료 | `0 18 * * *`, secret 5경로, 실제 DB lock·15분 만료 복구·공개 차단, 전체 55개 테스트·빌드 |
 | 16 | WU-15 | P0 | 30곳 실제 수직 통합 | 공통 | WU-07, WU-11, WU-13 | AC-01~24 | 대기 | DB→집계·매칭·지도·영상 근거 연결 |
 | 17 | WU-16 | P0 | 발표 스냅샷·백업 모드 | B2+A1 | WU-15 | AC-14, AC-28 | 대기 | 기준·변경 스냅샷 30초 전환과 원본 불변 |
@@ -154,10 +154,12 @@ WU-20은 기존 ID 사이에 새 번호를 끼우지 않는 운영 규칙에 따
 
 현재 다음 대상은 **WU-10 — 위치 체크인 방문 증명**이다.
 
-WU-09 완료 브랜치는 `codex/wu-09-auth-ui-integration`에 안전하게 push했다. 겹침 경고가 있던 `origin/codex/mobile-map-prototype`은 열린 PR이 없고 최종 WU-08 이전의 단일 prototype인 점과 사용자의 재개 지시를 근거로 비활성 이력 브랜치로 판정했으며, force push나 해당 branch 변경은 하지 않았다.
+WU-09 완료 브랜치는 PR #8로 `main`에 병합됐다. 겹침 경고가 있던 `origin/codex/mobile-map-prototype`은 열린 PR이 없고 최종 WU-08 이전의 단일 prototype인 점과 사용자의 재개 지시를 근거로 비활성 이력 브랜치로 판정했으며, force push나 해당 branch 변경은 하지 않았다.
 
 1. [`2026-08-25_WU-09_auth-reaction-backend.md`](./development-logs/2026-08-25_WU-09_auth-reaction-backend.md)의 checkpoint 4와 WU-05 최신 일지를 함께 읽는다.
 2. 원본 좌표를 저장하지 않는 단기 방문 proof 발급·소비 계약과 120m·정확도 100m·24시간 경계를 먼저 재확인한다.
 3. `ReactionSelector`의 현재 `private_only` 저장 성공 뒤 WU-10 체크인 상태를 연결할 컴포넌트·API 계약을 합의한다.
 4. 위치 권한 거절·낮은 정확도·거리 초과·만료·토큰 재사용 실패 경로를 정상 경로와 함께 테스트한다.
 5. 공개 집계는 유효한 방문 proof를 서버에서 소비한 `counted` 반응만 사용하고 원본 GPS 응답은 저장·로그하지 않는다.
+
+B2의 WU-12·WU-13·WU-14 독립 작업은 완료됐다. 다음 B2 작업은 WU-11과 WU-13이 모두 완료된 뒤 시작하는 **WU-15 실제 데이터 통합**을 지원하는 것이다.

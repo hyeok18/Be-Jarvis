@@ -17,7 +17,8 @@
 | WU-09 | Auth·반응 생성·변경 | B1 | 완료 | 2026-08-25 | [기록](./2026-08-25_WU-09_auth-reaction-backend.md) | WU-10 위치 체크인 방문 증명 |
 | WU-10 | 위치 체크인 방문 증명 | B1 | 다음 | 2026-08-25 | [WU-09 인계](./2026-08-25_WU-09_auth-reaction-backend.md) | proof 발급·소비와 거리·정확도·만료 경계부터 구현 |
 | WU-12 | YouTube Data API 증분 동기화·stale 처리 | B2 | 완료 | 2026-08-25 | [기록](./2026-08-25_WU-12_youtube-sync.md) | WU-14 Cron 인증·동시 실행 방지 |
-| WU-14 | YouTube Cron·인증·동시 실행 방지 | B2 | 완료 | 2026-08-25 | [기록](./2026-08-25_WU-14_youtube-cron-safety.md) | WU-08 완료 뒤 WU-13 관리자 후보 확인·sync log UI 시작 |
+| WU-13 | 크리에이터 후보 확인·sync log 관리자 UI | B2 | 완료 | 2026-08-25 | [기록](./2026-08-25_WU-13_creator-admin.md) | WU-11 완료 후 WU-15 실제 데이터 통합 지원 |
+| WU-14 | YouTube Cron·인증·동시 실행 방지 | B2 | 완료 | 2026-08-25 | [기록](./2026-08-25_WU-14_youtube-cron-safety.md) | WU-15 실제 데이터 통합에서 운영 동기화 경로 연결 |
 | WU-17 | 오류·반응형·접근성·보안 | A2+공통 | 막힘 | 2026-08-25 | [기록](./2026-08-25_WU-17_quality-security.md) | WU-15·WU-16 완료와 대상 Supabase 연결 후 통합 회귀 재개 |
 
 ## 상태 갱신 규칙
