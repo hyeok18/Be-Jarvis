@@ -1,6 +1,6 @@
 export async function GET() {
   return Response.json({
-    service: "be-jarvis-review-trust-map",
+    service: "be-jarvis-reaction-map",
     status: "ok",
   });
 }

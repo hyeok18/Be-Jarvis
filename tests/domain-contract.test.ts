@@ -5,109 +5,172 @@ import {
   validateAlgorithmConfig,
 } from "../src/domain/algorithm-config";
 import {
-  BALANCED_BOWL_PERSONALIZED_REVIEWS,
+  CREATOR_EVIDENCE_FIXTURE,
   DOMAIN_FIXTURE,
 } from "../src/domain/fixtures";
 import {
-  calculateCommunityWeight,
-  calculatePersonalizedTrustPercent,
   calculateRestaurantMatch,
-  calculateRestaurantScore,
-  calculateReviewComposite,
-} from "../src/domain/scoring";
-
-const balancedBowlReviews = DOMAIN_FIXTURE.publicReviews.slice(0, 2);
-
-function buildBalancedBowlScore() {
-  return calculateRestaurantScore(
-    DOMAIN_FIXTURE.analysisRun.id,
-    DOMAIN_FIXTURE.restaurants[0].id,
-    DOMAIN_FIXTURE.restaurants[0].name,
-    balancedBowlReviews,
-  );
-}
+  decideReactionModeration,
+  isCreatorMetadataFresh,
+  selectPublishableCreatorEvidence,
+  summarizeRestaurantReactions,
+} from "../src/domain/signals";
 
 describe("algorithm configuration", () => {
-  it("keeps all rating and matching weight groups normalized", () => {
+  it("allows exactly three reactions and prohibits derived creator authority scores", () => {
     expect(validateAlgorithmConfig(DEFAULT_ALGORITHM_CONFIG)).toEqual([]);
-    expect(DEFAULT_ALGORITHM_CONFIG.reviewTrust.penalties.REVIEWER_ONE_SIDED).toBe(0);
+    expect(DEFAULT_ALGORITHM_CONFIG.reactions.allowedKinds).toEqual([
+      "like",
+      "okay",
+      "dislike",
+    ]);
+    expect(DEFAULT_ALGORITHM_CONFIG.creatorEvidence.allowDerivedAuthorityScore).toBe(
+      false,
+    );
+  });
+
+  it("keeps the matching components normalized", () => {
+    expect(
+      Object.values(DEFAULT_ALGORITHM_CONFIG.matching.componentWeights).reduce(
+        (total, value) => total + value,
+        0,
+      ),
+    ).toBe(1);
   });
 });
 
-describe("multi-dimensional public score", () => {
-  it("uses taste 60%, cleanliness 20%, and service 20%", () => {
-    expect(calculateReviewComposite({ taste: 5, cleanliness: 4, service: 3 })).toBe(4.4);
-  });
-
-  it("rejects ratings outside the configured half-point step", () => {
-    expect(() =>
-      calculateReviewComposite({ taste: 4.2, cleanliness: 4, service: 4 }),
-    ).toThrow(RangeError);
-  });
-
-  it("smooths community feedback and respects both bounds", () => {
-    expect(calculateCommunityWeight(0, 0)).toBe(1);
-    expect(calculateCommunityWeight(10, 0)).toBe(1.25);
-    expect(calculateCommunityWeight(0, 10)).toBe(0.75);
-    expect(calculateCommunityWeight(1_000, 0)).toBe(1.25);
-    expect(calculateCommunityWeight(0, 1_000)).toBe(0.75);
-    expect(() => calculateCommunityWeight(-1, 0)).toThrow(RangeError);
-  });
-
-  it("calculates dimension, public, trust, and overall scores from feedback only", () => {
-    expect(buildBalancedBowlScore()).toEqual({
-      analysisRunId: "run-baseline-v2",
+describe("public reaction distribution", () => {
+  it("counts only active reactions with counted moderation status", () => {
+    expect(
+      summarizeRestaurantReactions(
+        DOMAIN_FIXTURE.restaurants[0].id,
+        DOMAIN_FIXTURE.reactions,
+      ),
+    ).toEqual({
       restaurantId: "restaurant-balanced-bowl",
-      restaurantName: "밸런스 보울 성수",
-      dimensionScores: {
-        taste: 4.25,
-        cleanliness: 4.38,
-        service: 3.75,
-      },
-      publicRating: 4.18,
-      reviewTrustPercent: 87.5,
-      overallScore: 3.65,
-      reviewCount: 2,
+      counts: { like: 1, okay: 1, dislike: 1 },
+      percentages: { like: 33.33, okay: 33.33, dislike: 33.33 },
+      countedTotal: 3,
       isForming: true,
+      version: "2026-08-25.3",
     });
   });
 
-  it("does not change the public score when reviewer identities change", () => {
-    const changedReviewerKeys = balancedBowlReviews.map((input, index) => ({
-      ...input,
-      review: { ...input.review, reviewerKey: `unrelated-reviewer-${index}` },
-    }));
+  it("uses a null distribution instead of inventing zero percentages", () => {
+    expect(summarizeRestaurantReactions("restaurant-without-reactions", [])).toEqual({
+      restaurantId: "restaurant-without-reactions",
+      counts: { like: 0, okay: 0, dislike: 0 },
+      percentages: null,
+      countedTotal: 0,
+      isForming: true,
+      version: "2026-08-25.3",
+    });
+  });
+});
 
-    const original = buildBalancedBowlScore();
-    const changed = calculateRestaurantScore(
-      DOMAIN_FIXTURE.analysisRun.id,
-      DOMAIN_FIXTURE.restaurants[0].id,
-      DOMAIN_FIXTURE.restaurants[0].name,
-      changedReviewerKeys,
+describe("visit proof and reaction moderation", () => {
+  it("keeps unverified reactions private without requiring a receipt", () => {
+    expect(
+      decideReactionModeration({
+        authenticated: true,
+        visitProofMethod: "none",
+        visitProofMatchesRestaurant: false,
+      }),
+    ).toEqual({
+      status: "private_only",
+      reasonCodes: ["PRIVATE_PREFERENCE_ONLY"],
+    });
+  });
+
+  it("counts a matching location check-in when no abuse signal exists", () => {
+    expect(
+      decideReactionModeration({
+        authenticated: true,
+        visitProofMethod: "location_checkin",
+        visitProofMatchesRestaurant: true,
+      }),
+    ).toEqual({ status: "counted", reasonCodes: [] });
+  });
+
+  it("holds suspicious traffic and rejects proof mismatches", () => {
+    expect(
+      decideReactionModeration({
+        authenticated: true,
+        visitProofMethod: "location_checkin",
+        visitProofMatchesRestaurant: true,
+        riskCodes: ["REACTION_BURST"],
+      }),
+    ).toEqual({ status: "held", reasonCodes: ["REACTION_BURST"] });
+
+    expect(
+      decideReactionModeration({
+        authenticated: true,
+        visitProofMethod: "location_checkin",
+        visitProofMatchesRestaurant: false,
+      }),
+    ).toEqual({
+      status: "rejected",
+      reasonCodes: ["VISIT_PROOF_MISMATCH"],
+    });
+  });
+
+  it("rejects unauthenticated public reactions", () => {
+    expect(
+      decideReactionModeration({
+        authenticated: false,
+        visitProofMethod: "location_checkin",
+        visitProofMatchesRestaurant: true,
+      }),
+    ).toEqual({ status: "rejected", reasonCodes: ["AUTH_REQUIRED"] });
+  });
+});
+
+describe("creator evidence", () => {
+  it("treats metadata as fresh through the configured 30-day boundary", () => {
+    expect(
+      isCreatorMetadataFresh(
+        "2026-07-26T12:00:00.000Z",
+        DOMAIN_FIXTURE.now,
+      ),
+    ).toBe(true);
+    expect(
+      isCreatorMetadataFresh(
+        "2026-07-26T11:59:59.999Z",
+        DOMAIN_FIXTURE.now,
+      ),
+    ).toBe(false);
+  });
+
+  it("publishes only confirmed fresh evidence and sorts raw subscriber counts", () => {
+    const result = selectPublishableCreatorEvidence(
+      CREATOR_EVIDENCE_FIXTURE,
+      DOMAIN_FIXTURE.now,
     );
 
-    expect(changed).toEqual(original);
+    expect(result.map(({ channel }) => channel.id)).toEqual([
+      "creator-large",
+      "creator-small",
+      "creator-hidden",
+    ]);
+    expect(result.map(({ channel }) => channel.subscriberCount)).toEqual([
+      2_300_000,
+      120_000,
+      null,
+    ]);
+    expect(result.some(({ evidence }) => evidence.status === "candidate")).toBe(false);
+    expect(result.some(({ channel }) => channel.id === "creator-stale")).toBe(false);
   });
 });
 
 describe("personalized matching", () => {
-  it("uses reviewer similarity only in personalized trust", () => {
-    expect(buildBalancedBowlScore().reviewTrustPercent).toBe(87.5);
-    expect(calculatePersonalizedTrustPercent(BALANCED_BOWL_PERSONALIZED_REVIEWS)).toBe(83.33);
-  });
-
   it("hard-excludes food the user does not eat", () => {
     const result = calculateRestaurantMatch({
       profile: DOMAIN_FIXTURE.userProfile,
       restaurant: DOMAIN_FIXTURE.restaurantProfiles[1],
-      publicScore: {
-        ...buildBalancedBowlScore(),
-        restaurantId: DOMAIN_FIXTURE.restaurants[1].id,
-      },
     });
 
     expect(result.status).toBe("excluded");
-    expect(result.personalRankScore).toBeNull();
+    expect(result.matchPercent).toBe(0);
     expect(result.excludedFoodTags).toEqual(["shellfish"]);
   });
 
@@ -115,43 +178,35 @@ describe("personalized matching", () => {
     const result = calculateRestaurantMatch({
       profile: DOMAIN_FIXTURE.userProfile,
       restaurant: DOMAIN_FIXTURE.restaurantProfiles[0],
-      publicScore: buildBalancedBowlScore(),
-      reviewerEvidence: { fitPercent: 5, overlapCount: 4 },
+      similarUserEvidence: { fitPercent: 5, overlapCount: 4 },
     });
 
     expect(result.status).toBe("matched");
     expect(result.matchPercent).toBe(92.5);
-    expect(result.components.reviewerFitPercent).toBeNull();
-    expect(result.components.visitFitPercent).toBeNull();
+    expect(result.components.similarUserFitPercent).toBeNull();
     expect(result.reasons).toContain("COLD_START_CONTENT_ONLY");
   });
 
-  it("uses reviewer and visit evidence only when enough evidence exists", () => {
-    const score = buildBalancedBowlScore();
+  it("uses similar users and visit history only when evidence is sufficient", () => {
     const result = calculateRestaurantMatch({
       profile: DOMAIN_FIXTURE.userProfile,
       restaurant: DOMAIN_FIXTURE.restaurantProfiles[0],
-      publicScore: score,
-      personalizedReviews: BALANCED_BOWL_PERSONALIZED_REVIEWS,
-      reviewerEvidence: { fitPercent: 100, overlapCount: 5 },
+      similarUserEvidence: { fitPercent: 100, overlapCount: 5 },
       visitEvidence: { fitPercent: 50, sampleSize: 2 },
     });
 
     expect(result.matchPercent).toBe(86.25);
-    expect(result.personalizedTrustPercent).toBe(83.33);
-    expect(result.personalRankScore).toBe(79.62);
     expect(result.reasons).toEqual([
       "DIRECT_PREFERENCE",
-      "SIMILAR_REVIEWERS",
+      "SIMILAR_USERS",
       "VISIT_HISTORY",
     ]);
   });
 
-  it("does not invent a match score before any preference input", () => {
+  it("does not invent a match before preference input", () => {
     const result = calculateRestaurantMatch({
       profile: { ...DOMAIN_FIXTURE.userProfile, axisPreferences: {} },
       restaurant: DOMAIN_FIXTURE.restaurantProfiles[0],
-      publicScore: buildBalancedBowlScore(),
     });
 
     expect(result.status).toBe("needs_preferences");

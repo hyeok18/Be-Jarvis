@@ -10,7 +10,7 @@ import {
 describe("environment contract", () => {
   it("keeps browser and server keys disjoint", () => {
     expect(publicEnvironmentKeys).toHaveLength(3);
-    expect(serverEnvironmentKeys).toHaveLength(5);
+    expect(serverEnvironmentKeys).toHaveLength(4);
     expect(publicEnvironmentKeys.every((key) => key.startsWith("NEXT_PUBLIC_"))).toBe(
       true,
     );
@@ -30,8 +30,8 @@ describe("environment contract", () => {
       findMissingEnvironmentKeys({
         ...completeEnvironment,
         CRON_SECRET: " ",
-        OPENAI_API_KEY: undefined,
+        YOUTUBE_DATA_API_KEY: undefined,
       }),
-    ).toEqual(["OPENAI_API_KEY", "CRON_SECRET"]);
+    ).toEqual(["YOUTUBE_DATA_API_KEY", "CRON_SECRET"]);
   });
 });

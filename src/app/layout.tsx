@@ -3,8 +3,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "맛집 리뷰 신뢰도 지도",
-  description: "맛 점수와 리뷰 신뢰도를 근거와 함께 보여주는 성수동 맛집 랭킹",
+  title: "반응과 크리에이터 근거로 보는 맛집 지도",
+  description: "세 반응, 나와의 매칭, 맛집 탐방 영상 근거를 함께 보는 성수동 지도",
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {

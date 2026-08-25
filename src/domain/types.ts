@@ -1,13 +1,5 @@
 export type ISODateTime = string;
 
-export type RatingDimension = "taste" | "cleanliness" | "service";
-
-export interface RatingBreakdown {
-  taste: number;
-  cleanliness: number;
-  service: number;
-}
-
 export interface Restaurant {
   id: string;
   kakaoPlaceId: string;
@@ -22,95 +14,126 @@ export interface Restaurant {
   createdAt: ISODateTime;
 }
 
-export type ReviewSource = "seed" | "admin_form" | "csv";
+export type ReactionKind = "like" | "okay" | "dislike";
+export type ReactionModerationStatus =
+  | "pending"
+  | "counted"
+  | "held"
+  | "rejected"
+  | "private_only";
 
-export interface Review {
+export type VisitProofMethod =
+  | "none"
+  | "location_checkin"
+  | "merchant_qr"
+  | "receipt"
+  | "partner_transaction";
+
+export type VisitProofStatus = "verified" | "expired" | "revoked" | "rejected";
+
+export interface VisitProof {
   id: string;
-  externalId: string;
+  userId: string;
   restaurantId: string;
-  reviewerKey: string;
-  ratings: RatingBreakdown;
-  reviewText: string;
-  reviewedAt: ISODateTime;
-  source: ReviewSource;
-  isActive: boolean;
-  createdBy: string | null;
+  method: Exclude<VisitProofMethod, "none">;
+  status: VisitProofStatus;
+  evidenceDigest: string;
+  verifiedAt: ISODateTime;
+  expiresAt: ISODateTime;
+  usedAt: ISODateTime | null;
   createdAt: ISODateTime;
 }
 
-export interface ReviewFeedbackSummary {
-  reviewId: string;
-  helpfulCount: number;
-  unhelpfulCount: number;
-  source: "seed" | "live_aggregate";
+export type ReactionRiskCode =
+  | "RATE_LIMITED"
+  | "VISIT_PROOF_MISMATCH"
+  | "DUPLICATE_PROOF"
+  | "IMPOSSIBLE_TRAVEL"
+  | "REACTION_BURST"
+  | "ACCOUNT_CLUSTER";
+
+export interface RestaurantReaction {
+  id: string;
+  userId: string;
+  restaurantId: string;
+  visitProofId: string | null;
+  kind: ReactionKind;
+  moderationStatus: ReactionModerationStatus;
+  riskCodes: readonly ReactionRiskCode[];
+  isActive: boolean;
+  createdAt: ISODateTime;
   updatedAt: ISODateTime;
 }
 
-export type AnalysisTrigger = "seed" | "manual" | "cron";
-export type AnalysisRunStatus = "running" | "succeeded" | "failed";
-
-export interface AnalysisRun {
-  id: string;
-  triggerType: AnalysisTrigger;
-  status: AnalysisRunStatus;
-  algorithmVersion: string;
-  modelId: string | null;
-  totalReviews: number;
-  aiCandidateCount: number;
-  aiSuccessCount: number;
-  errorSummary: string | null;
-  startedAt: ISODateTime;
-  finishedAt: ISODateTime | null;
-  createdBy: string | null;
+export interface ReactionCounts {
+  like: number;
+  okay: number;
+  dislike: number;
 }
 
-export type RuleSignalCode =
-  | "RATING_BURST"
-  | "TEXT_SIMILARITY"
-  | "REVIEWER_ONE_SIDED"
-  | "VAGUE_TEMPLATE";
-
-export interface AiReviewResult {
-  promotionalPatternStrength: number;
-  naturalSpecificity: number;
-  confidence: number;
-  reasonCodes: readonly string[];
-  shortExplanation: string;
-}
-
-export interface ReviewAnalysis {
-  id: string;
-  analysisRunId: string;
-  reviewId: string;
-  ruleSignals: readonly RuleSignalCode[];
-  ruleScore: number;
-  aiRequired: boolean;
-  aiResult: AiReviewResult | null;
-  aiAdjustment: number;
-  finalTrust: number;
-  explanation: {
-    codes: readonly string[];
-    shortExplanation: string;
-  };
-  createdAt: ISODateTime;
-}
-
-export interface PublicScoredReview {
-  review: Review;
-  feedback: ReviewFeedbackSummary;
-  analysis: ReviewAnalysis;
-}
-
-export interface RestaurantScore {
-  analysisRunId: string;
+export interface RestaurantReactionSummary {
   restaurantId: string;
-  restaurantName: string;
-  dimensionScores: RatingBreakdown;
-  publicRating: number;
-  reviewTrustPercent: number;
-  overallScore: number;
-  reviewCount: number;
+  counts: ReactionCounts;
+  percentages: ReactionCounts | null;
+  countedTotal: number;
   isForming: boolean;
+  version: string;
+}
+
+export interface ReactionModerationDecision {
+  status: Exclude<ReactionModerationStatus, "pending">;
+  reasonCodes: readonly (
+    | ReactionRiskCode
+    | "AUTH_REQUIRED"
+    | "PRIVATE_PREFERENCE_ONLY"
+  )[];
+}
+
+export type CreatorVisitStatus = "candidate" | "confirmed" | "rejected" | "stale";
+
+export interface CreatorChannel {
+  id: string;
+  youtubeChannelId: string;
+  title: string;
+  thumbnailUrl: string | null;
+  subscriberCount: number | null;
+  hiddenSubscriberCount: boolean;
+  subscriberCountFetchedAt: ISODateTime | null;
+  uploadsPlaylistId: string;
+  isAllowlisted: boolean;
+  isActive: boolean;
+  metadataFetchedAt: ISODateTime;
+}
+
+export interface CreatorVideo {
+  id: string;
+  youtubeVideoId: string;
+  creatorChannelId: string;
+  title: string;
+  descriptionExcerpt: string | null;
+  thumbnailUrl: string | null;
+  publishedAt: ISODateTime;
+  privacyStatus: "public" | "unlisted" | "private" | null;
+  metadataFetchedAt: ISODateTime;
+  isActive: boolean;
+}
+
+export interface CreatorVisitEvidence {
+  id: string;
+  creatorVideoId: string;
+  restaurantId: string;
+  status: CreatorVisitStatus;
+  evidenceTimestampSeconds: number | null;
+  matchNotes: string | null;
+  confirmedBy: string | null;
+  confirmedAt: ISODateTime | null;
+  lastVerifiedAt: ISODateTime | null;
+}
+
+export interface CreatorEvidenceItem {
+  channel: CreatorChannel;
+  video: CreatorVideo;
+  evidence: CreatorVisitEvidence;
 }
 
 export type PreferenceAxis =
@@ -128,7 +151,11 @@ export interface UserPreferenceProfile {
   profileVersion: string;
   axisPreferences: PreferenceVector;
   excludedFoodTags: readonly string[];
-  onboardingSources: readonly ("balance_game" | "direct_input" | "visit_satisfaction")[];
+  onboardingSources: readonly (
+    | "balance_game"
+    | "direct_input"
+    | "reaction_history"
+  )[];
   updatedAt: ISODateTime;
 }
 
@@ -138,24 +165,20 @@ export interface RestaurantPreferenceProfile {
   foodTags: readonly string[];
 }
 
-export interface ReviewerSimilarityEvidence {
+export interface SimilarUserEvidence {
   fitPercent: number;
   overlapCount: number;
 }
 
-export interface VisitSatisfactionEvidence {
+export interface VisitHistoryEvidence {
   fitPercent: number;
   sampleSize: number;
-}
-
-export interface PersonalizedScoredReview extends PublicScoredReview {
-  reviewerSimilarityPercent: number | null;
 }
 
 export type MatchReasonCode =
   | "EXCLUDED_FOOD"
   | "DIRECT_PREFERENCE"
-  | "SIMILAR_REVIEWERS"
+  | "SIMILAR_USERS"
   | "VISIT_HISTORY"
   | "COLD_START_CONTENT_ONLY";
 
@@ -165,12 +188,9 @@ export interface RestaurantMatchResult {
   restaurantId: string;
   status: MatchStatus;
   matchPercent: number | null;
-  personalizedTrustPercent: number | null;
-  personalizedQualityPercent: number | null;
-  personalRankScore: number | null;
   components: {
     contentFitPercent: number | null;
-    reviewerFitPercent: number | null;
+    similarUserFitPercent: number | null;
     visitFitPercent: number | null;
   };
   reasons: readonly MatchReasonCode[];
@@ -179,42 +199,36 @@ export interface RestaurantMatchResult {
 
 export interface AlgorithmConfig {
   version: string;
-  rating: {
-    step: number;
-    weights: Record<RatingDimension, number>;
+  reactions: {
+    minimumCountForEstablishedDistribution: number;
+    allowedKinds: readonly ReactionKind[];
   };
-  communityFeedback: {
-    priorStrength: number;
-    balanceMultiplier: number;
-    minimumWeight: number;
-    maximumWeight: number;
+  visitProof: {
+    publicMethods: readonly Exclude<VisitProofMethod, "none">[];
+    locationMaximumDistanceMeters: number;
+    locationMaximumAccuracyMeters: number;
+    tokenValidityHours: number;
   };
-  publicScore: {
-    minimumActiveReviews: number;
+  abusePrevention: {
+    temporaryNetworkHashRetentionDays: number;
+    holdRiskCodes: readonly ReactionRiskCode[];
+    rejectRiskCodes: readonly ReactionRiskCode[];
   };
   matching: {
-    minimumReviewerOverlap: number;
+    minimumSimilarUserOverlap: number;
     componentWeights: {
       content: number;
-      reviewer: number;
+      similarUsers: number;
       visit: number;
     };
-    rankingWeights: {
-      match: number;
-      quality: number;
-    };
-    reviewerSimilarityWeight: {
-      minimum: number;
-      maximum: number;
-    };
   };
-  reviewTrust: {
-    penalties: Record<RuleSignalCode, number>;
-    aiCandidateMaximumRuleScore: number;
-    representativeMinimumTrust: number;
+  creatorEvidence: {
+    metadataMaximumAgeDays: number;
+    source: "youtube_data_api";
+    allowDerivedAuthorityScore: false;
   };
   display: {
-    scoreDecimals: number;
-    detailDecimals: number;
+    percentageDecimals: number;
+    matchDecimals: number;
   };
 }

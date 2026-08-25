@@ -7,8 +7,7 @@ export const publicEnvironmentKeys = [
 export const serverEnvironmentKeys = [
   "SUPABASE_SECRET_KEY",
   "KAKAO_REST_API_KEY",
-  "OPENAI_API_KEY",
-  "OPENAI_MODEL",
+  "YOUTUBE_DATA_API_KEY",
   "CRON_SECRET",
 ] as const;
 

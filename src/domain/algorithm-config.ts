@@ -1,53 +1,48 @@
-import type { AlgorithmConfig } from "./types";
+import type { AlgorithmConfig, ReactionKind } from "./types";
 
 export const DEFAULT_ALGORITHM_CONFIG = {
-  version: "2026-08-25.2",
-  rating: {
-    step: 0.5,
-    weights: {
-      taste: 0.6,
-      cleanliness: 0.2,
-      service: 0.2,
-    },
+  version: "2026-08-25.3",
+  reactions: {
+    minimumCountForEstablishedDistribution: 10,
+    allowedKinds: ["like", "okay", "dislike"],
   },
-  communityFeedback: {
-    priorStrength: 10,
-    balanceMultiplier: 0.5,
-    minimumWeight: 0.75,
-    maximumWeight: 1.25,
+  visitProof: {
+    publicMethods: [
+      "location_checkin",
+      "merchant_qr",
+      "receipt",
+      "partner_transaction",
+    ],
+    locationMaximumDistanceMeters: 120,
+    locationMaximumAccuracyMeters: 100,
+    tokenValidityHours: 24,
   },
-  publicScore: {
-    minimumActiveReviews: 10,
+  abusePrevention: {
+    temporaryNetworkHashRetentionDays: 7,
+    holdRiskCodes: [
+      "RATE_LIMITED",
+      "IMPOSSIBLE_TRAVEL",
+      "REACTION_BURST",
+      "ACCOUNT_CLUSTER",
+    ],
+    rejectRiskCodes: ["VISIT_PROOF_MISMATCH", "DUPLICATE_PROOF"],
   },
   matching: {
-    minimumReviewerOverlap: 5,
+    minimumSimilarUserOverlap: 5,
     componentWeights: {
       content: 0.5,
-      reviewer: 0.3,
+      similarUsers: 0.3,
       visit: 0.2,
     },
-    rankingWeights: {
-      match: 0.6,
-      quality: 0.4,
-    },
-    reviewerSimilarityWeight: {
-      minimum: 0.5,
-      maximum: 1.5,
-    },
   },
-  reviewTrust: {
-    penalties: {
-      RATING_BURST: 15,
-      TEXT_SIMILARITY: 25,
-      REVIEWER_ONE_SIDED: 0,
-      VAGUE_TEMPLATE: 10,
-    },
-    aiCandidateMaximumRuleScore: 70,
-    representativeMinimumTrust: 60,
+  creatorEvidence: {
+    metadataMaximumAgeDays: 30,
+    source: "youtube_data_api",
+    allowDerivedAuthorityScore: false,
   },
   display: {
-    scoreDecimals: 1,
-    detailDecimals: 2,
+    percentageDecimals: 2,
+    matchDecimals: 2,
   },
 } as const satisfies AlgorithmConfig;
 
@@ -57,36 +52,45 @@ function approximatelyOne(value: number) {
 
 export function validateAlgorithmConfig(config: AlgorithmConfig): readonly string[] {
   const errors: string[] = [];
-  const ratingWeightTotal = Object.values(config.rating.weights).reduce(
-    (total, weight) => total + weight,
-    0,
-  );
-  const matchComponentTotal = Object.values(config.matching.componentWeights).reduce(
-    (total, weight) => total + weight,
-    0,
-  );
-  const rankingWeightTotal = Object.values(config.matching.rankingWeights).reduce(
+  const allowedKinds = new Set<ReactionKind>(config.reactions.allowedKinds);
+  const componentTotal = Object.values(config.matching.componentWeights).reduce(
     (total, weight) => total + weight,
     0,
   );
 
   if (!config.version.trim()) errors.push("version is required");
-  if (!approximatelyOne(ratingWeightTotal)) errors.push("rating weights must sum to 1");
-  if (!approximatelyOne(matchComponentTotal)) {
+  if (
+    allowedKinds.size !== 3 ||
+    !allowedKinds.has("like") ||
+    !allowedKinds.has("okay") ||
+    !allowedKinds.has("dislike")
+  ) {
+    errors.push("exactly three reaction kinds are required");
+  }
+  if (config.reactions.minimumCountForEstablishedDistribution < 1) {
+    errors.push("minimum reaction count must be positive");
+  }
+  if (!approximatelyOne(componentTotal)) {
     errors.push("matching component weights must sum to 1");
   }
-  if (!approximatelyOne(rankingWeightTotal)) errors.push("ranking weights must sum to 1");
-  if (config.rating.step <= 0 || config.rating.step > 5) {
-    errors.push("rating step must be greater than 0 and at most 5");
+  if (config.matching.minimumSimilarUserOverlap < 1) {
+    errors.push("minimum similar-user overlap must be positive");
   }
-  if (config.communityFeedback.minimumWeight > config.communityFeedback.maximumWeight) {
-    errors.push("community feedback weight bounds are reversed");
+  if (
+    config.visitProof.locationMaximumDistanceMeters <= 0 ||
+    config.visitProof.locationMaximumAccuracyMeters <= 0 ||
+    config.visitProof.tokenValidityHours <= 0
+  ) {
+    errors.push("visit-proof limits must be positive");
   }
-  if (config.matching.minimumReviewerOverlap < 1) {
-    errors.push("minimum reviewer overlap must be positive");
+  if (
+    config.creatorEvidence.metadataMaximumAgeDays < 1 ||
+    config.creatorEvidence.metadataMaximumAgeDays > 30
+  ) {
+    errors.push("creator metadata must be refreshed within 30 days");
   }
-  if (config.reviewTrust.penalties.REVIEWER_ONE_SIDED !== 0) {
-    errors.push("reviewer behavior cannot penalize public trust");
+  if (config.creatorEvidence.allowDerivedAuthorityScore !== false) {
+    errors.push("derived creator authority scores are prohibited");
   }
 
   return errors;
