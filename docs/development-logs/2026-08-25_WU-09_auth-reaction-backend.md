@@ -37,6 +37,7 @@
 - counted fixture를 바로 비활성화하면 기존 DB check constraint를 위반했다.
 - 작업 중 공유 작업 폴더가 A1의 `main` 브랜치로 전환되고 다른 변경이 스테이징돼, 그대로 커밋하면 타 담당자 파일을 함께 커밋할 위험이 생겼다.
 - 격리 worktree의 `node_modules` junction을 Turbopack이 프로젝트 루트 밖 링크로 판정해 기본 프로덕션 빌드가 중단됐다.
+- Supabase security advisor에서 프로젝트의 유출 비밀번호 보호 기능이 꺼져 있다는 Auth 설정 경고가 확인됐다.
 
 ## 4. 어떻게 해결했는가
 
@@ -47,6 +48,7 @@
 - A1의 index와 working tree를 수정하지 않고 `codex/wu-09-backend-prep`를 별도 worktree로 격리했으며, 옮긴 세 파일의 SHA-256 해시 일치를 확인했다.
 - A1과 공용 `package.json`·lockfile 충돌을 피하기 위해 새 SDK 의존성을 추가하지 않고 서버 전용 native `fetch` 어댑터와 주입 가능한 handler로 구현했다.
 - Turbopack 실패는 동일 소스의 Next.js Webpack 프로덕션 빌드로 재검증해 코드 실패가 아님을 분리했다.
+- 실DB migration 목록과 권한·트리거·합성 집계 상태를 읽기 전용 쿼리로 재확인하고 security/performance advisor를 실행했다.
 
 ## 5. 테스트와 검증
 
@@ -61,6 +63,8 @@
 | 전체 프런트 회귀 | TypeScript, Vitest, ESLint | 성공 | 최신 `origin/main` 병합 후 테스트 30/30, 오류·경고 없음 |
 | 프로덕션 빌드 | `next build --webpack` | 성공 | `/api/reactions` 동적 Route 확인 |
 | 비밀값 경계 | Auth·RPC header 및 오류 응답 테스트 | 성공 | secret은 RPC `apikey`에만 사용, 응답 비노출 |
+| Supabase 실DB 상태 | migration 목록·metadata·aggregate 조회 | 성공 | WU-09 적용, service_role만 실행, 반응 29·최대 counted 12 |
+| Supabase advisor | security·performance advisor | 주의 1건 | RLS 오류 없음; 유출 비밀번호 보호 꺼짐 경고, 미사용 인덱스 INFO |
 
 - 통과한 AC: AC-06, AC-07, AC-09, AC-10의 DB 범위.
 - 실패한 AC: 없음.
@@ -82,6 +86,8 @@
 ## 7. 남은 위험과 미해결 항목
 
 - 남은 위험: 실제 Supabase Auth 사용자로 브라우저부터 원격 DB까지 잇는 E2E와 HTTP rate limit은 아직 연결되지 않았다.
+- 운영 설정: Supabase Dashboard의 Auth 비밀번호 설정에서 [유출 비밀번호 보호](https://supabase.com/docs/guides/auth/password-security#password-strength-and-leaked-password-protection)를 활성화해야 한다.
+- 성능 advisor의 미사용 인덱스는 합성 데이터만 있는 초기 상태에서 예상되는 INFO이며, 예정된 반응·크리에이터 조회에 필요하므로 지금 제거하지 않는다.
 - 후속 작업 후보: 팀 공용 런타임을 Node 22 이상으로 올리는 시점에 Supabase SSR client 도입 여부를 합의한다.
 - 사용자 또는 외부 입력이 필요한 사항: A1의 WU-06·08 완료와 UI request 계약.
 
@@ -109,3 +115,10 @@
 - 해결 또는 시도: 별도 worktree로 WU-09 브랜치를 격리하고 SHA-256을 대조했으며, Webpack 프로덕션 빌드로 코드 빌드를 검증했다.
 - 검증 결과: 최신 `origin/main` 병합 후 타입·린트 성공, 전체 Vitest 30/30, Route 테스트 13/13, Next.js 프로덕션 빌드 성공.
 - 현재 재개 지점: 원격 migration 적용과 advisor·회귀 검사 후 안전 푸시, 이후 WU-10 선행 구현.
+
+### 2026-08-25 — checkpoint 3
+
+- 추가 검증: Supabase plugin으로 `Be-jarvis`의 적용 migration, 함수 권한, 감사 trigger, 집계 보존 상태를 확인했다.
+- 검증 결과: WU-09 적용 완료, anon/authenticated 실행 불가, service_role 실행 가능, 반응 29개와 최대 counted 12 유지.
+- advisor 결과: RLS·함수 보안 오류 없음. 유출 비밀번호 보호 꺼짐 WARN 1건과 초기 미사용 인덱스 INFO만 확인했다.
+- 현재 재개 지점: Git 원격 충돌 검사를 한 번 더 수행하고 WU-09 브랜치를 안전하게 push한다.
