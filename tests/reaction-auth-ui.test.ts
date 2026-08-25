@@ -81,8 +81,38 @@ describe("authenticated reaction request", () => {
     expect(String(request.body)).not.toContain("test-access-token");
   });
 
+  it("includes a one-time visit token only when supplied", async () => {
+    const visitProofToken = "t".repeat(43);
+    const requests: Array<RequestInit | undefined> = [];
+
+    await submitAuthenticatedReaction(
+      {
+        accessToken: "test-access-token",
+        restaurantId: "10000000-0000-4000-8000-000000000001",
+        kind: "like",
+        visitProofToken,
+      },
+      async (_input, init) => {
+        requests.push(init);
+        return Response.json({
+          reaction: {
+            ...validReaction.reaction,
+            moderationStatus: "counted",
+          },
+        });
+      },
+    );
+
+    expect(JSON.parse(String(requests[0]?.body))).toEqual({
+      restaurantId: "10000000-0000-4000-8000-000000000001",
+      kind: "like",
+      visitProofToken,
+    });
+  });
+
   it.each([
     [401, "로그인이 만료됐어요"],
+    [409, "방문 확인이 만료됐거나 이미 사용됐어요"],
     [404, "식당을 찾지 못했어요"],
     [429, "요청이 많아요"],
   ])("returns safe copy for a %i response", async (status, message) => {

@@ -104,3 +104,11 @@
 - 해결 또는 시도: 서버 내부 import를 상대 경로로 바꾸고 실제 dependency 호출 인자·HTTP body를 검증하는 assertion으로 정리했다.
 - 검증 결과: TypeScript 정적 검사와 체크인·반응 API 테스트 25/25 통과. raw token은 체크인 성공 DTO와 브라우저→서버 요청에만 있고 Supabase RPC에는 digest만 전달됨을 확인했다.
 - 현재 재개 지점: 브라우저 geolocation 권한·정확도·거리·만료 안내와 반응 선택 연결.
+
+### 2026-08-25 — checkpoint 3
+
+- 추가 구현: 사용자 동작으로만 실행되는 고정밀 geolocation 요청, 최소 좌표 DTO, 체크인 상태·개인 반응 복구 UI, proof token을 반응 한 번에 연결하는 흐름을 추가했다.
+- 새 문제 또는 막힘: React purity lint가 이벤트 내부의 로컬 `Date.now()` 만료 예측도 불안정 렌더 값으로 판정했고, DOM geolocation mock에 최신 `toJSON` 타입이 필요했다.
+- 해결 또는 시도: 만료 판정은 권위 있는 서버 검증에만 맡기고 409 복구 안내로 통일했다. 테스트 mock은 전체 위치 payload를 전송하지 않는 상태를 유지하면서 DOM 타입만 충족했다.
+- 검증 결과: TypeScript, 수정 TS/TSX ESLint, 브라우저 체크인·API·반응·상세 UI 테스트 50/50 통과. 권한 거절·위치 불가·시간 초과·정확도 부족·거리 초과·만료/재사용 안내를 검증했다.
+- 현재 재개 지점: migration 적용, advisor·타입 재생성, 전체 품질 게이트와 실제 브라우저 수동 확인.

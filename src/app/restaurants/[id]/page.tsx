@@ -78,18 +78,8 @@ export default async function RestaurantDetailPage({
           />
         </div>
 
-        <aside className="detail-side-column" aria-label="개인화와 방문 확인 안내">
+        <aside className="detail-side-column" aria-label="개인화 안내">
           <DetailMatchPanel match={personalMatch} />
-          <section className="detail-panel visit-proof-panel" aria-labelledby="visit-proof-title">
-            <p className="eyebrow">방문 확인</p>
-            <h2 id="visit-proof-title">공개 반응 반영 조건</h2>
-            <strong>현재 이 화면에서는 위치 체크인을 시작하지 않습니다.</strong>
-            <p>
-              위치 체크인으로 식당 근처 방문을 확인한 뒤에만 반응이 공개 집계 후보가
-              됩니다. 체크인은 실제 식사까지 보장하지 않습니다.
-            </p>
-            <span>WU-10 위치 방문 증명 연결 예정</span>
-          </section>
         </aside>
       </div>
     </main>

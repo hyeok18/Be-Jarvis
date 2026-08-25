@@ -53,11 +53,15 @@ describe("one-tap private reaction", () => {
       }),
     );
 
-    expect(markup.match(/<button/g)).toHaveLength(3);
+    expect(markup.match(/class="reaction-choice /g)).toHaveLength(3);
     expect(markup).toContain("좋아요");
     expect(markup).toContain("그냥 그래요");
     expect(markup).toContain("싫어요");
-    expect(markup).toContain("공개 집계는 바뀌지 않아요");
+    expect(markup).toContain("개인 취향에 먼저 저장돼요");
+    expect(markup).toContain("위치 기반 방문 확인");
+    expect(markup).toContain("로그인 후 체크인");
+    expect(markup).toContain("원본 좌표와 브라우저 위치 응답은 저장하지 않습니다");
+    expect(markup).toContain("실제 식사를 보장하지 않습니다");
     expect(markup).not.toContain("textarea");
     expect(markup).not.toContain("별점");
   });
