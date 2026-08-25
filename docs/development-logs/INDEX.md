@@ -10,7 +10,7 @@
 | WU-20 | 별점 폐지·반응·방문·크리에이터 계약 재설계 | 공통 | 완료 | 2026-08-25 | [기록](./2026-08-25_WU-20_reaction-creator-contracts.md) | WU-03 Supabase 반응·방문·크리에이터 schema와 RLS |
 | WU-03 | Supabase 반응·방문·크리에이터 schema와 RLS | B1 | 완료 | 2026-08-25 | [기록](./2026-08-25_WU-03_supabase-schema-rls.md) | WU-04 합성 seed |
 | WU-04 | 식당·반응·크리에이터 합성 seed | B1+B2 | 완료 | 2026-08-25 | [기록](./2026-08-25_WU-04_synthetic-seed.md) | WU-05 counted-only 집계·방문 검증·moderation 엔진 |
-| WU-05 | counted-only 집계·방문 검증·moderation 엔진 | B1 | 진행 중 | 2026-08-25 | [기록](./2026-08-25_WU-05_reaction-engine.md) | checkpoint 2 위치·proof 판정 검증 |
+| WU-05 | counted-only 집계·방문 검증·moderation 엔진 | B1 | 진행 중 | 2026-08-25 | [기록](./2026-08-25_WU-05_reaction-engine.md) | checkpoint 4 전체 migration 적용·advisor·회귀 |
 
 ## 상태 갱신 규칙
 

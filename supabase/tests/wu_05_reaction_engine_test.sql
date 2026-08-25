@@ -2,7 +2,7 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 
-select plan(35);
+select plan(59);
 
 select has_function(
   'private',
@@ -491,6 +491,340 @@ select ok(
     'execute'
   ),
   'service role can use proof consumption from a controlled server operation'
+);
+
+select results_eq(
+  $$
+    select moderation_status, reason_codes
+    from private.decide_reaction_moderation(
+      false,
+      'location_checkin',
+      null,
+      '{}'
+    )
+  $$,
+  $$ values ('rejected'::text, array['AUTH_REQUIRED']::text[]) $$,
+  'unauthenticated public reactions are rejected'
+);
+
+select results_eq(
+  $$
+    select moderation_status, reason_codes
+    from private.decide_reaction_moderation(true, 'none', 'MISSING_VISIT_PROOF', '{}')
+  $$,
+  $$ values ('private_only'::text, array['PRIVATE_PREFERENCE_ONLY']::text[]) $$,
+  'a reaction without proof remains private only'
+);
+
+select results_eq(
+  $$
+    select moderation_status, reason_codes
+    from private.decide_reaction_moderation(
+      true,
+      'location_checkin',
+      'VISIT_PROOF_MISMATCH',
+      '{}'
+    )
+  $$,
+  $$ values ('rejected'::text, array['VISIT_PROOF_MISMATCH']::text[]) $$,
+  'a proof ownership mismatch is rejected'
+);
+
+select results_eq(
+  $$
+    select moderation_status, reason_codes
+    from private.decide_reaction_moderation(
+      true,
+      'location_checkin',
+      'DUPLICATE_PROOF',
+      '{}'
+    )
+  $$,
+  $$ values ('rejected'::text, array['DUPLICATE_PROOF']::text[]) $$,
+  'a duplicate proof is rejected'
+);
+
+select results_eq(
+  $$
+    select moderation_status, reason_codes
+    from private.decide_reaction_moderation(
+      true,
+      'location_checkin',
+      null,
+      array['REACTION_BURST']
+    )
+  $$,
+  $$ values ('held'::text, array['REACTION_BURST']::text[]) $$,
+  'one behavioral risk signal holds rather than convicts the reaction'
+);
+
+select results_eq(
+  $$
+    select moderation_status, reason_codes
+    from private.decide_reaction_moderation(
+      true,
+      'location_checkin',
+      null,
+      array['REACTION_BURST', 'DUPLICATE_PROOF']
+    )
+  $$,
+  $$ values ('rejected'::text, array['DUPLICATE_PROOF']::text[]) $$,
+  'a configured proof integrity rejection outranks a hold signal'
+);
+
+select results_eq(
+  $$
+    select moderation_status, reason_codes
+    from private.decide_reaction_moderation(
+      true,
+      'location_checkin',
+      null,
+      '{}'
+    )
+  $$,
+  $$ values ('counted'::text, '{}'::text[]) $$,
+  'a clean valid visit is eligible for counted moderation'
+);
+
+select throws_ok(
+  $$
+    select *
+    from private.decide_reaction_moderation(
+      true,
+      'location_checkin',
+      null,
+      array['UNKNOWN_SIGNAL']
+    )
+  $$,
+  '22023',
+  'unknown reaction risk code',
+  'unknown risk codes fail closed'
+);
+
+select is(
+  (
+    select moderation_status
+    from private.apply_reaction_moderation(
+      '90000000-0000-4000-8000-000000000302',
+      'rejected',
+      array['VISIT_PROOF_MISMATCH'],
+      '90000000-0000-4000-8000-000000000001',
+      now()
+    )
+  ),
+  'rejected',
+  'held reactions can move to rejected with an integrity reason'
+);
+
+select results_eq(
+  $$
+    select event_name, reason_codes
+    from public.reaction_events
+    where reaction_id = '90000000-0000-4000-8000-000000000302'
+    order by id desc
+    limit 1
+  $$,
+  $$ values ('rejected'::text, array['VISIT_PROOF_MISMATCH']::text[]) $$,
+  'rejection appends an explainable audit event'
+);
+
+select is(
+  (
+    select counted_total
+    from public.restaurant_reaction_summaries
+    where restaurant_id = '90000000-0000-4000-8000-000000000101'
+  ),
+  1,
+  'rejecting a non-counted reaction leaves the projection unchanged'
+);
+
+insert into public.visit_proofs (
+  id,
+  user_id,
+  restaurant_id,
+  method,
+  status,
+  evidence_digest,
+  verified_at,
+  expires_at,
+  created_at
+)
+values (
+  '90000000-0000-4000-8000-000000000207',
+  '90000000-0000-4000-8000-000000000002',
+  '90000000-0000-4000-8000-000000000101',
+  'location_checkin',
+  'verified',
+  'synthetic-wu05-moderation-proof',
+  now() - interval '1 hour',
+  now() + interval '23 hours',
+  now() - interval '1 hour'
+);
+
+update public.restaurant_reactions
+set
+  visit_proof_id = '90000000-0000-4000-8000-000000000207',
+  moderation_status = 'held',
+  risk_codes = array['REACTION_BURST']
+where id = '90000000-0000-4000-8000-000000000302';
+
+select is(
+  (
+    select moderation_status
+    from private.apply_reaction_moderation(
+      '90000000-0000-4000-8000-000000000302',
+      'counted',
+      '{}',
+      '90000000-0000-4000-8000-000000000001',
+      now()
+    )
+  ),
+  'counted',
+  'a held reaction can be cleared to counted with a valid proof'
+);
+
+select ok(
+  (
+    select used_at is not null
+    from public.visit_proofs
+    where id = '90000000-0000-4000-8000-000000000207'
+  ),
+  'counted moderation consumes the attached proof'
+);
+
+select results_eq(
+  $$
+    select like_count, okay_count, dislike_count, counted_total
+    from public.restaurant_reaction_summaries
+    where restaurant_id = '90000000-0000-4000-8000-000000000101'
+  $$,
+  $$ values (0, 1, 1, 2) $$,
+  'cleared moderation updates the counted-only projection'
+);
+
+select is(
+  (
+    select count(*)::integer
+    from public.reaction_events
+    where reaction_id = '90000000-0000-4000-8000-000000000302'
+      and event_name = 'counted'
+  ),
+  1,
+  'counted moderation appends one audit event'
+);
+
+select is(
+  (
+    select moderation_status
+    from private.apply_reaction_moderation(
+      '90000000-0000-4000-8000-000000000302',
+      'held',
+      array['REACTION_BURST'],
+      '90000000-0000-4000-8000-000000000001',
+      now()
+    )
+  ),
+  'held',
+  'a counted reaction can be held without deleting its raw row'
+);
+
+select is(
+  (
+    select counted_total
+    from public.restaurant_reaction_summaries
+    where restaurant_id = '90000000-0000-4000-8000-000000000101'
+  ),
+  1,
+  'holding a counted reaction removes only that reaction from the projection'
+);
+
+select is(
+  (
+    select moderation_status
+    from private.apply_reaction_moderation(
+      '90000000-0000-4000-8000-000000000302',
+      'counted',
+      '{}',
+      '90000000-0000-4000-8000-000000000001',
+      now()
+    )
+  ),
+  'counted',
+  'a previously counted proof can restore its same reaction after review'
+);
+
+select throws_ok(
+  $$
+    select private.apply_reaction_moderation(
+      '90000000-0000-4000-8000-000000000302',
+      'pending',
+      '{}',
+      '90000000-0000-4000-8000-000000000001',
+      now()
+    )
+  $$,
+  '22023',
+  'invalid moderation target',
+  'unsupported moderation targets are rejected'
+);
+
+select throws_ok(
+  $$
+    select private.apply_reaction_moderation(
+      '90000000-0000-4000-8000-000000000302',
+      'held',
+      '{}',
+      '90000000-0000-4000-8000-000000000001',
+      now()
+    )
+  $$,
+  '22023',
+  'held moderation requires hold reason codes',
+  'held moderation cannot omit its explanation'
+);
+
+select throws_ok(
+  $$
+    select private.apply_reaction_moderation(
+      '90000000-0000-4000-8000-000000000302',
+      'held',
+      array['REACTION_BURST'],
+      '90000000-0000-4000-8000-000000000999',
+      now()
+    )
+  $$,
+  '23503',
+  null,
+  'an audit actor foreign-key failure rolls the moderation statement back'
+);
+
+select is(
+  (
+    select moderation_status
+    from public.restaurant_reactions
+    where id = '90000000-0000-4000-8000-000000000302'
+  ),
+  'counted',
+  'failed audit insertion preserves the previous moderation status'
+);
+
+select is(
+  (
+    select counted_total
+    from public.restaurant_reaction_summaries
+    where restaurant_id = '90000000-0000-4000-8000-000000000101'
+  ),
+  2,
+  'failed moderation preserves the last normal public projection'
+);
+
+select ok(
+  not has_function_privilege(
+    'authenticated',
+    'private.apply_reaction_moderation(uuid,text,text[],uuid,timestamp with time zone)',
+    'execute'
+  ),
+  'authenticated clients cannot apply moderation directly'
 );
 
 select * from finish();

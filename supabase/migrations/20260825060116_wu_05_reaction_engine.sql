@@ -150,6 +150,9 @@ create table private.reaction_engine_configs (
   location_maximum_distance_meters double precision not null,
   location_maximum_accuracy_meters double precision not null,
   visit_proof_validity_hours integer not null,
+  public_visit_methods text[] not null,
+  hold_risk_codes text[] not null,
+  reject_risk_codes text[] not null,
   is_active boolean not null default false,
   created_at timestamptz not null default now(),
   constraint reaction_engine_configs_version_not_blank
@@ -159,7 +162,34 @@ create table private.reaction_engine_configs (
   constraint reaction_engine_configs_accuracy_positive
     check (location_maximum_accuracy_meters > 0),
   constraint reaction_engine_configs_validity_positive
-    check (visit_proof_validity_hours > 0)
+    check (visit_proof_validity_hours > 0),
+  constraint reaction_engine_configs_visit_methods_valid check (
+    public_visit_methods <@ array[
+      'location_checkin',
+      'merchant_qr',
+      'receipt',
+      'partner_transaction'
+    ]::text[]
+    and cardinality(public_visit_methods) > 0
+  ),
+  constraint reaction_engine_configs_hold_codes_valid check (
+    hold_risk_codes <@ array[
+      'RATE_LIMITED',
+      'IMPOSSIBLE_TRAVEL',
+      'REACTION_BURST',
+      'ACCOUNT_CLUSTER'
+    ]::text[]
+    and cardinality(hold_risk_codes) > 0
+  ),
+  constraint reaction_engine_configs_reject_codes_valid check (
+    reject_risk_codes <@ array[
+      'VISIT_PROOF_MISMATCH',
+      'DUPLICATE_PROOF'
+    ]::text[]
+    and cardinality(reject_risk_codes) > 0
+  ),
+  constraint reaction_engine_configs_risk_codes_disjoint
+    check (not hold_risk_codes && reject_risk_codes)
 );
 
 create unique index reaction_engine_configs_one_active_idx
@@ -184,9 +214,21 @@ insert into private.reaction_engine_configs (
   location_maximum_distance_meters,
   location_maximum_accuracy_meters,
   visit_proof_validity_hours,
+  public_visit_methods,
+  hold_risk_codes,
+  reject_risk_codes,
   is_active
 )
-values ('p0-v1', 120, 100, 24, true);
+values (
+  'p0-v1',
+  120,
+  100,
+  24,
+  array['location_checkin', 'merchant_qr', 'receipt', 'partner_transaction'],
+  array['RATE_LIMITED', 'IMPOSSIBLE_TRAVEL', 'REACTION_BURST', 'ACCOUNT_CLUSTER'],
+  array['VISIT_PROOF_MISMATCH', 'DUPLICATE_PROOF'],
+  true
+);
 
 create or replace function private.haversine_distance_meters(
   p_latitude_a double precision,
@@ -440,6 +482,297 @@ from public, anon, authenticated;
 grant execute on function private.consume_visit_proof(
   uuid,
   uuid,
+  uuid,
+  timestamptz
+)
+to service_role;
+
+-- WU-05 checkpoint 3: explainable moderation classification and atomic state
+-- application. This engine does not classify a person or account as fraud.
+create or replace function private.decide_reaction_moderation(
+  p_authenticated boolean,
+  p_visit_proof_method text,
+  p_visit_proof_failure_reason text,
+  p_risk_codes text[] default '{}'
+)
+returns table (
+  moderation_status text,
+  reason_codes text[],
+  config_version text
+)
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  v_config private.reaction_engine_configs%rowtype;
+  v_risk_codes text[];
+  v_matched_codes text[];
+  v_all_risk_codes text[] := array[
+    'RATE_LIMITED',
+    'VISIT_PROOF_MISMATCH',
+    'DUPLICATE_PROOF',
+    'IMPOSSIBLE_TRAVEL',
+    'REACTION_BURST',
+    'ACCOUNT_CLUSTER'
+  ];
+begin
+  select * into strict v_config
+  from private.reaction_engine_configs
+  where is_active;
+
+  select coalesce(array_agg(distinct code order by code), '{}'::text[])
+  into v_risk_codes
+  from unnest(coalesce(p_risk_codes, '{}'::text[])) as code;
+
+  if not (v_risk_codes <@ v_all_risk_codes) then
+    raise exception using
+      errcode = '22023',
+      message = 'unknown reaction risk code';
+  end if;
+
+  if not coalesce(p_authenticated, false) then
+    return query select 'rejected', array['AUTH_REQUIRED']::text[], v_config.version;
+    return;
+  end if;
+
+  if p_visit_proof_method is null or p_visit_proof_method = 'none' then
+    return query select 'private_only', array['PRIVATE_PREFERENCE_ONLY']::text[], v_config.version;
+    return;
+  end if;
+
+  if p_visit_proof_failure_reason = 'VISIT_PROOF_MISMATCH' then
+    return query select 'rejected', array['VISIT_PROOF_MISMATCH']::text[], v_config.version;
+    return;
+  end if;
+
+  if p_visit_proof_failure_reason = 'DUPLICATE_PROOF' then
+    return query select 'rejected', array['DUPLICATE_PROOF']::text[], v_config.version;
+    return;
+  end if;
+
+  if p_visit_proof_failure_reason is not null then
+    return query select 'private_only', array['PRIVATE_PREFERENCE_ONLY']::text[], v_config.version;
+    return;
+  end if;
+
+  select coalesce(array_agg(code order by code), '{}'::text[])
+  into v_matched_codes
+  from unnest(v_risk_codes) as code
+  where code = any(v_config.reject_risk_codes);
+
+  if cardinality(v_matched_codes) > 0 then
+    return query select 'rejected', v_matched_codes, v_config.version;
+    return;
+  end if;
+
+  select coalesce(array_agg(code order by code), '{}'::text[])
+  into v_matched_codes
+  from unnest(v_risk_codes) as code
+  where code = any(v_config.hold_risk_codes);
+
+  if cardinality(v_matched_codes) > 0 then
+    return query select 'held', v_matched_codes, v_config.version;
+    return;
+  end if;
+
+  if not (p_visit_proof_method = any(v_config.public_visit_methods)) then
+    return query select 'private_only', array['PRIVATE_PREFERENCE_ONLY']::text[], v_config.version;
+    return;
+  end if;
+
+  return query select 'counted', '{}'::text[], v_config.version;
+end;
+$$;
+
+revoke all on function private.decide_reaction_moderation(
+  boolean,
+  text,
+  text,
+  text[]
+)
+from public, anon, authenticated;
+grant execute on function private.decide_reaction_moderation(
+  boolean,
+  text,
+  text,
+  text[]
+)
+to service_role;
+
+create or replace function private.apply_reaction_moderation(
+  p_reaction_id uuid,
+  p_target_status text,
+  p_reason_codes text[] default '{}',
+  p_actor_user_id uuid default null,
+  p_applied_at timestamptz default now()
+)
+returns public.restaurant_reactions
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  v_reaction public.restaurant_reactions%rowtype;
+  v_updated public.restaurant_reactions%rowtype;
+  v_config private.reaction_engine_configs%rowtype;
+  v_reason_codes text[];
+  v_stored_risk_codes text[];
+  v_consume_result text;
+  v_proof_used_at timestamptz;
+  v_has_prior_counted_event boolean;
+begin
+  if p_applied_at is null then
+    raise exception using errcode = '22004', message = 'applied_at is required';
+  end if;
+
+  select * into strict v_config
+  from private.reaction_engine_configs
+  where is_active;
+
+  select * into v_reaction
+  from public.restaurant_reactions
+  where id = p_reaction_id
+  for update;
+
+  if not found then
+    raise exception using errcode = 'P0002', message = 'reaction does not exist';
+  end if;
+
+  if p_target_status not in ('counted', 'held', 'rejected') then
+    raise exception using errcode = '22023', message = 'invalid moderation target';
+  end if;
+
+  if v_reaction.moderation_status = p_target_status then
+    raise exception using errcode = '22023', message = 'moderation status is unchanged';
+  end if;
+
+  if not (
+    (v_reaction.moderation_status = 'pending' and p_target_status in ('counted', 'held', 'rejected'))
+    or (v_reaction.moderation_status = 'held' and p_target_status in ('counted', 'rejected'))
+    or (v_reaction.moderation_status = 'counted' and p_target_status in ('held', 'rejected'))
+    or (v_reaction.moderation_status = 'rejected' and p_target_status = 'held')
+    or (v_reaction.moderation_status = 'private_only' and p_target_status in ('held', 'rejected'))
+  ) then
+    raise exception using errcode = '22023', message = 'moderation transition is not allowed';
+  end if;
+
+  select coalesce(array_agg(distinct code order by code), '{}'::text[])
+  into v_reason_codes
+  from unnest(coalesce(p_reason_codes, '{}'::text[])) as code;
+
+  if p_target_status = 'counted' and cardinality(v_reason_codes) <> 0 then
+    raise exception using errcode = '22023', message = 'counted moderation cannot have reason codes';
+  end if;
+
+  if p_target_status = 'held'
+    and (
+      cardinality(v_reason_codes) = 0
+      or not (v_reason_codes <@ v_config.hold_risk_codes)
+    )
+  then
+    raise exception using errcode = '22023', message = 'held moderation requires hold reason codes';
+  end if;
+
+  if p_target_status = 'rejected'
+    and (
+      cardinality(v_reason_codes) = 0
+      or not (
+        v_reason_codes <@ (
+          v_config.reject_risk_codes || array['AUTH_REQUIRED']::text[]
+        )
+      )
+    )
+  then
+    raise exception using errcode = '22023', message = 'rejected moderation requires reject reason codes';
+  end if;
+
+  if p_target_status = 'counted' then
+    if v_reaction.visit_proof_id is null then
+      raise exception using errcode = '23514', message = 'counted moderation requires a visit proof';
+    end if;
+
+    select used_at into v_proof_used_at
+    from public.visit_proofs
+    where id = v_reaction.visit_proof_id
+    for update;
+
+    if not found then
+      raise exception using errcode = '23503', message = 'visit proof does not exist';
+    end if;
+
+    if v_proof_used_at is null then
+      v_consume_result := private.consume_visit_proof(
+        v_reaction.visit_proof_id,
+        v_reaction.user_id,
+        v_reaction.restaurant_id,
+        p_applied_at
+      );
+
+      if v_consume_result <> 'CONSUMED' then
+        raise exception using errcode = '23514', message = v_consume_result;
+      end if;
+    else
+      select exists (
+        select 1
+        from public.reaction_events
+        where reaction_id = v_reaction.id
+          and event_name = 'counted'
+      ) into v_has_prior_counted_event;
+
+      if not v_has_prior_counted_event then
+        raise exception using errcode = '23514', message = 'DUPLICATE_PROOF';
+      end if;
+    end if;
+  end if;
+
+  select coalesce(array_agg(code order by code), '{}'::text[])
+  into v_stored_risk_codes
+  from unnest(v_reason_codes) as code
+  where code = any(v_config.hold_risk_codes || v_config.reject_risk_codes);
+
+  update public.restaurant_reactions
+  set
+    moderation_status = p_target_status,
+    risk_codes = v_stored_risk_codes
+  where id = p_reaction_id
+  returning * into v_updated;
+
+  insert into public.reaction_events (
+    reaction_id,
+    actor_user_id,
+    event_name,
+    before_kind,
+    after_kind,
+    reason_codes,
+    created_at
+  )
+  values (
+    v_updated.id,
+    p_actor_user_id,
+    p_target_status,
+    v_updated.kind,
+    v_updated.kind,
+    v_reason_codes,
+    p_applied_at
+  );
+
+  return v_updated;
+end;
+$$;
+
+revoke all on function private.apply_reaction_moderation(
+  uuid,
+  text,
+  text[],
+  uuid,
+  timestamptz
+)
+from public, anon, authenticated;
+grant execute on function private.apply_reaction_moderation(
+  uuid,
+  text,
+  text[],
   uuid,
   timestamptz
 )
