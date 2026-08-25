@@ -9,7 +9,8 @@
 | WU-02 | 구 별점 도메인 계약 | A1+B2 | 완료 | 2026-08-25 | [기록](./2026-08-25_WU-02_domain-contracts.md) | 역사 기록이며 WU-20 계약으로 대체됨 |
 | WU-20 | 별점 폐지·반응·방문·크리에이터 계약 재설계 | 공통 | 완료 | 2026-08-25 | [기록](./2026-08-25_WU-20_reaction-creator-contracts.md) | WU-03 Supabase 반응·방문·크리에이터 schema와 RLS |
 | WU-03 | Supabase 반응·방문·크리에이터 schema와 RLS | B1 | 완료 | 2026-08-25 | [기록](./2026-08-25_WU-03_supabase-schema-rls.md) | WU-04 합성 seed |
-| WU-04 | 식당·반응·크리에이터 합성 seed | B1+B2 | 다음 | 2026-08-25 | 미작성 | WU-03 일지의 합성 fixture 인계 순서부터 시작 |
+| WU-04 | 식당·반응·크리에이터 합성 seed | B1+B2 | 완료 | 2026-08-25 | [기록](./2026-08-25_WU-04_synthetic-seed.md) | WU-05 counted-only 집계·방문 검증·moderation 엔진 |
+| WU-05 | counted-only 집계·방문 검증·moderation 엔진 | B1 | 다음 | 2026-08-25 | 미작성 | WU-04 fixture 수치를 기준으로 원자적 집계 함수부터 시작 |
 
 ## 상태 갱신 규칙
 
