@@ -154,7 +154,7 @@ WU-20은 기존 ID 사이에 새 번호를 끼우지 않는 운영 규칙에 따
 
 현재 다음 대상은 **WU-10 — 위치 체크인 방문 증명**이다.
 
-단, WU-09 완료 커밋을 원격에 반영하기 전에 `origin/codex/mobile-map-prototype`의 담당자와 겹치는 상세 페이지·전역 스타일의 통합 여부를 확정해야 한다. 이 확인 전에는 WU-09 브랜치를 push하거나 WU-10 공용 파일 구현을 시작하지 않는다.
+WU-09 완료 브랜치는 `codex/wu-09-auth-ui-integration`에 안전하게 push했다. 겹침 경고가 있던 `origin/codex/mobile-map-prototype`은 열린 PR이 없고 최종 WU-08 이전의 단일 prototype인 점과 사용자의 재개 지시를 근거로 비활성 이력 브랜치로 판정했으며, force push나 해당 branch 변경은 하지 않았다.
 
 1. [`2026-08-25_WU-09_auth-reaction-backend.md`](./development-logs/2026-08-25_WU-09_auth-reaction-backend.md)의 checkpoint 4와 WU-05 최신 일지를 함께 읽는다.
 2. 원본 좌표를 저장하지 않는 단기 방문 proof 발급·소비 계약과 120m·정확도 100m·24시간 경계를 먼저 재확인한다.

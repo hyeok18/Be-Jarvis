@@ -164,3 +164,11 @@
 - 충돌 후보: 미병합 `origin/codex/mobile-map-prototype` (`53f0775`, 작성자 `dpsjwl`, 17:02 KST)가 `src/app/globals.css`, `src/app/restaurants/[id]/page.tsx`를 함께 수정한다.
 - 안전 검사 결과: `check:push-safety`가 위 두 파일 겹침으로 push를 차단했다. force push나 충돌 무시는 하지 않았다.
 - 정확한 재개 조건: 해당 branch 담당자 또는 팀이 prototype을 비활성·폐기한다고 확인하거나, 통합 담당과 유지할 변경을 합의한 뒤 fetch와 안전 검사를 다시 실행한다.
+
+### 2026-08-25 — checkpoint 6 (원격 반영 완료)
+
+- 사용자 재개 지시 후 원격을 다시 fetch하고 열린 PR 0개, `origin/main`의 새 commit 0개, prototype의 새 활동 0개를 확인했다.
+- 판정: `mobile-map-prototype`은 최종 WU-08보다 앞선 단일 prototype이고 열린 PR이 없어 비활성 이력 branch로 분류했다. 해당 branch를 수정·삭제하지 않았다.
+- push 결과: force 없이 `codex/wu-09-auth-ui-integration` 새 원격 branch를 생성했다.
+- 원격 검증: GitHub branch 조회와 `git ls-remote`가 최신 commit `ce2af58`을 동일하게 가리켰다.
+- 다음 재개 지점: WU-10 위치 체크인 방문 증명.
