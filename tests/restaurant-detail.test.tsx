@@ -10,6 +10,7 @@ import {
   savePrivateReaction,
 } from "../src/components/restaurant-detail/private-reaction-store";
 import { ReactionSelector } from "../src/components/restaurant-detail/reaction-selector";
+import { getReactionRestaurantId } from "../src/components/restaurant-detail/reaction-restaurant-map";
 import { getFixtureRestaurantDetail } from "../src/components/restaurant-detail/restaurant-detail-view-model";
 
 describe("restaurant detail view model", () => {
@@ -31,6 +32,16 @@ describe("restaurant detail view model", () => {
 
   it("returns null for an unknown restaurant id", () => {
     expect(getFixtureRestaurantDetail("unknown-restaurant")).toBeNull();
+  });
+
+  it("maps UI fixture slugs to seeded database UUIDs", () => {
+    expect(getReactionRestaurantId("restaurant-balanced-bowl")).toBe(
+      "10000000-0000-4000-8000-000000000001",
+    );
+    expect(getReactionRestaurantId("unknown-restaurant")).toBeNull();
+    expect(
+      getFixtureRestaurantDetail("restaurant-green-table")?.reactionRestaurantId,
+    ).toBe("10000000-0000-4000-8000-000000000003");
   });
 });
 

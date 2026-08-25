@@ -6,6 +6,7 @@ import {
 } from "../../domain/signals";
 
 import type { CreatorVisitSource } from "../map/map-view-model";
+import { getReactionRestaurantId } from "./reaction-restaurant-map";
 
 export function getFixtureRestaurantDetail(restaurantId: string) {
   const restaurant = DOMAIN_FIXTURE.restaurants.find(
@@ -51,6 +52,7 @@ export function getFixtureRestaurantDetail(restaurantId: string) {
 
   return {
     restaurant,
+    reactionRestaurantId: getReactionRestaurantId(restaurant.id),
     reactionSummary,
     personalMatch,
     creatorVisitSources,
