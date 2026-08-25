@@ -41,7 +41,7 @@
 | 10 | WU-09 | P0 | 일반 사용자 Auth·반응 생성·변경 | B1 | WU-03, WU-08 | AC-05~07, AC-09~10 | 진행 중 | DB 명령 34/34·API 11개 테스트 완료, WU-08 UI 연결 대기 |
 | 11 | WU-10 | P0 | 위치 체크인 방문 증명 | B1 | WU-03, WU-09 | AC-07~08, AC-13 | 대기 | 거리·정확도·24시간·원본 좌표 비저장 |
 | 12 | WU-11 | P0 | rate limit·위험 신호·보류 큐 | B1+B2 | WU-05, WU-10 | AC-11~14 | 대기 | held/rejected와 마지막 정상 projection |
-| 13 | WU-12 | P0 | YouTube Data API 증분 동기화·stale 처리 | B2 | WU-03, WU-04 | AC-15~19 | 대기 | 공식 API, 30일 refresh, hidden/deleted 처리 |
+| 13 | WU-12 | P0 | YouTube Data API 증분 동기화·stale 처리 | B2 | WU-03, WU-04 | AC-15~19 | 진행 중 | 공식 API 5개 채널·42개 전체 테스트·빌드 통과, 실제 Supabase 저장 검증 대기 |
 | 14 | WU-13 | P0 | 크리에이터 후보 확인·sync log 관리자 UI | B2 | WU-08, WU-12 | AC-15, AC-19 | 대기 | candidate→confirmed/rejected 공개 경계 |
 | 15 | WU-14 | P0 | YouTube Cron·인증·동시 실행 방지 | B2 | WU-12 | AC-14, AC-18 | 대기 | `0 18 * * *`, secret, lock, 실패 로그 |
 | 16 | WU-15 | P0 | 30곳 실제 수직 통합 | 공통 | WU-07, WU-11, WU-13 | AC-01~24 | 대기 | DB→집계·매칭·지도·영상 근거 연결 |
