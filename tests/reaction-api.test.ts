@@ -6,10 +6,12 @@ import {
   type ReactionApiDependencies,
   type SavedReaction,
 } from "../src/server/reactions/reaction-api";
+import { digestVisitProofToken } from "../src/server/visits/visit-proof-token";
 
 const userId = "10000000-0000-4000-8000-000000000001";
 const restaurantId = "20000000-0000-4000-8000-000000000001";
 const reactionId = "30000000-0000-4000-8000-000000000001";
+const visitProofToken = "v".repeat(43);
 
 const savedReaction: SavedReaction = {
   reactionId,
@@ -97,6 +99,8 @@ describe("POST /api/reactions", () => {
       { restaurantId, kind: "love" },
       { restaurantId, kind: "like", userId },
       { restaurantId, kind: "like", rating: 5 },
+      { restaurantId, kind: "like", visitProofToken: "short" },
+      { restaurantId, kind: "like", visitProofToken, proofId: reactionId },
       null,
     ];
 
@@ -163,6 +167,21 @@ describe("POST /api/reactions", () => {
 
     expect(response.status).toBe(200);
     expect(await readBody(response)).toEqual({ reaction: updatedReaction });
+  });
+
+  it("hashes an optional visit token before crossing the database boundary", async () => {
+    const dependencies = createDependencies();
+    const response = await createReactionPostHandler(dependencies)(
+      createRequest({ restaurantId, kind: "like", visitProofToken }),
+    );
+
+    expect(response.status).toBe(201);
+    expect(dependencies.saveReaction).toHaveBeenCalledWith({
+      userId,
+      restaurantId,
+      kind: "like",
+      visitProofDigest: digestVisitProofToken(visitProofToken),
+    });
   });
 
   it("returns safe service errors without leaking upstream details", async () => {
@@ -347,5 +366,75 @@ describe("Supabase reaction transport", () => {
     expect(await readBody(response)).toMatchObject({
       error: { code: "SERVICE_NOT_CONFIGURED" },
     });
+  });
+
+  it("uses the proof-aware RPC with a digest and maps proof reuse to 409", async () => {
+    const proofDigest = digestVisitProofToken(visitProofToken);
+    const successfulFetch = vi.fn(
+      async (_input: string | URL | Request, _init?: RequestInit) => {
+        void _input;
+        void _init;
+        return Response.json(
+          [
+            {
+              reaction_id: reactionId,
+              reaction_kind: "like",
+              moderation_status: "counted",
+              was_created: false,
+              was_changed: false,
+              saved_at: "2026-08-25T07:00:00.000Z",
+            },
+          ],
+          { status: 200 },
+        );
+      },
+    );
+    const successfulDependencies = createSupabaseReactionDependencies(
+      environment,
+      successfulFetch,
+    );
+
+    await successfulDependencies.saveReaction({
+      userId,
+      restaurantId,
+      kind: "like",
+      visitProofDigest: proofDigest,
+    });
+
+    const [url, init] = successfulFetch.mock.calls[0];
+    expect(String(url)).toBe(
+      "https://project-ref.supabase.co/rest/v1/rpc/save_reaction_with_visit_proof",
+    );
+    expect(JSON.parse(String(init?.body))).toEqual({
+      p_user_id: userId,
+      p_restaurant_id: restaurantId,
+      p_kind: "like",
+      p_evidence_digest: proofDigest,
+    });
+    expect(String(init?.body)).not.toContain(visitProofToken);
+
+    const rejectedTransport = createSupabaseReactionDependencies(
+      environment,
+      vi.fn(async () =>
+        Response.json(
+          {
+            code: "23514",
+            message: "DUPLICATE_PROOF",
+            details: "private details",
+          },
+          { status: 400 },
+        ),
+      ),
+    );
+    const response = await createReactionPostHandler({
+      verifyAccessToken: vi.fn(async () => ({ id: userId })),
+      saveReaction: rejectedTransport.saveReaction,
+    })(createRequest({ restaurantId, kind: "like", visitProofToken }));
+    const body = await readBody(response);
+
+    expect(response.status).toBe(409);
+    expect(body).toMatchObject({ error: { code: "VISIT_PROOF_INVALID" } });
+    expect(JSON.stringify(body)).not.toContain("private details");
+    expect(JSON.stringify(body)).not.toContain(visitProofToken);
   });
 });

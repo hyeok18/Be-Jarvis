@@ -15,7 +15,8 @@
 | WU-07 | Kakao 지도·필터·크리에이터 레이어·fallback | A2 | 완료 | 2026-08-25 | [기록](./2026-08-25_WU-07_kakao-map.md) | WU-15 실제 데이터 통합 |
 | WU-08 | 식당 상세·한 탭 반응·개별 영상 근거 UI | A3 (A1 인계) | 완료 | 2026-08-25 | [기록](./2026-08-25_WU-08_restaurant-detail-reaction-ui.md) | WU-09에서 Auth·DB UUID를 확정한 뒤 실제 반응 API 연결 |
 | WU-09 | Auth·반응 생성·변경 | B1 | 완료 | 2026-08-25 | [기록](./2026-08-25_WU-09_auth-reaction-backend.md) | WU-10 위치 체크인 방문 증명 |
-| WU-10 | 위치 체크인 방문 증명 | B1 | 다음 | 2026-08-25 | [WU-09 인계](./2026-08-25_WU-09_auth-reaction-backend.md) | proof 발급·소비와 거리·정확도·만료 경계부터 구현 |
+| WU-10 | 위치 체크인 방문 증명 | B1 | 완료 | 2026-08-25 | [기록](./2026-08-25_WU-10_location-checkin.md) | WU-11 rate limit·위험 신호·보류 큐 |
+| WU-11 | rate limit·위험 신호·보류 큐 | B1+B2 | 진행 중 | 2026-08-25 | [WU-10 인계](./2026-08-25_WU-10_location-checkin.md) | `codex/wu-11-abuse-controls`에서 계정·네트워크 제한과 held/rejected·rollback 구현 진행 |
 | WU-12 | YouTube Data API 증분 동기화·stale 처리 | B2 | 완료 | 2026-08-25 | [기록](./2026-08-25_WU-12_youtube-sync.md) | WU-14 Cron 인증·동시 실행 방지 |
 | WU-13 | 크리에이터 후보 확인·sync log 관리자 UI | B2 | 완료 | 2026-08-25 | [기록](./2026-08-25_WU-13_creator-admin.md) | WU-11 완료 후 WU-15 실제 데이터 통합 지원 |
 | WU-14 | YouTube Cron·인증·동시 실행 방지 | B2 | 완료 | 2026-08-25 | [기록](./2026-08-25_WU-14_youtube-cron-safety.md) | WU-15 실제 데이터 통합에서 운영 동기화 경로 연결 |

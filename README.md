@@ -23,10 +23,11 @@
 - WU-07 Kakao 지도·필터·크리에이터 레이어·fallback 완료
 - WU-08 식당 상세·한 탭 반응·개별 영상 근거 UI 완료
 - WU-09 Supabase Auth·반응 생성·변경과 WU-08 UI 연결 완료
+- WU-10 위치 체크인 방문 증명·일회성 proof·공개 반응 전환 완료
 - WU-12 YouTube Data API 증분 동기화·stale 처리 완료
-- WU-14 YouTube Cron·인증·동시 실행 방지 완료
 - WU-13 관리자 후보 확인·sync log 완료 — 실제 관리자 로그인·합성 후보 1건 확정 검증 통과
-- 다음: WU-10 위치 체크인 방문 증명
+- WU-14 YouTube Cron·인증·동시 실행 방지 완료
+- 진행 중: WU-11 rate limit·위험 신호·보류 큐
 
 ## 로컬 실행과 품질 검사
 

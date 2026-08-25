@@ -20,6 +20,7 @@ type SubmitReactionInput = Readonly<{
   accessToken: string;
   restaurantId: string;
   kind: ReactionKind;
+  visitProofToken?: string;
 }>;
 
 type Fetch = (
@@ -29,6 +30,7 @@ type Fetch = (
 
 const uuidPattern =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+const visitProofTokenPattern = /^[A-Za-z0-9_-]{32,128}$/;
 
 function isReactionKind(value: unknown): value is ReactionKind {
   return value === "like" || value === "okay" || value === "dislike";
@@ -83,6 +85,9 @@ async function readJson(response: Response) {
 
 function getFailureMessage(status: number) {
   if (status === 401) return "로그인이 만료됐어요. 다시 로그인해 주세요.";
+  if (status === 409) {
+    return "방문 확인이 만료됐거나 이미 사용됐어요. 다시 체크인해 주세요.";
+  }
   if (status === 404) return "반응을 남길 수 있는 식당을 찾지 못했어요.";
   if (status === 429) return "요청이 많아요. 잠시 후 다시 시도해 주세요.";
   return "서버에 저장하지 못했어요. 내 취향 선택은 이 기기에 남아 있습니다.";
@@ -104,7 +109,12 @@ export async function submitAuthenticatedReaction(
 ) {
   const accessToken = input.accessToken.trim();
 
-  if (!accessToken || !uuidPattern.test(input.restaurantId)) {
+  if (
+    !accessToken ||
+    !uuidPattern.test(input.restaurantId) ||
+    (input.visitProofToken !== undefined &&
+      !visitProofTokenPattern.test(input.visitProofToken))
+  ) {
     throw new ReactionSubmissionError(400);
   }
 
@@ -120,6 +130,9 @@ export async function submitAuthenticatedReaction(
       body: JSON.stringify({
         restaurantId: input.restaurantId,
         kind: input.kind,
+        ...(input.visitProofToken
+          ? { visitProofToken: input.visitProofToken }
+          : {}),
       }),
       cache: "no-store",
     });

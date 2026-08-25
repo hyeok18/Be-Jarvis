@@ -1025,6 +1025,63 @@ h3 {
   background: var(--notice);
 }
 
+.visit-checkin-panel {
+  display: grid;
+  gap: 0.8rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+}
+
+.visit-checkin-panel h3,
+.visit-checkin-panel p {
+  margin: 0;
+}
+
+.visit-checkin-panel > p {
+  color: var(--muted);
+  font-size: 0.86rem;
+  line-height: 1.55;
+}
+
+.visit-checkin-panel .visit-checkin-privacy {
+  padding: 0.7rem 0.8rem;
+  border-radius: 0.7rem;
+  background: #f5f8f8;
+  font-size: 0.8rem;
+}
+
+.visit-checkin-panel > button {
+  width: fit-content;
+  min-height: 2.75rem;
+  padding: 0.65rem 1rem;
+  border: 1px solid var(--accent);
+  border-radius: 0.7rem;
+  color: white;
+  background: var(--accent-strong);
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.visit-checkin-panel > button:disabled {
+  cursor: not-allowed;
+  opacity: 0.58;
+}
+
+.visit-checkin-status {
+  display: grid;
+  gap: 0.25rem;
+  padding: 0.8rem 0.9rem;
+  border: 1px solid #cbdedd;
+  border-radius: 0.75rem;
+  background: #f1f8f7;
+  line-height: 1.5;
+}
+
+.visit-checkin-status span {
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
 .private-reaction-notice span,
 .detail-match-excluded span,
 .detail-match-excluded small,
@@ -1221,7 +1278,8 @@ h3 {
   }
 
   .reaction-auth-form button,
-  .reaction-auth-signed-in button {
+  .reaction-auth-signed-in button,
+  .visit-checkin-panel > button {
     width: 100%;
   }
 
