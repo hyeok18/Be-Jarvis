@@ -20,7 +20,8 @@
 
 ## 2. 무엇을 만들었는가
 
-- checkpoint 1 진행 중: 식당별 advisory lock, active+`counted` 필터, summary upsert, 반응 변경 trigger를 구현했다.
+- checkpoint 1: 식당별 advisory lock, active+`counted` 필터, summary upsert, 반응 변경 trigger를 구현했다.
+- checkpoint 2 진행 중: 버전 설정, Haversine 거리·정확도 판정, 24시간 만료 계산, proof 상태·소유권·재사용 판정과 원자 소비 함수를 구현했다.
 
 ## 3. 무엇이 문제였고 어디에서 막혔는가
 
@@ -46,12 +47,12 @@
 
 ## 7. 남은 위험과 미해결 항목
 
-- 방문 proof 판정과 moderation 전이는 다음 checkpoint에서 구현한다.
+- moderation 전이는 다음 checkpoint에서 구현한다.
 
 ## 8. 다음 작업에서는 어떻게 해야 하는가
 
 1. checkpoint 1 원격 rollback 테스트를 통과시킨다.
-2. 방문 거리·정확도·만료·재사용 판정을 구현한다.
+2. checkpoint 2 원격 rollback 테스트를 통과시킨다.
 3. moderation 전이·감사·전체 회귀를 구현한다.
 
 ## 9. 세션 업데이트
@@ -63,3 +64,11 @@
 - 해결 또는 시도: 짧은 transaction, 식당별 advisory lock, 최소 함수 권한, 원격 rollback 테스트 적용.
 - 검증 결과: checkpoint 1 pgTAP 16번까지 성공, rollback과 기존 seed 보존 확인.
 - 현재 재개 지점: checkpoint 2 방문 proof 판정 구현.
+
+### 2026-08-25 — checkpoint 2
+
+- 추가 구현: `p0-v1`의 120m·100m·24시간 설정, 위치 판정, proof 상태·소유권·만료·원자 소비 함수.
+- 새 문제 또는 막힘: 없음.
+- 해결 또는 시도: 원본 좌표를 함수 인자로만 사용하고 DB에는 파생 시각·digest만 유지.
+- 검증 결과: 원격 rollback pgTAP 35번까지 성공. migration 미적용과 기존 seed summary·proof 보존 확인.
+- 현재 재개 지점: checkpoint 3 moderation 상태 전이와 감사 이벤트.

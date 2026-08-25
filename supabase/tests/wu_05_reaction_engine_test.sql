@@ -2,7 +2,7 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 
-select plan(16);
+select plan(35);
 
 select has_function(
   'private',
@@ -252,6 +252,245 @@ select throws_ok(
   '23503',
   'restaurant does not exist',
   'summary refresh rejects an unknown restaurant'
+);
+
+select results_eq(
+  $$
+    select
+      version,
+      location_maximum_distance_meters,
+      location_maximum_accuracy_meters,
+      visit_proof_validity_hours
+    from private.reaction_engine_configs
+    where is_active
+  $$,
+  $$ values ('p0-v1'::text, 120::double precision, 100::double precision, 24) $$,
+  'P0 visit thresholds are stored as one active versioned config'
+);
+
+select is(
+  private.haversine_distance_meters(37.55, 127.05, 37.55, 127.05),
+  0::double precision,
+  'haversine distance is zero for the same point'
+);
+
+select ok(
+  (
+    select is_valid
+      and reason_code is null
+      and distance_meters = 0
+      and expires_at = timestamptz '2026-08-25 15:00:00+09' + interval '24 hours'
+      and config_version = 'p0-v1'
+    from private.evaluate_location_checkin(
+      '90000000-0000-4000-8000-000000000101',
+      37.55,
+      127.05,
+      100,
+      timestamptz '2026-08-25 15:00:00+09'
+    )
+  ),
+  'a boundary-accuracy nearby check-in receives a 24 hour eligibility result'
+);
+
+select is(
+  (
+    select reason_code
+    from private.evaluate_location_checkin(
+      '90000000-0000-4000-8000-000000000101',
+      37.55,
+      127.05,
+      100.01,
+      now()
+    )
+  ),
+  'ACCURACY_INSUFFICIENT',
+  'accuracy above 100 meters is rejected'
+);
+
+select is(
+  (
+    select reason_code
+    from private.evaluate_location_checkin(
+      '90000000-0000-4000-8000-000000000101',
+      37.56,
+      127.05,
+      10,
+      now()
+    )
+  ),
+  'OUT_OF_RANGE',
+  'a location well beyond 120 meters is rejected'
+);
+
+select is(
+  (
+    select reason_code
+    from private.evaluate_location_checkin(
+      '90000000-0000-4000-8000-000000000101',
+      91,
+      127.05,
+      10,
+      now()
+    )
+  ),
+  'INVALID_LOCATION',
+  'invalid latitude is rejected before distance calculation'
+);
+
+insert into public.visit_proofs (
+  id,
+  user_id,
+  restaurant_id,
+  method,
+  status,
+  evidence_digest,
+  verified_at,
+  expires_at,
+  used_at,
+  created_at
+)
+values
+  ('90000000-0000-4000-8000-000000000202', '90000000-0000-4000-8000-000000000001', '90000000-0000-4000-8000-000000000101', 'location_checkin', 'verified', 'synthetic-wu05-unused-proof', now() - interval '1 hour', now() + interval '23 hours', null, now() - interval '1 hour'),
+  ('90000000-0000-4000-8000-000000000203', '90000000-0000-4000-8000-000000000001', '90000000-0000-4000-8000-000000000101', 'location_checkin', 'expired', 'synthetic-wu05-expired-proof', now() - interval '25 hours', now() - interval '1 hour', null, now() - interval '25 hours'),
+  ('90000000-0000-4000-8000-000000000204', '90000000-0000-4000-8000-000000000001', '90000000-0000-4000-8000-000000000101', 'location_checkin', 'revoked', 'synthetic-wu05-revoked-proof', now() - interval '1 hour', now() + interval '23 hours', null, now() - interval '1 hour'),
+  ('90000000-0000-4000-8000-000000000205', '90000000-0000-4000-8000-000000000001', '90000000-0000-4000-8000-000000000101', 'location_checkin', 'verified', 'synthetic-wu05-mismatch-proof', now() - interval '1 hour', now() + interval '23 hours', null, now() - interval '1 hour'),
+  ('90000000-0000-4000-8000-000000000206', '90000000-0000-4000-8000-000000000001', '90000000-0000-4000-8000-000000000101', 'location_checkin', 'verified', 'synthetic-wu05-time-expired-proof', now() - interval '25 hours', now() - interval '1 hour', null, now() - interval '25 hours');
+
+select is(
+  private.visit_proof_failure_reason(
+    '90000000-0000-4000-8000-000000000202',
+    '90000000-0000-4000-8000-000000000001',
+    '90000000-0000-4000-8000-000000000101'
+  ),
+  null::text,
+  'an unused matching verified proof is valid'
+);
+
+select is(
+  private.visit_proof_failure_reason(
+    '90000000-0000-4000-8000-000000000203',
+    '90000000-0000-4000-8000-000000000001',
+    '90000000-0000-4000-8000-000000000101'
+  ),
+  'VISIT_PROOF_NOT_VERIFIED',
+  'an expired-status proof is not valid'
+);
+
+select is(
+  private.visit_proof_failure_reason(
+    '90000000-0000-4000-8000-000000000204',
+    '90000000-0000-4000-8000-000000000001',
+    '90000000-0000-4000-8000-000000000101'
+  ),
+  'VISIT_PROOF_NOT_VERIFIED',
+  'a revoked proof is not valid'
+);
+
+select is(
+  private.visit_proof_failure_reason(
+    '90000000-0000-4000-8000-000000000206',
+    '90000000-0000-4000-8000-000000000001',
+    '90000000-0000-4000-8000-000000000101'
+  ),
+  'VISIT_PROOF_EXPIRED',
+  'a verified proof beyond its expiry boundary is rejected'
+);
+
+select is(
+  private.visit_proof_failure_reason(
+    '90000000-0000-4000-8000-000000000205',
+    '90000000-0000-4000-8000-000000000002',
+    '90000000-0000-4000-8000-000000000101'
+  ),
+  'VISIT_PROOF_MISMATCH',
+  'proof ownership mismatch is rejected'
+);
+
+select is(
+  private.visit_proof_failure_reason(
+    '90000000-0000-4000-8000-000000000999',
+    '90000000-0000-4000-8000-000000000001',
+    '90000000-0000-4000-8000-000000000101'
+  ),
+  'MISSING_VISIT_PROOF',
+  'a missing proof is rejected'
+);
+
+select is(
+  private.consume_visit_proof(
+    '90000000-0000-4000-8000-000000000202',
+    '90000000-0000-4000-8000-000000000001',
+    '90000000-0000-4000-8000-000000000101',
+    now()
+  ),
+  'CONSUMED',
+  'a valid proof is consumed atomically'
+);
+
+select ok(
+  (
+    select used_at is not null
+    from public.visit_proofs
+    where id = '90000000-0000-4000-8000-000000000202'
+  ),
+  'successful consumption stores only the derived used timestamp'
+);
+
+select is(
+  private.consume_visit_proof(
+    '90000000-0000-4000-8000-000000000202',
+    '90000000-0000-4000-8000-000000000001',
+    '90000000-0000-4000-8000-000000000101',
+    now()
+  ),
+  'DUPLICATE_PROOF',
+  'the same proof cannot be consumed twice'
+);
+
+select is(
+  (
+    select used_at
+    from public.visit_proofs
+    where id = '90000000-0000-4000-8000-000000000205'
+  ),
+  null::timestamptz,
+  'a mismatched validation attempt does not mutate the proof'
+);
+
+select is(
+  (
+    select count(*)::integer
+    from information_schema.columns
+    where table_schema in ('public', 'private')
+      and table_name in ('visit_proofs', 'reaction_engine_configs')
+      and column_name in (
+        'latitude',
+        'longitude',
+        'accuracy',
+        'raw_location',
+        'gps_payload'
+      )
+  ),
+  0,
+  'visit validation stores no raw user location fields'
+);
+
+select ok(
+  not has_function_privilege(
+    'authenticated',
+    'private.consume_visit_proof(uuid,uuid,uuid,timestamp with time zone)',
+    'execute'
+  ),
+  'authenticated clients cannot consume proofs directly'
+);
+
+select ok(
+  has_function_privilege(
+    'service_role',
+    'private.consume_visit_proof(uuid,uuid,uuid,timestamp with time zone)',
+    'execute'
+  ),
+  'service role can use proof consumption from a controlled server operation'
 );
 
 select * from finish();

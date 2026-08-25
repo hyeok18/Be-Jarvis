@@ -34,7 +34,7 @@
 | 3 | WU-20 | P0 | 별점 폐지·반응·방문·크리에이터 계약 재설계 | 공통 | WU-02 | AC-01~22 기반 | 완료 | 새 계약·16개 테스트·빌드·390/1440px 검증 통과 |
 | 4 | WU-03 | P0 | Supabase 반응·방문·크리에이터 schema와 RLS | B1 | WU-20 | AC-06~13, AC-26 | 완료 | 원격 migration·9개 RLS·36개 DB 테스트·advisor·DB 타입 |
 | 5 | WU-04 | P0 | 식당·반응·크리에이터 합성 seed | B1+B2 | WU-03 | AC-03~04, AC-15~19 | 완료 | 원격 seed 2회·fixture 검증 22/22·익명 공개 경계 통과 |
-| 6 | WU-05 | P0 | counted-only 집계·방문 검증·moderation 엔진 | B1 | WU-03 | AC-03~14 | **진행 중** | checkpoint 1: counted-only 원자 집계 구현·검증 |
+| 6 | WU-05 | P0 | counted-only 집계·방문 검증·moderation 엔진 | B1 | WU-03 | AC-03~14 | **진행 중** | checkpoint 2: 위치·proof 만료·재사용 판정 구현·검증 |
 | 7 | WU-06 | P0 | 공개 지도 셸과 mock 반응·매칭 UI | A1 | WU-20 | AC-01~05, AC-20~22 | 대기 | 세 반응·매칭·금지 필드 없는 mock UI |
 | 8 | WU-07 | P0 | Kakao 지도·필터·크리에이터 레이어·fallback | A2 | WU-06 | AC-15, AC-23~25 | 대기 | 카드·마커·레이어 동기화와 지도 실패 대체 |
 | 9 | WU-08 | P0 | 식당 상세·한 탭 반응·개별 영상 근거 UI | A1 | WU-06 | AC-01~05, AC-15, AC-17~18 | 대기 | 상세 반응·체크인 상태·YouTube 출처 표시 |
