@@ -39,7 +39,7 @@
 | 8 | WU-07 | P0 | Kakao 지도·필터·크리에이터 레이어·fallback | A2 | WU-06 | AC-15, AC-23~25 | 완료 | props 계약 합의, 지도·출처·fallback·390/1440·Tab/Enter·품질 게이트 통과 |
 | 9 | WU-08 | P0 | 식당 상세·한 탭 반응·개별 영상 근거 UI | A3 (A1 인계) | WU-06 | AC-01~05, AC-15, AC-17~18 | 완료 | 3개 SSG 상세·한 탭 로컬 반응·공개 제외 안내·confirmed 영상·WU-08 7개 포함 전체 68개 테스트·390/1440px·실제 404·빌드 통과 |
 | 10 | WU-09 | P0 | 일반 사용자 Auth·반응 생성·변경 | B1 | WU-03, WU-08 | AC-05~07, AC-09~10 | 완료 | DB 34/34·Auth/API·UI 연결·75개 테스트·390/1440px·Turbopack 빌드 통과 |
-| 11 | WU-10 | P0 | 위치 체크인 방문 증명 | B1 | WU-03, WU-09 | AC-07~08, AC-13 | 다음 | 거리·정확도·24시간·원본 좌표 비저장 |
+| 11 | WU-10 | P0 | 위치 체크인 방문 증명 | B1 | WU-03, WU-09 | AC-07~08, AC-13 | 진행 중 | proof 발급·소비 migration과 API 구현 중 |
 | 12 | WU-11 | P0 | rate limit·위험 신호·보류 큐 | B1+B2 | WU-05, WU-10 | AC-11~14 | 대기 | held/rejected와 마지막 정상 projection |
 | 13 | WU-12 | P0 | YouTube Data API 증분 동기화·stale 처리 | B2 | WU-03, WU-04 | AC-15~19 | 완료 | 공식 API 5개 채널·영상 500개 실제 저장, live sync·42개 전체 테스트·공개 접근 차단·빌드 통과 |
 | 14 | WU-13 | P0 | 크리에이터 후보 확인·sync log 관리자 UI | B2 | WU-08, WU-12 | AC-15, AC-19 | 대기 | candidate→confirmed/rejected 공개 경계 |
@@ -152,7 +152,7 @@ WU-20은 기존 ID 사이에 새 번호를 끼우지 않는 운영 규칙에 따
 
 ## 7. 현재 재개 지점
 
-현재 다음 대상은 **WU-10 — 위치 체크인 방문 증명**이다.
+현재 진행 중인 대상은 **WU-10 — 위치 체크인 방문 증명**이다.
 
 WU-09 완료 브랜치는 `codex/wu-09-auth-ui-integration`에 안전하게 push했다. 겹침 경고가 있던 `origin/codex/mobile-map-prototype`은 열린 PR이 없고 최종 WU-08 이전의 단일 prototype인 점과 사용자의 재개 지시를 근거로 비활성 이력 브랜치로 판정했으며, force push나 해당 branch 변경은 하지 않았다.
 
