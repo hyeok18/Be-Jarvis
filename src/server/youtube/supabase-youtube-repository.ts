@@ -22,7 +22,12 @@ type RepositoryOptions = {
 
 export class YouTubeRepositoryError extends Error {
   constructor(
-    readonly kind: "configuration" | "timeout" | "unavailable" | "invalid_response",
+    readonly kind:
+      | "already_running"
+      | "configuration"
+      | "timeout"
+      | "unavailable"
+      | "invalid_response",
     readonly httpStatus: number | null = null,
   ) {
     super(kind);
@@ -223,21 +228,23 @@ export function createSupabaseYouTubeRepository(
 
   return {
     async startRun(triggerKind: SyncTriggerKind, startedAt: string) {
-      const rows = await requestRows(
-        "youtube_sync_runs",
+      const response = await request(
+        "rpc/acquire_youtube_sync_run",
         {
           method: "POST",
-          headers: { Prefer: "return=representation" },
           body: JSON.stringify({
-            status: "running",
-            trigger_kind: triggerKind,
-            started_at: startedAt,
+            p_trigger_kind: triggerKind,
+            p_started_at: startedAt,
           }),
         },
-        { select: "id" },
       );
-      const id = isRecord(rows[0]) ? readString(rows[0].id) : null;
+      const value: unknown = await readJson(response);
 
+      if (value === null) {
+        throw new YouTubeRepositoryError("already_running", 409);
+      }
+
+      const id = readString(value);
       if (!id) throw new YouTubeRepositoryError("invalid_response");
       return { id };
     },

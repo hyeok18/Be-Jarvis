@@ -22,7 +22,7 @@ export function createConfiguredYouTubeSyncService(
 
 /**
  * Shared server entry point for the WU-13 admin action and WU-14 Cron route.
- * Authentication and concurrent-run locking belong to those later work units.
+ * Each caller owns authentication. The repository acquires the shared DB lock.
  */
 export async function runYouTubeSync(
   triggerKind: SyncTriggerKind,

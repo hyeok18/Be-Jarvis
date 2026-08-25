@@ -8,6 +8,42 @@ const environment = {
 };
 
 describe("Supabase YouTube repository", () => {
+  it("acquires a sync run through the atomic database function", async () => {
+    const fetchImplementation = vi.fn(
+      async (_input: string | URL | Request, _init?: RequestInit) => {
+        void _input;
+        void _init;
+        return Response.json("run-row-1", { status: 200 });
+      },
+    );
+    const repository = createSupabaseYouTubeRepository(environment, {
+      fetch: fetchImplementation,
+    });
+
+    await expect(
+      repository.startRun("cron", "2026-08-25T08:00:00.000Z"),
+    ).resolves.toEqual({ id: "run-row-1" });
+
+    const [url, init] = fetchImplementation.mock.calls[0];
+    expect(new URL(String(url)).pathname).toBe(
+      "/rest/v1/rpc/acquire_youtube_sync_run",
+    );
+    expect(JSON.parse(String(init?.body))).toEqual({
+      p_trigger_kind: "cron",
+      p_started_at: "2026-08-25T08:00:00.000Z",
+    });
+  });
+
+  it("reports an occupied sync slot without exposing the database response", async () => {
+    const repository = createSupabaseYouTubeRepository(environment, {
+      fetch: async () => Response.json(null, { status: 200 }),
+    });
+
+    await expect(
+      repository.startRun("cron", "2026-08-25T08:00:00.000Z"),
+    ).rejects.toMatchObject({ kind: "already_running", httpStatus: 409 });
+  });
+
   it("uses only the server secret and upserts hidden subscriber data safely", async () => {
     const fetchImplementation = vi.fn(
       async (_input: string | URL | Request, _init?: RequestInit) => {
