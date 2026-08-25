@@ -44,7 +44,7 @@
 | 13 | WU-12 | P0 | YouTube Data API 증분 동기화·stale 처리 | B2 | WU-03, WU-04 | AC-15~19 | 완료 | 공식 API 5개 채널·영상 500개 실제 저장, live sync·42개 전체 테스트·공개 접근 차단·빌드 통과 |
 | 14 | WU-13 | P0 | 크리에이터 후보 확인·sync log 관리자 UI | B2 | WU-08, WU-12 | AC-15, AC-19 | 완료 | 관리자 실제 로그인·후보 6건·채널 5개·sync log 조회, 합성 후보 1건 확정 후 candidate 0 재검증 |
 | 15 | WU-14 | P0 | YouTube Cron·인증·동시 실행 방지 | B2 | WU-12 | AC-14, AC-18 | 완료 | `0 18 * * *`, secret 5경로, 실제 DB lock·15분 만료 복구·공개 차단, 전체 55개 테스트·빌드 |
-| 16 | WU-15 | P0 | 30곳 실제 수직 통합 | 공통 | WU-07, WU-11, WU-13 | AC-01~24 | 대기 | DB→집계·매칭·지도·영상 근거 연결 |
+| 16 | WU-15 | P0 | 30곳 실제 수직 통합 | 공통 | WU-07, WU-11, WU-13 | AC-01~24 | **진행 중** | 공개 DTO/API·실제 DB 경계 검증 완료, A의 지도·목록·상세 연결과 통합 회귀 대기 |
 | 17 | WU-16 | P0 | 발표 스냅샷·백업 모드 | B2+A1 | WU-15 | AC-14, AC-28 | 대기 | 기준·변경 스냅샷 30초 전환과 원본 불변 |
 | 18 | WU-17 | P0 | 오류·반응형·접근성·보안 | A2+공통 | WU-15, WU-16 | AC-24~26 | **막힘** | 사전 UI·fallback·정적 보안 회귀 완료; WU-15·WU-16과 대상 Supabase 연결 대기 |
 | 19 | WU-18 | P0 | Vercel Preview·Production 배포 | 공통 | WU-14, WU-17 | AC-27 | 대기 | 환경 분리, 같은 artifact, smoke, rollback |
@@ -152,7 +152,7 @@ WU-20은 기존 ID 사이에 새 번호를 끼우지 않는 운영 규칙에 따
 
 ## 7. 현재 재개 지점
 
-현재 다음 대상은 **WU-15 — 30곳 실제 수직 통합**이다.
+현재 진행 중 대상은 **WU-15 — 30곳 실제 수직 통합**이다. 공개 데이터·API와 실제 DB 경계 검증은 완료됐고, A의 지도·목록·상세 연결과 통합 회귀 뒤에만 완료로 전환한다.
 
 WU-11은 `codex/wu-11-abuse-controls`에서 구현했다. 대상 Supabase에 rate limit·held migration 2개를 적용했고, 원 IP·fingerprint 비저장, account/network 제한, 위험 신호 held 격리, 마지막 정상 summary 보존을 rollback pgTAP 18/18과 앱 품질 게이트로 검증했다.
 
