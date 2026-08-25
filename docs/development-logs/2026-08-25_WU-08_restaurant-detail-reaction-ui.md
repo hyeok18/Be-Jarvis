@@ -125,3 +125,11 @@
 - 해결 또는 시도: GitHub의 유일한 열린 PR `#3 codex/wu-09-backend-prep`과 변경 파일을 비교했고 겹침이 없음을 확인했다. 원격 main 겹침은 앞선 merge로 해소됐다.
 - 검증 결과: worktree clean, main 최신 통합, active PR 파일 overlap 0개, force push 미사용 조건 확인.
 - 현재 재개 지점: 최종 fetch 후 `codex/wu-08-detail-reaction-ui` 새 원격 브랜치만 일반 push한다.
+
+### 2026-08-25 — WU-06·WU-08 main 병합 요청
+
+- 추가 구현: 없음. 사용자의 통합 병합 요청에 따라 새 `origin/main`의 WU-09 PR #3 병합 기록을 WU-08 브랜치에 다시 반영했다.
+- 새 문제 또는 막힘: 기존 main worktree가 원격보다 13개 commit 뒤였지만 미커밋 변경은 없었다.
+- 해결 또는 시도: 원격을 기준으로 feature branch를 먼저 최신화하고, 열린 PR 0개와 관련 worktree 3개의 clean 상태를 확인했다.
+- 검증 결과: 최신 main 통합 후 68개 테스트 통과·외부 통합 2개 미실행, lint·typecheck·webpack production build 통과.
+- 현재 재개 지점: push 안전 검사 후 feature branch를 갱신하고, main을 fast-forward 가능한 상태로만 병합·push한다.
