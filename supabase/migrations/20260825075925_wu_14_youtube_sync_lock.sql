@@ -9,7 +9,7 @@ create or replace function public.acquire_youtube_sync_run(
 )
 returns uuid
 language plpgsql
-security definer
+security invoker
 set search_path = ''
 as $$
 declare
