@@ -12,6 +12,8 @@
 | WU-04 | 식당·반응·크리에이터 합성 seed | B1+B2 | 완료 | 2026-08-25 | [기록](./2026-08-25_WU-04_synthetic-seed.md) | WU-05 counted-only 집계·방문 검증·moderation 엔진 |
 | WU-05 | counted-only 집계·방문 검증·moderation 엔진 | B1 | 완료 | 2026-08-25 | [기록](./2026-08-25_WU-05_reaction-engine.md) | WU-06 공개 지도 셸과 mock 반응·매칭 UI |
 | WU-06 | 공개 지도 셸과 mock 반응·매칭 UI | A1 | 다음 | - | - | WU-05 일지의 공개 summary 계약을 읽고 mock UI 시작 |
+| WU-07 | Kakao 지도·필터·크리에이터 레이어·fallback | A2 | 완료 | 2026-08-25 | [기록](./2026-08-25_WU-07_kakao-map.md) | WU-15 실제 데이터 통합 |
+| WU-09 | Auth·반응 생성·변경 백엔드 | B1 | 진행 중 | 2026-08-25 | [기록](./2026-08-25_WU-09_auth-reaction-backend.md) | WU-08 로그인·반응 UI와 `/api/reactions` 연결 |
 
 ## 상태 갱신 규칙
 

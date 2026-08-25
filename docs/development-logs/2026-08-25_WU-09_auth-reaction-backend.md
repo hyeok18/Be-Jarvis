@@ -58,7 +58,7 @@
 | 실패·복구 | 잘못된 kind·사용자·비활성 식당 | 성공 | 행·이벤트·summary 불변 |
 | 기존 데이터 보존 | rollback 후 WU-04 수치 확인 | 성공 | 반응 29개, 최대 counted 12 유지 |
 | Route 단위 테스트 | Vitest `tests/reaction-api.test.ts` | 성공 | 13/13 |
-| 전체 프런트 회귀 | TypeScript, Vitest, ESLint | 성공 | 테스트 29/29, 오류·경고 없음 |
+| 전체 프런트 회귀 | TypeScript, Vitest, ESLint | 성공 | 최신 `origin/main` 병합 후 테스트 30/30, 오류·경고 없음 |
 | 프로덕션 빌드 | `next build --webpack` | 성공 | `/api/reactions` 동적 Route 확인 |
 | 비밀값 경계 | Auth·RPC header 및 오류 응답 테스트 | 성공 | secret은 RPC `apikey`에만 사용, 응답 비노출 |
 
@@ -104,7 +104,8 @@
 ### 2026-08-25 — checkpoint 2
 
 - 추가 구현: 인증된 `POST /api/reactions`, 엄격한 payload 검증, Supabase Auth·RPC 전송 계층, 안전한 오류 응답.
+- 보안 경계: publishable key는 Auth 조회에만, secret key는 서버 RPC `apikey`에만 사용하며 응답은 `private, no-store`로 고정.
 - 새 문제 또는 막힘: A1이 공유 working tree를 `main`으로 전환해 다른 파일들이 staging된 상태였고, 격리 worktree의 junction을 Turbopack이 거부했다.
 - 해결 또는 시도: 별도 worktree로 WU-09 브랜치를 격리하고 SHA-256을 대조했으며, Webpack 프로덕션 빌드로 코드 빌드를 검증했다.
-- 검증 결과: 타입·린트 성공, 전체 Vitest 29/29, Route 테스트 13/13, Next.js 프로덕션 빌드 성공.
+- 검증 결과: 최신 `origin/main` 병합 후 타입·린트 성공, 전체 Vitest 30/30, Route 테스트 13/13, Next.js 프로덕션 빌드 성공.
 - 현재 재개 지점: 원격 migration 적용과 advisor·회귀 검사 후 안전 푸시, 이후 WU-10 선행 구현.
