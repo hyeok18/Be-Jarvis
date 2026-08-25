@@ -40,6 +40,7 @@
 - `src/components/public-data/public-data-unavailable.tsx`
 - `tests/map-explorer-view-model.test.tsx`
 - `docs/development-logs/2026-08-26_WU-16_presentation-snapshot.md`
+- `docs/HANDOFF_WU-15_WU-16_UI_BASELINE.md`
 - `docs/development-logs/INDEX.md`
 - `docs/DEVELOPMENT_PRIORITY.md`
 
@@ -84,6 +85,7 @@
 | `src/components/public-data/public-data-unavailable.tsx` | 명시적 발표 백업 모드 링크 |
 | `tests/map-explorer-view-model.test.tsx` | 백업 링크와 실패 화면 액션 회귀 |
 | `docs/development-logs/2026-08-26_WU-16_presentation-snapshot.md` | 이번 작업 기록 |
+| `docs/HANDOFF_WU-15_WU-16_UI_BASELINE.md` | 다른 팀원·다음 AI가 바로 이어받기 위한 단일 인계 |
 | `docs/development-logs/INDEX.md` | WU-16 재개 지점 추가 |
 | `docs/DEVELOPMENT_PRIORITY.md` | WU-16 상태와 스킵 항목 반영 |
 
@@ -108,3 +110,11 @@
 - 해결 또는 시도: `pnpm install --frozen-lockfile --config.confirmModulesPurge=false`로 로컬 store 기반 의존성을 복구했고, 이후 번들 Node 절대경로로 테스트·typecheck·lint를 실행했다.
 - 검증 결과: 관련 테스트 18개, typecheck, lint 통과. build와 브라우저 수동 검증은 시간 절약을 위해 미실행.
 - 현재 재개 지점: WU-16은 진행 중이다. 세부 스냅샷 전환과 브라우저·build 검증은 나중 구현 단계에서 이어간다.
+
+### 2026-08-26 — 팀 인계 문서 추가
+
+- 추가 구현: `docs/HANDOFF_WU-15_WU-16_UI_BASELINE.md`에 현재 브랜치, 커밋, 실행 URL, 스킵 항목, 보안 블로커, push 충돌, 다음 AI 프롬프트를 정리했다.
+- 새 문제 또는 막힘: 없음.
+- 해결 또는 시도: 사용량이 부족해도 다른 팀원이 문서 하나로 이어갈 수 있도록 INDEX와 WU-16 일지에서 인계 문서를 연결했다.
+- 검증 결과: 문서 변경만 수행했다. 추가 코드 테스트는 미실행.
+- 현재 재개 지점: 다음 팀원은 인계 문서의 `다음 팀원의 추천 진행 순서`부터 따르면 된다.
