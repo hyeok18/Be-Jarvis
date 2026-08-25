@@ -121,3 +121,12 @@
 - push 안전 확인: 커밋 뒤 `git fetch --prune origin`은 성공했다. `check:push-safety`는 `origin/codex/kakao-map-update`와 `origin/main` 사이에 merge-base가 없어 diff 계산 단계에서 실패했다. 이를 건너뛴 수동 대조에서는 미병합 `origin/codex/mobile-map-prototype`과 `src/app/page.tsx`, `src/app/restaurants/[id]/page.tsx`가 겹쳤다. 팀의 활성 여부와 통합 담당이 정해지기 전에는 push·PR을 만들지 않는다.
 - React 검토: 서버 데이터 패칭은 Server Component에 유지했고 새 클라이언트 fetch나 waterfall을 만들지 않았다. 상태는 기존 `MapExplorer`·`ReactionSelector` 경계에만 두었으며, 전역 CSS 대신 scoped CSS Module을 사용해 공용 스타일 충돌을 줄였다.
 - 현재 재개 지점: 먼저 이 UI 기준선 커밋과 포함된 WU-15 선행 커밋 3개의 통합 범위를 리뷰한다. 그 다음 기존 YouTube 키를 폐기하고 새 키·Preview Config를 안전하게 등록해 실제 공개 목록·상세·반응·confirmed 영상 근거를 smoke test한다. 이 조건 전에는 WU-15를 완료로 바꾸지 않는다.
+
+### 2026-08-26 — 다른 작업 기록 대조와 push 안전 재확인
+
+- 추가 확인: Codex 작업 `GitHub 연동 후 pull`과 `main 브랜치에 파일 반영` 기록을 읽어, 과거 메인 작업이 WU-03·04·05·07·09를 원격 `main`에 통합한 과정임을 확인했다. 현재 `codex/ui-baseline`은 그 뒤의 `origin/main` `5ea3edc`를 조상으로 두고 WU-15 공개 데이터/API·보안 중단 기록·UI 기준선 커밋을 포함한다.
+- push 안전 확인: `git fetch --prune origin`은 프로세스 한정 `safe.directory` 설정으로 성공했다. `pnpm run check:push-safety`는 격리 worktree의 `node_modules` purge 확인이 non-TTY에서 중단되어 스크립트 본문까지 가지 못했다. 같은 스크립트를 Node로 직접 실행한 결과, sandbox에서는 네트워크 제한으로 실패했고 네트워크 권한과 프로세스 한정 `safe.directory`를 적용한 실행에서는 `origin/codex/kakao-map-update`와 `origin/main` 사이에 merge-base가 없어 실패했다.
+- 수동 대조: `git branch -r --no-merged origin/main` 기준 미병합 원격은 `origin/codex/kakao-map-update`, `origin/codex/mobile-map-prototype` 두 개다. `origin/codex/kakao-map-update`는 공통 이력이 없어 비교·merge 대상이 아니며, `origin/codex/mobile-map-prototype`는 `src/app/page.tsx`, `src/app/restaurants/[id]/page.tsx`가 `codex/ui-baseline`과 겹친다.
+- 변경 파일: 이 개발일지와 `docs/development-logs/INDEX.md`만 갱신한다. 코드, API, migration, package, lockfile, 비밀값은 수정하지 않았다.
+- 남은 위험과 미해결 항목: 팀에서 `codex/mobile-map-prototype`와 `codex/kakao-map-update`의 활성 여부 또는 통합 담당을 확정하기 전에는 `codex/ui-baseline`을 push·PR로 올리지 않는다. 기존에 노출 가능성이 생긴 YouTube 키도 폐기·재발급 전까지 Preview smoke와 YouTube sync를 재개하지 않는다.
+- 다음 작업에서는 어떻게 해야 하는가: 먼저 팀에 `codex/mobile-map-prototype`의 홈/상세 변경을 폐기할지, UI 기준선에 흡수할지, 별도 통합 담당이 처리할지 결정하도록 공유한다. 동시에 사용자가 Google Cloud Console에서 기존 YouTube 키를 폐기하고 새 서버 전용 키를 준비하면 Preview Config 등록과 실제 30곳 smoke test를 재개한다.
