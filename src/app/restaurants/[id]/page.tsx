@@ -12,6 +12,8 @@ interface RestaurantDetailPageProps {
   params: Promise<{ id: string }>;
 }
 
+export const dynamicParams = false;
+
 export function generateStaticParams() {
   return DOMAIN_FIXTURE.restaurants.map((restaurant) => ({ id: restaurant.id }));
 }
@@ -85,4 +87,3 @@ export default async function RestaurantDetailPage({
     </main>
   );
 }
-
