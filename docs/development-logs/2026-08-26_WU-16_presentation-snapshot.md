@@ -14,9 +14,9 @@
 ## 1. 이번 작업의 목표
 
 - 해결하려는 문제: 새 YouTube 키·Preview smoke·push 충돌 조정이 시간상 지연되어도 발표 중 화면 흐름을 완전히 잃지 않게 한다.
-- 세션 범위: 실제 공개 데이터 연결을 조용히 mock으로 대체하지 않고, 명시적 `?snapshot=1` 발표 백업 모드를 제공한다.
-- 완료 조건: 홈과 상세에서 합성 스냅샷을 명시적으로 열 수 있고, 실제 데이터 실패 화면에서 백업 모드로 이동할 수 있다.
-- 범위 밖 항목: 30초 자동 전환, 실제 30곳 Preview smoke, YouTube 키 재발급·등록, PR push 충돌 조정, Production 검증.
+- 세션 범위: 실제 공개 데이터 연결을 조용히 mock으로 대체하지 않고, 명시적 `?snapshot=1` 발표 백업 모드와 `?snapshot=1&cycle=1` 30초 발표 순환 모드를 제공한다.
+- 완료 조건: 홈과 상세에서 합성 스냅샷을 명시적으로 열 수 있고, 실제 데이터 실패 화면에서 백업 모드로 이동할 수 있으며, 발표 순환 URL이 30초 단위로 홈·상세를 오갈 수 있다.
+- 범위 밖 항목: 실제 30곳 Preview smoke, YouTube 키 재발급·등록, PR push 충돌 조정, Production 검증.
 
 ## 2. 무엇을 만들었는가
 
@@ -26,6 +26,7 @@
   - 실제 공개 데이터 연결 실패 화면에 `발표 백업 모드로 보기` 링크를 추가했다.
   - 지도 목록과 선택 시트의 상세 링크가 백업 모드에서는 `?snapshot=1`을 유지한다.
   - 화면 상단에 `발표 백업 모드` 안내를 표시해 실제 DB·YouTube 성공 경로와 혼동하지 않게 했다.
+  - `?snapshot=1&cycle=1`에서는 홈과 대표 상세 화면을 30초 단위로 자동 전환하는 발표 순환 안내와 진행 바를 표시한다.
 - 사용자 또는 시스템 동작 변화:
   - 평소에는 기존처럼 Supabase 공개 DTO를 먼저 사용한다.
   - 백업 모드는 사용자가 URL 또는 실패 화면의 링크로 명시적으로 진입할 때만 사용한다.
@@ -35,6 +36,7 @@
 - `src/app/page.tsx`
 - `src/app/restaurants/[id]/page.tsx`
 - `src/app/globals.css`
+- `src/components/presentation/presentation-snapshot-cycle.tsx`
 - `src/components/map/map-explorer.tsx`
 - `src/components/map/selected-restaurant-sheet.tsx`
 - `src/components/public-data/public-data-unavailable.tsx`
@@ -60,16 +62,17 @@
 
 | 검증 항목 | 실행 방법·명령 | 결과 | 증거 또는 비고 |
 |---|---|---|---|
-| 관련 단위 테스트 | `node node_modules/vitest/vitest.mjs run tests/map-explorer-view-model.test.tsx tests/restaurant-detail.test.tsx` | 성공 | 2개 파일, 18개 테스트 통과 |
+| 관련 단위 테스트 | `node node_modules/vitest/vitest.mjs run tests/map-explorer-view-model.test.tsx tests/restaurant-detail.test.tsx` | 성공 | 2개 파일, 19개 테스트 통과 |
+| 전체 테스트 | `node node_modules/vitest/vitest.mjs run` | 성공 | 26개 파일 통과, 2개 파일 skipped. 146개 테스트 통과, 2개 skipped |
 | 정적 검사 | `node node_modules/typescript/bin/tsc --noEmit` | 성공 | 오류 0 |
 | lint | `node node_modules/eslint/bin/eslint.js .` | 성공 | 오류 0 |
 | 빌드 | `node node_modules/next/dist/bin/next build --webpack` | 성공 | Next.js 16.3.2 Webpack production build 성공 |
 | 수동 AC 검증 | 브라우저 390px·1440px | 미실행 | 시각적 브라우저 검증은 아직 미실행 |
-| 실패·복구 경로 | Webpack dev 서버 HTTP 확인 | 부분 성공 | `/?snapshot=1`, `/restaurants/restaurant-balanced-bowl?snapshot=1` 모두 200, `발표 백업 모드` 문구 포함 |
+| 실패·복구 경로 | Webpack dev 서버 HTTP 확인 | 성공 | `/?snapshot=1`, `/restaurants/restaurant-balanced-bowl?snapshot=1`, `/?snapshot=1&cycle=1`, `/restaurants/restaurant-balanced-bowl?snapshot=1&cycle=1` 모두 200, `발표 백업 모드`와 `30초 발표 전환` 문구 포함 |
 
 - 통과한 AC: AC-14 일부, AC-28 일부.
 - 실패한 AC: 없음.
-- 미실행 테스트와 이유: 브라우저 390px/1440px 수동 검증과 전체 test는 사용자의 시간 단축 요청에 따라 스킵했다.
+- 미실행 테스트와 이유: 브라우저 390px/1440px 수동 검증은 현재 자동 판정 도구가 없어 미실행이다. 전체 test는 뒤이어 실행해 통과했다.
 - 테스트 데이터 안전 확인: 합성 fixture만 사용했다.
 - 비밀값 노출 확인: 없음.
 
@@ -79,7 +82,8 @@
 |---|---|
 | `src/app/page.tsx` | `?snapshot=1` 홈 백업 모드와 실패 화면 백업 링크 |
 | `src/app/restaurants/[id]/page.tsx` | `?snapshot=1` 상세 백업 모드와 뒤로가기 유지 |
-| `src/app/globals.css` | 백업 안내와 실패 화면 보조 액션 스타일 |
+| `src/app/globals.css` | 백업 안내, 실패 화면 보조 액션, 30초 발표 순환 스타일 |
+| `src/components/presentation/presentation-snapshot-cycle.tsx` | 발표 순환 타이머와 다음 화면 이동 링크 |
 | `src/components/map/map-explorer.tsx` | 상세 링크에 백업 모드 suffix 전달 |
 | `src/components/map/selected-restaurant-sheet.tsx` | 선택 시트 상세 링크에 백업 모드 suffix 전달 |
 | `src/components/public-data/public-data-unavailable.tsx` | 명시적 발표 백업 모드 링크 |
@@ -91,14 +95,14 @@
 
 ## 7. 남은 위험과 미해결 항목
 
-- 남은 위험: 전체 build와 브라우저 수동 검증은 아직 실행하지 않았다.
-- 후속 작업 후보: 30초 기준·변경 스냅샷 전환, 발표 체크리스트 3회 리허설, 실제 30곳 Preview smoke.
+- 남은 위험: 브라우저 390px/1440px 수동 검증과 3회 발표 리허설은 아직 실행하지 않았다.
+- 후속 작업 후보: 실제 30곳 Preview smoke, 발표 체크리스트 3회 리허설, YouTube 키 교체 후 실제 데이터 경로 검증.
 - 사용자 또는 외부 입력이 필요한 사항: 기존 YouTube 키 폐기와 새 서버 전용 키 준비, `codex/mobile-map-prototype` 충돌 처리 담당 확정.
 
 ## 8. 다음 작업에서는 어떻게 해야 하는가
 
-1. 시간이 허락되면 `pnpm run build` 또는 Node 절대경로 기반 `next build --webpack`을 실행한다.
-2. `/?snapshot=1`과 `/restaurants/restaurant-balanced-bowl?snapshot=1`을 390px·1440px에서 확인한다.
+1. `/?snapshot=1&cycle=1`과 `/restaurants/restaurant-balanced-bowl?snapshot=1&cycle=1`을 390px·1440px에서 확인한다.
+2. 발표 흐름을 최소 3회 리허설한다.
 3. 실제 Preview로 돌아가기 전에는 기존 YouTube 키를 폐기하고 새 키·Preview Config를 등록한다.
 
 ## 9. 세션 업데이트
@@ -126,3 +130,11 @@
 - 해결 또는 시도: Webpack build와 Webpack dev 서버로 검증했다.
 - 검증 결과: `node node_modules/next/dist/bin/next build --webpack` 성공. Webpack dev 서버에서 `/?snapshot=1`, `/restaurants/restaurant-balanced-bowl?snapshot=1`이 모두 HTTP 200을 반환하고 `발표 백업 모드` 문구를 포함했다.
 - 현재 재개 지점: 남은 최소 검증은 390px/1440px 시각 확인이다. Preview smoke와 YouTube 키 교체는 계속 세부 구현 단계로 이월한다.
+
+### 2026-08-26 — 30초 발표 순환과 전체 test
+
+- 추가 구현: `src/components/presentation/presentation-snapshot-cycle.tsx`를 추가하고 `?snapshot=1&cycle=1`에서 홈과 대표 상세 화면이 30초 단위로 이동하도록 했다.
+- 새 문제 또는 막힘: 실제 화면폭 390px/1440px 시각 판정은 현재 세션의 브라우저 도구로 자동 검증하지 못했다.
+- 해결 또는 시도: Webpack dev 서버에서 순환 URL 두 개를 HTTP로 확인했고, Codex 패널에 `/?snapshot=1&cycle=1` preview를 열어 사람이 바로 확인할 수 있게 했다.
+- 검증 결과: 전체 Vitest 146 passed, 2 skipped. `/?snapshot=1&cycle=1`, `/restaurants/restaurant-balanced-bowl?snapshot=1&cycle=1` 모두 HTTP 200이며 `30초 발표 전환`, `발표 백업 모드` 문구를 포함했다.
+- 현재 재개 지점: 브라우저 390px/1440px 눈검수와 3회 발표 리허설만 남았다. Preview smoke와 YouTube 키 교체는 계속 세부 구현 단계로 이월한다.

@@ -823,6 +823,55 @@ h3 {
   font-size: 0.84rem;
 }
 
+.presentation-cycle {
+  display: grid;
+  gap: 0.6rem;
+  margin-bottom: 1rem;
+  padding: 0.85rem 0.95rem;
+  border: 1px solid #bed8d1;
+  border-radius: 0.9rem;
+  color: #24443a;
+  background: #f1faf8;
+}
+
+.presentation-cycle > div:first-child {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.6rem;
+}
+
+.presentation-cycle strong {
+  color: var(--accent-strong);
+}
+
+.presentation-cycle span,
+.presentation-cycle a {
+  font-size: 0.84rem;
+}
+
+.presentation-cycle a {
+  width: fit-content;
+  color: var(--accent-strong);
+  font-weight: 800;
+}
+
+.presentation-cycle-track {
+  height: 0.45rem;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #d9e8e4;
+}
+
+.presentation-cycle-track span {
+  display: block;
+  width: var(--cycle-progress);
+  height: 100%;
+  border-radius: inherit;
+  background: var(--accent);
+}
+
 .restaurant-detail-page {
   width: min(68rem, calc(100% - 2rem));
 }

@@ -125,6 +125,22 @@ describe("selected restaurant UI boundary", () => {
 
     expect(markup).toContain(`/restaurants/${restaurant.id}?snapshot=1`);
   });
+
+  it("can preserve explicit 30-second cycle mode on detail links", () => {
+    const data = getFixtureMapExplorerData();
+    const restaurant = data.restaurants[0];
+
+    const markup = renderToStaticMarkup(
+      createElement(SelectedRestaurantSheet, {
+        restaurant,
+        creatorSources: [],
+        detailHrefSuffix: "?snapshot=1&cycle=1",
+        onClose: () => undefined,
+      }),
+    );
+
+    expect(markup).toContain(`/restaurants/${restaurant.id}?snapshot=1&amp;cycle=1`);
+  });
 });
 
 describe("presentation backup state", () => {

@@ -1,5 +1,6 @@
 import { MapExplorer } from "@/components/map/map-explorer";
 import { getFixtureMapExplorerData } from "@/components/map/map-explorer-fixture";
+import { PresentationSnapshotCycle } from "@/components/presentation/presentation-snapshot-cycle";
 import { PublicDataUnavailable } from "@/components/public-data/public-data-unavailable";
 import { toMapExplorerData } from "@/components/public-data/public-restaurant-ui-adapter";
 import { createConfiguredPublicRestaurantDependencies } from "@/server/restaurants/configured-public-restaurants";
@@ -24,12 +25,14 @@ const foundationItems = [
 export const dynamic = "force-dynamic";
 
 interface HomeProps {
-  searchParams: Promise<{ snapshot?: string }>;
+  searchParams: Promise<{ cycle?: string; snapshot?: string }>;
 }
 
 export default async function Home({ searchParams }: HomeProps) {
-  const { snapshot } = await searchParams;
+  const { cycle, snapshot } = await searchParams;
   const snapshotMode = snapshot === "1";
+  const cycleMode = snapshotMode && cycle === "1";
+  const detailHrefSuffix = cycleMode ? "?snapshot=1&cycle=1" : snapshotMode ? "?snapshot=1" : "";
   let data;
 
   if (snapshotMode) {
@@ -67,6 +70,12 @@ export default async function Home({ searchParams }: HomeProps) {
             </span>
           </div>
         ) : null}
+        {cycleMode ? (
+          <PresentationSnapshotCycle
+            nextHref="/restaurants/restaurant-balanced-bowl?snapshot=1&cycle=1"
+            nextLabel="상세"
+          />
+        ) : null}
         <div className={styles.heroCopy}>
           <p className="eyebrow">별점 없는 맛집 탐색</p>
           <h1 id="page-title">누가 다녀왔고, 내 취향에는 맞을까요?</h1>
@@ -91,7 +100,7 @@ export default async function Home({ searchParams }: HomeProps) {
 
       <MapExplorer
         {...data}
-        detailHrefSuffix={snapshotMode ? "?snapshot=1" : ""}
+        detailHrefSuffix={detailHrefSuffix}
       />
 
       <section className={styles.foundation} aria-labelledby="foundation-title">

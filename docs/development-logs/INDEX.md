@@ -21,7 +21,7 @@
 | WU-13 | 크리에이터 후보 확인·sync log 관리자 UI | B2 | 완료 | 2026-08-25 | [기록](./2026-08-25_WU-13_creator-admin.md) | WU-11 완료 후 WU-15 실제 데이터 통합 지원 |
 | WU-14 | YouTube Cron·인증·동시 실행 방지 | B2 | 완료 | 2026-08-25 | [기록](./2026-08-25_WU-14_youtube-cron-safety.md) | WU-15 실제 데이터 통합에서 운영 동기화 경로 연결 |
 | WU-15 | 30곳 실제 수직 통합 | 공통 | 막힘 | 2026-08-26 | [최신 기록](./2026-08-26_WU-15_public-data-api.md) | `codex/ui-baseline`은 구현·검증 완료. push 전 `codex/mobile-map-prototype` 홈·상세 충돌과 `codex/kakao-map-update` 무공통 이력 처리 담당 확정, 기존 YouTube 키 폐기·신규 키 교체 후 Preview smoke 재개 |
-| WU-16 | 발표 스냅샷·백업 모드 | B2+A1 | 진행 중 | 2026-08-26 | [기록](./2026-08-26_WU-16_presentation-snapshot.md), [인계](../HANDOFF_WU-15_WU-16_UI_BASELINE.md) | `?snapshot=1` 최소 발표 백업과 Webpack build·HTTP 200 확인 완료. 30초 전환·390/1440px 시각 검증은 나중 세부 구현에서 재개 |
+| WU-16 | 발표 스냅샷·백업 모드 | B2+A1 | 진행 중 | 2026-08-26 | [기록](./2026-08-26_WU-16_presentation-snapshot.md), [인계](../HANDOFF_WU-15_WU-16_UI_BASELINE.md) | `?snapshot=1` 백업과 `?snapshot=1&cycle=1` 30초 순환 구현. 전체 test·typecheck·lint·Webpack build·HTTP 200 확인 완료. 390/1440px 눈검수와 3회 리허설은 재개 지점 |
 | WU-17 | 오류·반응형·접근성·보안 | A2+공통 | 막힘 | 2026-08-25 | [기록](./2026-08-25_WU-17_quality-security.md) | WU-15·WU-16 완료와 대상 Supabase 연결 후 통합 회귀 재개 |
 
 ## 상태 갱신 규칙

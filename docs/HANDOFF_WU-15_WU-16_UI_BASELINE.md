@@ -7,8 +7,10 @@
 - 작업 폴더: `C:\Users\user\Desktop\ai 3일차\Be-Jarvis-ui-baseline`
 - 브랜치: `codex/ui-baseline`
 - 최신 로컬 커밋은 `git log -1 --oneline`으로 확인한다.
-- 이 문서 기준 최근 커밋: `1a96f2a docs: add WU-15 WU-16 handoff`
+- 이 문서에 기록된 커밋 목록은 인계 시점의 참고용이다. 최신 로컬 커밋은 항상 `git log -1 --oneline`으로 확인한다.
 - 직전 커밋:
+  - `8643668 docs: record snapshot build verification`
+  - `1a96f2a docs: add WU-15 WU-16 handoff`
   - `ca0b589 feat: add presentation snapshot mode`
   - `7304340 docs: record UI baseline push blockers`
   - `26e06b7 feat: establish UI baseline for WU-15 integration`
@@ -26,13 +28,14 @@
 - 실제 Preview smoke test
 - Production 배포
 - `codex/mobile-map-prototype` 충돌 조정 후 PR 생성
-- 30초 자동 스냅샷 전환
 - 390px/1440px 브라우저 수동 검증
 
 대신 지금 사용할 수 있는 최소 발표 경로를 만들었다.
 
 - 홈 발표 백업: `/?snapshot=1`
 - 상세 발표 백업 예시: `/restaurants/restaurant-balanced-bowl?snapshot=1`
+- 30초 자동 발표 순환 시작: `/?snapshot=1&cycle=1`
+- 30초 자동 발표 순환 상세 예시: `/restaurants/restaurant-balanced-bowl?snapshot=1&cycle=1`
 
 이 백업 모드는 합성 fixture를 명시적으로 사용하는 발표용 화면이다. 실제 Supabase/YouTube 데이터 실패를 조용히 mock으로 바꾸지 않고, 화면에 `발표 백업 모드` 안내를 표시한다.
 
@@ -52,6 +55,7 @@
 
 - `?snapshot=1` 홈 백업 모드
 - `?snapshot=1` 상세 백업 모드
+- `?snapshot=1&cycle=1` 홈·대표 상세 30초 자동 순환 모드
 - 실제 데이터 실패 화면에서 `발표 백업 모드로 보기` 링크 제공
 - 지도 목록과 선택 시트의 상세 링크가 snapshot query를 유지
 - 관련 테스트 추가
@@ -63,6 +67,7 @@
 - `src/app/restaurants/[id]/page.tsx`
 - `src/app/restaurants/[id]/page.module.css`
 - `src/app/globals.css`
+- `src/components/presentation/presentation-snapshot-cycle.tsx`
 - `src/components/map/map-explorer.tsx`
 - `src/components/map/selected-restaurant-sheet.tsx`
 - `src/components/public-data/public-data-unavailable.tsx`
@@ -94,15 +99,16 @@ git diff --name-only origin/main...HEAD
   - Next.js 16.3.2 Webpack production build 성공
   - 390x844, 1440x900 홈·상세 브라우저 확인 성공
 - 발표 백업 모드 추가 후:
-  - 관련 테스트 2개 파일, 18개 테스트 통과
+  - 관련 테스트 2개 파일, 19개 테스트 통과
+  - 전체 Vitest 146 passed, 2 skipped
   - typecheck 성공
   - lint 성공
   - Next.js 16.3.2 Webpack production build 성공
   - Webpack dev 서버에서 `/?snapshot=1`, `/restaurants/restaurant-balanced-bowl?snapshot=1` HTTP 200 확인
+  - Webpack dev 서버에서 `/?snapshot=1&cycle=1`, `/restaurants/restaurant-balanced-bowl?snapshot=1&cycle=1` HTTP 200 확인
 
 발표 백업 모드 추가 후 아직 미실행:
 
-- 전체 test
 - 390px/1440px 브라우저 수동 검증
 - Preview smoke
 
@@ -169,8 +175,8 @@ push 전 안전검사에서 아래 두 원격 브랜치 때문에 멈춘 상태�
 시간이 없고 발표가 우선이면:
 
 1. `codex/ui-baseline`에서 앱을 실행한다.
-2. `/?snapshot=1`로 홈 흐름을 확인한다.
-3. `/restaurants/restaurant-balanced-bowl?snapshot=1`로 상세 흐름을 확인한다.
+2. 자동 전환이 필요하면 `/?snapshot=1&cycle=1`로 시작한다.
+3. 수동 전환이 필요하면 `/?snapshot=1`과 `/restaurants/restaurant-balanced-bowl?snapshot=1`을 직접 연다.
 4. 발표에서는 이것을 `발표 백업 모드`라고 명확히 말한다.
 5. 실제 데이터·Preview 성공 경로는 세부 구현 때 이어간다.
 
@@ -178,8 +184,8 @@ push 전 안전검사에서 아래 두 원격 브랜치 때문에 멈춘 상태�
 
 1. 기존 YouTube 키 폐기와 새 키 준비를 먼저 끝낸다.
 2. `codex/mobile-map-prototype`와 `codex/kakao-map-update`의 처리 방침을 팀에서 확정한다.
-3. 390px/1440px에서 `/?snapshot=1`과 실제 데이터 화면을 확인한다.
-4. 필요하면 전체 test를 다시 실행한다.
+3. 390px/1440px에서 `/?snapshot=1&cycle=1`과 실제 데이터 화면을 확인한다.
+4. 발표 전에는 최소 3회 리허설한다.
 5. 안전검사 통과 후 feature branch만 push하고 PR을 만든다.
 
 ## 10. 다음 AI에게 줄 프롬프트
@@ -197,13 +203,13 @@ Be-Jarvis의 `codex/ui-baseline` 브랜치에서 이어가 주세요.
 - WU-15 UI 기준선과 WU-16 최소 발표 백업 모드는 구현되어 있습니다.
 - 홈 백업 URL: `/?snapshot=1`
 - 상세 백업 URL 예시: `/restaurants/restaurant-balanced-bowl?snapshot=1`
+- 자동 순환 시작 URL: `/?snapshot=1&cycle=1`
 - 실제 데이터 실패 화면은 자동 mock으로 바꾸지 않고, 명시적 `발표 백업 모드로 보기` 링크만 제공합니다.
 
 스킵하기로 한 것:
 - YouTube 키 폐기·신규 키 등록
 - Vercel Preview smoke
 - Production 배포
-- 30초 자동 스냅샷 전환
 - 390px/1440px 수동 검증
 - push/PR 충돌 조정
 
@@ -216,8 +222,8 @@ Be-Jarvis의 `codex/ui-baseline` 브랜치에서 이어가 주세요.
 - Supabase migration, API, server logic, package.json, pnpm-lock.yaml은 이번 UI/백업 범위에서 건드리지 마세요.
 
 다음 우선순위:
-1. 발표가 급하면 `/?snapshot=1`과 `/restaurants/restaurant-balanced-bowl?snapshot=1`을 실행 가능한 상태로 확인하세요.
-2. 시간이 생기면 390px/1440px 브라우저 검증을 먼저 하세요.
+1. 발표가 급하면 `/?snapshot=1&cycle=1`을 실행해 30초 자동 순환을 확인하세요.
+2. 시간이 생기면 390px/1440px 브라우저 검증과 3회 리허설을 먼저 하세요.
 3. 세부 구현 단계에서는 YouTube 키 폐기·신규 키 등록과 Preview smoke를 재개하세요.
 4. push 전에는 `git fetch --prune origin`과 `pnpm run check:push-safety`를 실행하고, 위 충돌 브랜치 처리 담당이 정해졌는지 확인하세요.
 ```

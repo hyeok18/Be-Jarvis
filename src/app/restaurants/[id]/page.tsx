@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { ReactionDistribution } from "@/components/map/reaction-distribution";
+import { PresentationSnapshotCycle } from "@/components/presentation/presentation-snapshot-cycle";
 import { CreatorEvidenceList } from "@/components/restaurant-detail/creator-evidence-list";
 import { DetailMatchPanel } from "@/components/restaurant-detail/detail-match-panel";
 import { ReactionSelector } from "@/components/restaurant-detail/reaction-selector";
@@ -14,7 +15,7 @@ import styles from "./page.module.css";
 
 interface RestaurantDetailPageProps {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ snapshot?: string }>;
+  searchParams: Promise<{ cycle?: string; snapshot?: string }>;
 }
 
 export const dynamic = "force-dynamic";
@@ -24,8 +25,9 @@ export default async function RestaurantDetailPage({
   searchParams,
 }: RestaurantDetailPageProps) {
   const { id } = await params;
-  const { snapshot } = await searchParams;
+  const { cycle, snapshot } = await searchParams;
   const snapshotMode = snapshot === "1";
+  const cycleMode = snapshotMode && cycle === "1";
   let detail;
 
   if (snapshotMode) {
@@ -66,7 +68,7 @@ export default async function RestaurantDetailPage({
     <main className={`restaurant-detail-page ${styles.page}`}>
       <header className={styles.topBar}>
         <Link
-          href={snapshotMode ? "/?snapshot=1" : "/"}
+          href={cycleMode ? "/?snapshot=1&cycle=1" : snapshotMode ? "/?snapshot=1" : "/"}
           className="detail-back-link"
           aria-label="지도로 돌아가기"
         >
@@ -85,6 +87,12 @@ export default async function RestaurantDetailPage({
               교체와 Preview 설정 후 재개합니다.
             </span>
           </div>
+        ) : null}
+        {cycleMode ? (
+          <PresentationSnapshotCycle
+            nextHref="/?snapshot=1&cycle=1"
+            nextLabel="지도"
+          />
         ) : null}
         <div className="restaurant-card-topline">
           <span className="category-badge">{restaurant.categoryName}</span>
