@@ -925,6 +925,11 @@ h3 {
   box-shadow: 0 0 0 3px rgb(8 127 115 / 12%);
 }
 
+.reaction-choice:disabled {
+  cursor: wait;
+  opacity: 0.68;
+}
+
 .private-reaction-notice,
 .detail-match-excluded {
   display: grid;
@@ -937,6 +942,87 @@ h3 {
 .private-reaction-notice {
   border: 1px solid #d6dfb6;
   background: #fbfdec;
+}
+
+.reaction-auth-panel {
+  display: grid;
+  gap: 0.8rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+}
+
+.reaction-auth-panel h3,
+.reaction-auth-panel p {
+  margin: 0;
+}
+
+.reaction-auth-panel > p,
+.reaction-auth-form small,
+.reaction-auth-message,
+.reaction-auth-signed-in p {
+  color: var(--muted);
+  font-size: 0.86rem;
+  line-height: 1.55;
+}
+
+.reaction-auth-form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
+  gap: 0.7rem;
+  align-items: end;
+}
+
+.reaction-auth-form label {
+  display: grid;
+  gap: 0.35rem;
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.reaction-auth-form input {
+  min-width: 0;
+  height: 2.75rem;
+  padding: 0 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 0.7rem;
+  color: var(--foreground);
+  background: var(--surface);
+}
+
+.reaction-auth-form button,
+.reaction-auth-signed-in button {
+  min-height: 2.75rem;
+  padding: 0.65rem 0.9rem;
+  border: 1px solid var(--accent);
+  border-radius: 0.7rem;
+  color: white;
+  background: var(--accent-strong);
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.reaction-auth-form button:disabled,
+.reaction-auth-signed-in button:disabled {
+  cursor: wait;
+  opacity: 0.68;
+}
+
+.reaction-auth-form small {
+  grid-column: 1 / -1;
+}
+
+.reaction-auth-signed-in {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.reaction-auth-message {
+  padding: 0.65rem 0.75rem;
+  border-radius: 0.65rem;
+  background: var(--notice);
 }
 
 .private-reaction-notice span,
@@ -1128,6 +1214,19 @@ h3 {
     align-items: center;
     justify-items: start;
     padding-inline: 1rem;
+  }
+
+  .reaction-auth-form {
+    grid-template-columns: 1fr;
+  }
+
+  .reaction-auth-form button,
+  .reaction-auth-signed-in button {
+    width: 100%;
+  }
+
+  .reaction-auth-signed-in {
+    align-items: stretch;
   }
 }
 
