@@ -3,6 +3,8 @@ import { PublicDataUnavailable } from "@/components/public-data/public-data-unav
 import { toMapExplorerData } from "@/components/public-data/public-restaurant-ui-adapter";
 import { createConfiguredPublicRestaurantDependencies } from "@/server/restaurants/configured-public-restaurants";
 
+import styles from "./page.module.css";
+
 const foundationItems = [
   {
     title: "세 가지 반응",
@@ -32,17 +34,38 @@ export default async function Home() {
   }
 
   return (
-    <main>
-      <section className="hero" aria-labelledby="page-title">
-        <p className="eyebrow">성수동 · 24시간 해커톤 MVP</p>
-        <h1 id="page-title">반응으로 보는 맛집 지도</h1>
-        <p className="lede">
-          복잡한 평가표 없이 세 반응을 남기고, 내 취향 매칭과 크리에이터의 영상
-          방문 근거를 함께 살펴보는 지도를 준비하고 있습니다.
-        </p>
-        <div className="notice" role="note">
-          위치 기반 방문 확인을 통과한 공개 반응과 관리자가 확인한 영상 근거를
-          보여줍니다. 위치 확인은 실제 식사를 보장하지 않습니다.
+    <main className={styles.pageShell}>
+      <header className={styles.appHeader}>
+        <div>
+          <span className={styles.brandMark} aria-hidden="true">ㅈ</span>
+          <span>
+            <strong>쟤가 먹길래</strong>
+            <small>반응과 영상 근거로 보는 성수 맛집</small>
+          </span>
+        </div>
+        <span className={styles.locationBadge}>성수동</span>
+      </header>
+
+      <section className={styles.hero} aria-labelledby="page-title">
+        <div className={styles.heroCopy}>
+          <p className="eyebrow">별점 없는 맛집 탐색</p>
+          <h1 id="page-title">누가 다녀왔고, 내 취향에는 맞을까요?</h1>
+          <p className={styles.lede}>
+            방문 확인을 거친 세 반응과 내 취향 매칭, 관리자가 확인한 크리에이터
+            영상을 한 지도에서 따로 살펴보세요.
+          </p>
+        </div>
+        <div className={styles.heroFacts} aria-label="서비스 기준">
+          <span><strong>3가지</strong> 공개 반응</span>
+          <span><strong>{data.restaurants.length}곳</strong> 연결된 성수 식당</span>
+          <span><strong>개별</strong> 영상 출처</span>
+        </div>
+        <div className={styles.notice} role="note">
+          <strong>공개 반응 기준</strong>
+          <span>
+            위치 기반 방문 확인과 서버 검증을 통과한 반응만 표시합니다. 위치
+            확인은 실제 식사를 보장하지 않습니다.
+          </span>
         </div>
       </section>
 
@@ -50,14 +73,14 @@ export default async function Home() {
         {...data}
       />
 
-      <section className="foundation" aria-labelledby="foundation-title">
+      <section className={styles.foundation} aria-labelledby="foundation-title">
         <div>
           <p className="eyebrow">구현 기반</p>
           <h2 id="foundation-title">새로운 선택 방식</h2>
         </div>
-        <ul className="card-grid">
+        <ul className={styles.cardGrid}>
           {foundationItems.map((item) => (
-            <li key={item.title} className="card">
+            <li key={item.title} className={styles.card}>
               <h3>{item.title}</h3>
               <p>{item.description}</p>
             </li>

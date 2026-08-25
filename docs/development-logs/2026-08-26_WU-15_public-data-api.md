@@ -3,13 +3,13 @@
 | 항목 | 내용 |
 |---|---|
 | 작업 단위 | WU-15 |
-| 상태 | 진행 중 |
+| 상태 | 막힘 |
 | 작업일 | 2026-08-26 |
-| 담당 | 데이터·API |
+| 담당 | 데이터·API + UI 통합 |
 | 대상 AC | AC-01~24 |
 | 기준 문서 | [PRD](../../PRD.md), [개발 우선순위](../DEVELOPMENT_PRIORITY.md) |
 | 선행 작업 | WU-07, WU-11, WU-13 |
-| 다음 작업 단위 | A의 지도·목록·상세 실제 DTO 연결과 WU-15 통합 회귀 |
+| 다음 작업 단위 | UI 기준선 커밋 검토 후 새 YouTube 키·Preview 설정으로 실제 30곳 smoke 재개 |
 
 ## 1. 이번 작업의 목표
 
@@ -108,3 +108,16 @@
 - 변경 파일: Vercel 외부 설정(Preview Secret 1개)과 이 개발일지·인덱스만 변경했다. 키 값, 원본 GPS, 사용자 정보는 기록하지 않았다.
 - 남은 위험과 미해결 항목: 새 YouTube Data API 키의 발급·제한 설정과 `youtube.env` 교체가 필요하다. Preview 공개 성공 화면에는 추가로 공개 Supabase 설정·Kakao 공개 앱 키를 Config로 등록해야 하며, 공개 server secret은 Preview 범위만 유지해야 한다.
 - 다음 작업에서는 어떻게 해야 하는가: 사용자가 Google Cloud Console에서 기존 YouTube 키를 삭제 또는 제한 해제 대신 **폐기 후 새 키 발급**하고 로컬 `youtube.env`를 새 값으로 교체한 뒤, 먼저 새 키가 노출되지 않는 등록 경로를 선택한다. 그 다음 Preview의 공개 Config 3개를 등록하고 feature branch Preview에서 smoke test를 실행한다.
+
+### 2026-08-26 — UI 기준선 선택 이식과 WU-15 연결 계약 보존
+
+- 추가 구현: 최신 `origin/main`을 조상으로 포함하고 WU-15 공개 DTO 연결 커밋을 보존한 `codex/ui-baseline` 작업 브랜치에서 홈·지도·선택 시트·식당 상세의 반응형 UI 기준선을 정리했다. `origin/codex/kakao-map-update`의 독립 이력은 merge·cherry-pick·전체 복사하지 않고, 레이아웃과 시각 언어만 수동으로 참고했다.
+- 데이터 연결 계약: 홈은 Server Component에서 `PublicRestaurantRepository.list()` 결과를 `toMapExplorerData()`로 변환해 `MapExplorerData`를 전달한다. 지도 UI는 `selectedRestaurantId: string | null`, `selectedCategory`, `mode`만 소유하며, 선택 시트는 `Restaurant`, counted-only `RestaurantReactionSummary`, 별도 `RestaurantMatchResult`, confirmed-only `CreatorVisitSource[]`를 받는다. 상세는 실제 route `id`와 `toRestaurantDetailData()`를 유지해 `ReactionSelector`, `ReactionDistribution`, `CreatorEvidenceList`, `DetailMatchPanel`에 연결한다. 503은 `PublicDataUnavailable`로 표시하고 빈 0건으로 바꾸지 않는다.
+- 범위 제외: 엑셀 100명 응답·엑셀 반응 수·테스트 식당명·mock 앱·먹BTI·저장·내 정보·임시 하단 라우팅·Kakao SDK/API 재구현·새 위치 버튼을 추가하지 않았다. 디자인 브랜치의 CSS와 폴더를 통째로 복사하지 않았고 CSS Module로 다시 구성했다. 사용 권한이 확인되지 않은 이미지·마커 자산은 이식하지 않았다.
+- 기능 보존: 인증, 반응 생성·변경, 체크인 검증, YouTube 동기화, API·server·contract·migration·package·lockfile은 이 세션에서 수정하지 않았다. 카테고리는 활성 항목을 다시 누르면 `전체`로 돌아가며, 전체 상태에서 결과 없음 안내를 만들지 않는다. 공개 반응과 개인 매칭을 결합하거나 별점·평균점수·종합점수·신뢰도 점수를 추가하지 않았다.
+- 검증 결과: ESLint 성공, TypeScript 성공, Vitest 26개 파일 성공·2개 skip 및 143개 테스트 성공·2개 skip, Next.js 16.3.2 `next build --webpack` 성공. 격리 worktree의 의존성 junction 때문에 기본 Turbopack build는 저장소 루트 밖 symlink를 거부했으나 같은 코드의 Webpack production build는 성공했다. 390×844와 1440×900에서 홈·상세를 브라우저로 확인했고 가로 넘침·Next 오류 오버레이·console error가 없었다. 카테고리 재클릭 해제, 식당 선택 시트, 세 반응 `aria-pressed`, 44px 이상 터치 영역을 확인했다. 수동 검증용 합성 route는 검증 뒤 삭제해 최종 변경에 포함하지 않았다.
+- 변경 파일: `src/app/page.tsx`, `src/app/page.module.css`, `src/app/restaurants/[id]/page.tsx`, `src/app/restaurants/[id]/page.module.css`, `src/components/map/category-filter.tsx`, `src/components/map/map-explorer.tsx`, `src/components/map/map-explorer.module.css`, `src/components/map/map-view-model.ts`, `src/components/map/selected-restaurant-sheet.tsx`, `src/components/map/selected-restaurant-sheet.module.css`, `tests/map-explorer-view-model.test.tsx`, 이 일지와 `INDEX.md`.
+- 새 문제 또는 막힘: UI 로컬 구현과 합성 데이터 브라우저 검증은 끝났지만, 폐기 대상 YouTube 키를 교체하지 않아 실제 Preview 배포·30곳 성공 경로 smoke test는 계속 중단한다. `codex/ui-baseline`은 WU-15 선행 로컬 커밋 3개 위에서 생성됐으므로 PR diff에는 공개 API/UI adapter/보안 중단 기록과 이번 UI 변경이 함께 보인다.
+- push 안전 확인: 커밋 뒤 `git fetch --prune origin`은 성공했다. `check:push-safety`는 `origin/codex/kakao-map-update`와 `origin/main` 사이에 merge-base가 없어 diff 계산 단계에서 실패했다. 이를 건너뛴 수동 대조에서는 미병합 `origin/codex/mobile-map-prototype`과 `src/app/page.tsx`, `src/app/restaurants/[id]/page.tsx`가 겹쳤다. 팀의 활성 여부와 통합 담당이 정해지기 전에는 push·PR을 만들지 않는다.
+- React 검토: 서버 데이터 패칭은 Server Component에 유지했고 새 클라이언트 fetch나 waterfall을 만들지 않았다. 상태는 기존 `MapExplorer`·`ReactionSelector` 경계에만 두었으며, 전역 CSS 대신 scoped CSS Module을 사용해 공용 스타일 충돌을 줄였다.
+- 현재 재개 지점: 먼저 이 UI 기준선 커밋과 포함된 WU-15 선행 커밋 3개의 통합 범위를 리뷰한다. 그 다음 기존 YouTube 키를 폐기하고 새 키·Preview Config를 안전하게 등록해 실제 공개 목록·상세·반응·confirmed 영상 근거를 smoke test한다. 이 조건 전에는 WU-15를 완료로 바꾸지 않는다.

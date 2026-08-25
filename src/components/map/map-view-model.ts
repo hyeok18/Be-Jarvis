@@ -21,6 +21,21 @@ export interface CreatorVisitSource {
 export type ExplorerMode = "public" | "personal";
 export type ReactionDataState = "empty" | "forming" | "established";
 
+export function toggleCategorySelection(
+  selectedCategory: string,
+  requestedCategory: string,
+  allCategory = "전체",
+) {
+  if (
+    requestedCategory !== allCategory &&
+    requestedCategory === selectedCategory
+  ) {
+    return allCategory;
+  }
+
+  return requestedCategory;
+}
+
 export function getReactionDataState(
   summary: RestaurantReactionSummary,
 ): ReactionDataState {

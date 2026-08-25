@@ -9,6 +9,8 @@ import { PublicDataUnavailable } from "@/components/public-data/public-data-unav
 import { toRestaurantDetailData } from "@/components/public-data/public-restaurant-ui-adapter";
 import { createConfiguredPublicRestaurantDependencies } from "@/server/restaurants/configured-public-restaurants";
 
+import styles from "./page.module.css";
+
 interface RestaurantDetailPageProps {
   params: Promise<{ id: string }>;
 }
@@ -40,26 +42,31 @@ export default async function RestaurantDetailPage({
   } = detail;
   const address = restaurant.roadAddress ?? restaurant.address ?? "주소 확인 중";
   const kakaoSearchUrl = `https://map.kakao.com/link/search/${encodeURIComponent(restaurant.name)}`;
+  const primaryCreatorSource = creatorVisitSources[0];
 
   return (
-    <main className="restaurant-detail-page">
-      <Link href="/" className="detail-back-link">
-        ← 지도로 돌아가기
-      </Link>
+    <main className={`restaurant-detail-page ${styles.page}`}>
+      <header className={styles.topBar}>
+        <Link href="/" className="detail-back-link" aria-label="지도로 돌아가기">
+          ←
+        </Link>
+        <strong>맛집 상세</strong>
+        <span aria-hidden="true" />
+      </header>
 
-      <header className="detail-hero">
+      <section className={`detail-hero ${styles.hero}`} aria-labelledby="restaurant-title">
         <div className="restaurant-card-topline">
           <span className="category-badge">{restaurant.categoryName}</span>
           {creatorVisitSources.length > 0 && (
             <span className="creator-badge">영상 방문 확인</span>
           )}
         </div>
-        <h1>{restaurant.name}</h1>
+        <h1 id="restaurant-title">{restaurant.name}</h1>
         <p>{address}</p>
         <a href={kakaoSearchUrl} target="_blank" rel="noopener noreferrer">
           카카오맵에서 위치 확인 ↗
         </a>
-      </header>
+      </section>
 
       <div className="detail-demo-notice" role="note">
         공개 반응은 위치 기반 방문 확인과 서버 검증을 통과한 집계만 보여줍니다. 위치
@@ -87,6 +94,29 @@ export default async function RestaurantDetailPage({
           <DetailMatchPanel match={personalMatch} />
         </aside>
       </div>
+
+      <nav className={styles.actionBar} aria-label="식당 외부 링크">
+        {primaryCreatorSource ? (
+          <a
+            className={styles.primaryAction}
+            href={primaryCreatorSource.videoUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            확인된 방문 영상 보기
+          </a>
+        ) : (
+          <span className={styles.disabledAction}>확인된 방문 영상 없음</span>
+        )}
+        <a
+          className={styles.secondaryAction}
+          href={kakaoSearchUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          길찾기
+        </a>
+      </nav>
     </main>
   );
 }
