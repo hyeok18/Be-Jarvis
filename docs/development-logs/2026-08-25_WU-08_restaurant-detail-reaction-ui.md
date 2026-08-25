@@ -116,4 +116,12 @@
 - 새 문제 또는 막힘: 최초 push 안전 검사에서 원격 main의 공용 문서 변경을 감지해 push가 차단됐다.
 - 해결 또는 시도: 열린 PR이 WU-09 하나이고 구현 파일이 겹치지 않음을 확인한 뒤 `origin/main`을 일반 merge했다.
 - 검증 결과: 병합 후 68개 통과·외부 통합 2개 미실행, lint·typecheck·webpack production build 통과. WU-08·12·14 문서 상태가 모두 유지됐다.
-- 현재 재개 지점: 안전 검사를 다시 실행하고 통과할 때만 일반 push한다.
+- 현재 재개 지점: 안전 검사를 다시 실행하고 활성 브랜치 겹침이 없을 때만 일반 push한다.
+
+### 2026-08-25 — 활성 브랜치 대조
+
+- 추가 구현: 없음. GitHub 열린 PR과 원격 미병합 브랜치를 다시 대조했다.
+- 새 문제 또는 막힘: 자동 검사는 열린 PR이 없는 과거 `a3-wu06-wu08-handoff`, `mobile-map-prototype`, `wu-06-handoff` 브랜치도 보수적으로 충돌 후보로 표시했다.
+- 해결 또는 시도: GitHub의 유일한 열린 PR `#3 codex/wu-09-backend-prep`과 변경 파일을 비교했고 겹침이 없음을 확인했다. 원격 main 겹침은 앞선 merge로 해소됐다.
+- 검증 결과: worktree clean, main 최신 통합, active PR 파일 overlap 0개, force push 미사용 조건 확인.
+- 현재 재개 지점: 최종 fetch 후 `codex/wu-08-detail-reaction-ui` 새 원격 브랜치만 일반 push한다.
