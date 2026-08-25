@@ -155,3 +155,11 @@
 - 해결 또는 시도: `origin/main`이 로컬 기준보다 앞서지 않았고 WU-09는 현재 branch의 부모, mobile prototype은 기존 비활성 이력임을 구분했다. `gh` 부재 시 GitHub 공개 REST API로 PR #7의 open 상태와 head branch를 재확인했다.
 - 검증 결과: `pnpm run check:push-safety`는 활성 WU-13 공용 문서 겹침을 포함해 `PUSH BLOCKED`를 반환했다. force push·임의 WU-13 병합·원격 변경은 수행하지 않았다.
 - 현재 재개 지점: PR #7 통합 담당이 공용 문서를 합친 뒤 WU-10 branch를 최신 `main`에 안전하게 통합하고 push safety를 다시 실행한다.
+
+### 2026-08-25 — checkpoint 6 (WU-13 이후 통합 검증)
+
+- 추가 구현: WU-13이 PR #7로 병합된 최신 `origin/main`을 WU-10 브랜치에 통합하고 `README.md`, `docs/DEVELOPMENT_PRIORITY.md`의 상태 문구 충돌을 해결했다. WU-10·WU-12·WU-13·WU-14 완료 이력을 모두 보존하고 실제 진행 중인 WU-11 상태를 보드와 인덱스에 반영했다.
+- 영향 확인: WU-13과 WU-10은 코드 수정 파일이 겹치지 않았고 공용 문서만 겹쳤다. WU-11 작업 브랜치는 WU-10 완료 커밋을 부모로 사용하며, WU-13 변경 파일과 현재 WU-11 미커밋 수정 파일의 교집합이 없어 작업트리를 수정하지 않고 별도 통합 worktree에서 검증했다.
+- 검증 결과: 환경 계약 7키, lint, typecheck, 전체 테스트 117개가 통과했고 외부 live 전용 2개는 기존대로 skip했다. Next.js 16.3.2 기본 Turbopack production build도 통과했다. 격리 worktree에는 실제 서버 secret 값이 없어 build 시 비밀이 아닌 test-only placeholder를 프로세스에만 주입했고 파일·로그·커밋에는 남기지 않았다.
+- 실패·복구 확인: 첫 build는 worktree 밖 `node_modules` junction을 Turbopack이 거부했고, 로컬 pnpm store에서 worktree 내부 의존성을 오프라인 설치해 해결했다. 다음 build는 `SUPABASE_SECRET_KEY`가 빈 로컬 환경 때문에 설정 검증에서 멈췄으며 test-only placeholder로 외부 호출 없이 구성 경계만 충족한 뒤 성공했다.
+- 현재 재개 지점: push safety와 GitHub PR 상태를 다시 확인하고 일반 push·PR 병합을 수행한다. WU-11 작업트리는 그대로 보존한다.
