@@ -2,6 +2,10 @@ import {
   createVisitProofToken,
   digestVisitProofToken,
 } from "./visit-proof-token";
+import {
+  AbuseGuardServiceError,
+  type AbuseGuardDecision,
+} from "../abuse/abuse-guard-api";
 
 const failureReasonCodes = [
   "INVALID_LOCATION",
@@ -29,6 +33,12 @@ type IssueLocationProofInput = Readonly<{
 
 export type VisitProofApiDependencies = Readonly<{
   verifyAccessToken: (accessToken: string) => Promise<{ id: string } | null>;
+  assessAbuse?: (input: {
+    userId: string;
+    restaurantId: string;
+    action: "checkin";
+    request: Request;
+  }) => Promise<AbuseGuardDecision>;
   issueLocationProof: (
     input: IssueLocationProofInput,
   ) => Promise<IssuedLocationProof>;
@@ -88,6 +98,24 @@ function jsonResponse(body: unknown, status: number) {
 
 function errorResponse(status: number, code: string, message: string) {
   return jsonResponse({ error: { code, message } }, status);
+}
+
+function rateLimitResponse(retryAfterSeconds: number) {
+  return Response.json(
+    {
+      error: {
+        code: "RATE_LIMITED",
+        message: "요청이 많아요. 잠시 후 다시 시도해 주세요.",
+      },
+    },
+    {
+      status: 429,
+      headers: {
+        "Cache-Control": "private, no-store",
+        "Retry-After": String(retryAfterSeconds),
+      },
+    },
+  );
 }
 
 function readBearerToken(request: Request) {
@@ -194,6 +222,37 @@ export function createVisitCheckInPostHandler(
         "INVALID_LOCATION_REQUEST",
         "식당과 현재 위치 정보를 확인해 주세요.",
       );
+    }
+
+    if (dependencies.assessAbuse) {
+      let abuseDecision: AbuseGuardDecision;
+
+      try {
+        abuseDecision = await dependencies.assessAbuse({
+          userId: user.id,
+          restaurantId: input.restaurantId,
+          action: "checkin",
+          request,
+        });
+      } catch (error) {
+        if (error instanceof AbuseGuardServiceError && error.kind === "not_found") {
+          return errorResponse(
+            404,
+            "RESTAURANT_NOT_FOUND",
+            "체크인할 수 있는 식당을 찾지 못했습니다.",
+          );
+        }
+
+        return errorResponse(
+          503,
+          "ABUSE_GUARD_UNAVAILABLE",
+          "요청을 확인하지 못했습니다. 잠시 후 다시 시도해 주세요.",
+        );
+      }
+
+      if (!abuseDecision.isAllowed) {
+        return rateLimitResponse(abuseDecision.retryAfterSeconds);
+      }
     }
 
     const proofToken = (dependencies.createProofToken ?? createVisitProofToken)();

@@ -2,6 +2,10 @@ import {
   digestVisitProofToken,
   isVisitProofToken,
 } from "../visits/visit-proof-token";
+import {
+  AbuseGuardServiceError,
+  type AbuseGuardDecision,
+} from "../abuse/abuse-guard-api";
 
 const reactionKinds = ["like", "okay", "dislike"] as const;
 
@@ -25,6 +29,12 @@ type SaveReactionInput = {
 
 export type ReactionApiDependencies = {
   verifyAccessToken: (accessToken: string) => Promise<{ id: string } | null>;
+  assessAbuse?: (input: {
+    userId: string;
+    restaurantId: string;
+    action: "reaction";
+    request: Request;
+  }) => Promise<AbuseGuardDecision>;
   saveReaction: (input: SaveReactionInput) => Promise<SavedReaction>;
 };
 
@@ -99,6 +109,24 @@ function errorResponse(
   message: string,
 ) {
   return jsonResponse({ error: { code, message } }, status);
+}
+
+function rateLimitResponse(retryAfterSeconds: number) {
+  return Response.json(
+    {
+      error: {
+        code: "RATE_LIMITED",
+        message: "요청이 많아요. 잠시 후 다시 시도해 주세요.",
+      },
+    },
+    {
+      status: 429,
+      headers: {
+        "Cache-Control": "private, no-store",
+        "Retry-After": String(retryAfterSeconds),
+      },
+    },
+  );
 }
 
 function readBearerToken(request: Request) {
@@ -191,6 +219,37 @@ export function createReactionPostHandler(dependencies: ReactionApiDependencies)
         "INVALID_REQUEST",
         "restaurantId와 유효한 반응을 확인해 주세요.",
       );
+    }
+
+    if (dependencies.assessAbuse) {
+      let abuseDecision: AbuseGuardDecision;
+
+      try {
+        abuseDecision = await dependencies.assessAbuse({
+          userId: user.id,
+          restaurantId: input.restaurantId,
+          action: "reaction",
+          request,
+        });
+      } catch (error) {
+        if (error instanceof AbuseGuardServiceError && error.kind === "not_found") {
+          return errorResponse(
+            404,
+            "RESTAURANT_NOT_FOUND",
+            "반응을 남길 수 있는 식당을 찾지 못했습니다.",
+          );
+        }
+
+        return errorResponse(
+          503,
+          "ABUSE_GUARD_UNAVAILABLE",
+          "요청을 확인하지 못했습니다. 잠시 후 다시 시도해 주세요.",
+        );
+      }
+
+      if (!abuseDecision.isAllowed) {
+        return rateLimitResponse(abuseDecision.retryAfterSeconds);
+      }
     }
 
     try {
