@@ -10,6 +10,7 @@
 | 대상 플랫폼 | 반응형 웹 |
 | 배포 | Vercel Preview / Production |
 | 핵심 기술 | Next.js, TypeScript, Supabase, Kakao Maps, GPT-5.6 Luna |
+| 인프라 실행 기준 | Supabase·Vercel 플러그인으로 사전 점검하고 migration·Preview·Production 게이트로 실행 |
 
 이 문서는 심층 인터뷰에서 확정한 24시간 해커톤 MVP의 범위와 수용 기준이다. 구현 중 판단이 충돌하면 이 문서를 우선하며, 필수 기능을 완료하기 전에는 선택 기능을 시작하지 않는다.
 
@@ -390,6 +391,49 @@ external_id,restaurant_kakao_place_id,reviewer_key,rating,review_text,reviewed_a
 
 MCP와 개발용 플러그인은 팀의 구현·검증을 돕는 도구로 사용할 수 있지만, 배포된 서비스의 런타임 필수 요소로 만들지 않는다.
 
+### Supabase·Vercel 플러그인 실행 계약
+
+확인 기준일은 2026-08-25다. Supabase와 Vercel 플러그인은 개발 제어면에서 프로젝트·schema·migration·배포 상태를 조회하고 검증하는 데 사용한다. 애플리케이션의 Production 런타임은 MCP 또는 Codex 플러그인 연결 없이 동작해야 한다.
+
+현재 연결 점검 결과:
+
+- Supabase 계정에는 이 저장소와 이름이 일치하지 않는 기존 프로젝트만 있으므로 임의로 재사용하지 않는다.
+- Vercel 계정의 연결된 팀에는 이 저장소용 프로젝트가 아직 없다.
+- 새 Supabase 프로젝트 또는 유료 branch는 조직, 리전, 비용을 사용자에게 보여주고 명시적으로 확인받은 뒤 만든다.
+- Vercel 프로젝트는 GitHub 저장소 `hyeok18/Be-Jarvis`와 연결하고 Production branch를 `main`으로 고정한다.
+
+플러그인 사용 순서:
+
+1. Supabase 플러그인으로 조직·프로젝트·branch·migration 상태를 읽는다.
+2. 이 저장소 전용 project 또는 development branch를 선택한 뒤 로컬 migration을 적용한다.
+3. security/performance advisor를 실행하고 경고를 해결한 뒤 TypeScript DB 타입을 생성한다.
+4. Vercel 플러그인으로 팀·프로젝트·환경별 변수 이름을 점검한다.
+5. feature branch를 Preview로 배포하고 smoke test를 통과시킨다.
+6. DB 변경이 있으면 호환 가능한 migration을 먼저 검증하고, 같은 검증을 통과한 Preview artifact만 Production으로 승격한다.
+7. 배포 후 build log와 runtime error를 확인하며 실패 시 Vercel rollback과 DB forward-fix migration을 사용한다.
+
+공식 기준 출처:
+
+- Supabase 보안·RLS: <https://supabase.com/docs/guides/database/secure-data>
+- Supabase API 키: <https://supabase.com/docs/guides/getting-started/api-keys>
+- Supabase Next.js Auth: <https://supabase.com/docs/guides/auth/quickstarts/nextjs>
+- Supabase breaking changes: <https://supabase.com/changelog?types=breaking-change>
+- Vercel 환경 분리: <https://vercel.com/docs/environment-variables/manage-across-environments>
+- Vercel 배포: <https://vercel.com/docs/deployments>
+
+### 환경별 인프라 토폴로지
+
+| 환경 | Git 기준 | Supabase | Vercel | Cron |
+|---|---|---|---|---|
+| Local | 개발자 작업 브랜치 | local stack 또는 비용 확인된 development branch | `vercel env pull`로 Development 이름만 동기화 | 실행 금지 |
+| Preview | feature/PR branch | 별도 Supabase branch 우선, 불가하면 합성 데이터 전용 project를 사용자 승인 후 공유 | PR별 Preview URL | 실행 금지 |
+| Production | `main` | Production project와 승인된 migration | Production deployment | 매일 03:00 KST |
+
+- Preview와 Production은 각각 별도의 Supabase URL·publishable key·secret key를 사용한다.
+- 같은 Supabase project를 공유해야 하는 24시간 MVP 예외는 합성 데이터만 존재하고 사용자가 위험을 승인한 경우에만 허용한다.
+- `.vercel/project.json`, `.env.local`, plugin 인증 상태는 로컬 설정이며 Git에 커밋하지 않는다.
+- project ID와 key 값을 문서·개발일지·터미널 요약에 출력하지 않는다.
+
 ### 주요 서버 경로
 
 | 경로 | 역할 | 권한 |
@@ -435,7 +479,7 @@ DB의 `presentation_snapshots`에 최소 두 개의 읽기 전용 JSON 스냅샷
 
 #### `restaurants`
 
-- `id uuid primary key`
+- `id uuid primary key default gen_random_uuid()`
 - `kakao_place_id text unique not null`
 - `name text not null`
 - `category_group_code text`
@@ -444,87 +488,115 @@ DB의 `presentation_snapshots`에 최소 두 개의 읽기 전용 JSON 스냅샷
 - `address text`
 - `latitude numeric not null`
 - `longitude numeric not null`
-- `region text default '성수동'`
-- `created_at timestamptz`
+- `region text not null default '성수동'`
+- `created_at timestamptz not null default now()`
 
 #### `reviews` — 원본 데이터
 
-- `id uuid primary key`
+- `id uuid primary key default gen_random_uuid()`
 - `external_id text unique not null`
-- `restaurant_id uuid references restaurants`
+- `restaurant_id uuid not null references restaurants(id) on delete restrict`
 - `reviewer_key text not null`
-- `rating numeric(2,1) check (rating between 0 and 5)`
+- `rating numeric(2,1) not null check (rating between 0 and 5 and rating * 2 = trunc(rating * 2))`
 - `review_text text not null`
 - `reviewed_at timestamptz not null`
 - `source text check (source in ('seed','admin_form','csv'))`
-- `is_active boolean default true`
-- `created_by uuid null`
-- `created_at timestamptz`
+- `is_active boolean not null default true`
+- `created_by uuid null references auth.users(id) on delete set null`
+- `created_at timestamptz not null default now()`
 
 #### `analysis_runs`
 
-- `id uuid primary key`
+- `id uuid primary key default gen_random_uuid()`
 - `trigger_type text check (trigger_type in ('seed','manual','cron'))`
 - `status text check (status in ('running','succeeded','failed'))`
 - `algorithm_version text not null`
 - `model_id text`
-- `total_reviews integer`
-- `ai_candidate_count integer`
-- `ai_success_count integer`
+- `total_reviews integer not null default 0 check (total_reviews >= 0)`
+- `ai_candidate_count integer not null default 0 check (ai_candidate_count >= 0)`
+- `ai_success_count integer not null default 0 check (ai_success_count >= 0)`
 - `error_summary text`
-- `started_at`, `finished_at`, `created_by`
+- `started_at timestamptz not null default now()`
+- `finished_at timestamptz`
+- `created_by uuid null references auth.users(id) on delete set null`
 
 #### `review_analyses` — 파생 데이터
 
-- `id uuid primary key`
-- `analysis_run_id uuid references analysis_runs`
-- `review_id uuid references reviews`
+- `id uuid primary key default gen_random_uuid()`
+- `analysis_run_id uuid not null references analysis_runs(id) on delete cascade`
+- `review_id uuid not null references reviews(id) on delete restrict`
 - `rule_signals jsonb not null`
-- `rule_score integer not null`
+- `rule_score integer not null check (rule_score between 0 and 100)`
 - `ai_required boolean not null`
 - `ai_result jsonb`
-- `ai_adjustment integer default 0`
-- `final_trust integer check (final_trust between 0 and 100)`
+- `ai_adjustment integer not null default 0 check (ai_adjustment between -100 and 100)`
+- `final_trust integer not null check (final_trust between 0 and 100)`
 - `explanation jsonb not null`
-- `created_at timestamptz`
+- `created_at timestamptz not null default now()`
 - unique: `(analysis_run_id, review_id)`
 
 #### `restaurant_scores`
 
-- `analysis_run_id uuid references analysis_runs`
-- `restaurant_id uuid references restaurants`
-- `raw_taste_score numeric(4,2)`
-- `review_trust_percent numeric(5,2)`
-- `overall_score numeric(4,2)`
-- `review_count integer`
+- `analysis_run_id uuid references analysis_runs(id) on delete cascade`
+- `restaurant_id uuid references restaurants(id) on delete restrict`
+- `raw_taste_score numeric(4,2) not null check (raw_taste_score between 0 and 5)`
+- `review_trust_percent numeric(5,2) not null check (review_trust_percent between 0 and 100)`
+- `overall_score numeric(4,2) not null check (overall_score between 0 and 5)`
+- `review_count integer not null check (review_count >= 0)`
 - primary key: `(analysis_run_id, restaurant_id)`
 
 #### `app_settings`
 
-- 단일 행 설정
-- `active_analysis_run_id`
-- `presentation_mode boolean`
-- `active_snapshot_id`
-- `algorithm_config jsonb`
-- `updated_at`, `updated_by`
+- `singleton boolean primary key default true check (singleton)`
+- `active_analysis_run_id uuid null references analysis_runs(id) on delete restrict`
+- `presentation_mode boolean not null default false`
+- `active_snapshot_id uuid null references presentation_snapshots(id) on delete restrict`
+- `algorithm_config jsonb not null`
+- `updated_at timestamptz not null default now()`
+- `updated_by uuid null references auth.users(id) on delete set null`
 
 #### `presentation_snapshots`
 
-- `id uuid primary key`
-- `snapshot_key text unique`
+- `id uuid primary key default gen_random_uuid()`
+- `snapshot_key text unique not null`
 - `payload jsonb not null`
 - `payload_hash text not null`
-- `created_at`, `created_by`
+- `created_at timestamptz not null default now()`
+- `created_by uuid null references auth.users(id) on delete set null`
+
+### Migration·인덱스·동시성 계약
+
+- `supabase/migrations/`의 SQL 파일을 schema의 단일 진실원본으로 사용한다.
+- Dashboard에서 즉석 DDL을 실행하고 기록 없이 끝내지 않는다. 원격 schema 변경은 검토된 migration 이름과 SQL로만 적용한다.
+- migration은 가능한 한 backward-compatible하게 작성하고, destructive 변경은 별도 백업·복구 절차와 사용자 승인이 없으면 실행하지 않는다.
+- 모든 외래키 열은 조인·삭제 검증을 위해 인덱스를 둔다.
+- 기본 인덱스는 다음을 포함한다.
+
+```text
+restaurants(category_name, name)
+reviews(restaurant_id, reviewed_at desc) where is_active = true
+reviews(reviewer_key, reviewed_at desc) where is_active = true
+analysis_runs(status, started_at desc)
+review_analyses(review_id)
+restaurant_scores(restaurant_id, overall_score desc)
+```
+
+- `analysis_runs`에는 `status = 'running'` 행이 하나만 존재하도록 partial unique index를 둔다.
+- 분석 시작은 짧은 transaction 안에서 advisory try-lock과 running 실행 생성을 함께 처리해 수동·Cron 경합을 막는다.
+- 외부 OpenAI 호출은 DB transaction 밖에서 수행하고, 공개 실행 전환 transaction은 집계 검증과 `active_analysis_run_id` 갱신만 포함한다.
+- DDL 이후 Supabase security advisor와 performance advisor를 모두 실행하고 치명 경고를 해결한 뒤 TypeScript 타입을 재생성한다.
 
 ### Supabase 권한
 
 - 공개 스키마의 모든 테이블에 RLS를 활성화한다.
-- 공개 사용자는 활성 식당과 현재 공개 점수·표시용 리뷰 데이터만 읽을 수 있다.
+- 브라우저의 Supabase publishable key는 관리자 Auth 세션에만 사용하며 application table을 직접 조회하거나 수정하지 않는다.
+- 공개 랭킹·상세 조회는 Next.js Server Component 또는 Route Handler의 서버 데이터 계층이 필요한 열만 명시적으로 선택해 안전한 DTO로 반환한다.
+- application table은 `anon`, `authenticated`에 대한 기본 권한을 회수하고 필요한 권한만 명시적으로 부여한다. Data API의 자동 테이블 노출을 전제로 하지 않는다.
 - 쓰기, 분석 실행, 로그, 설정, 스냅샷은 관리자 서버 경로로만 접근한다.
 - 관리자 판정은 수정 가능한 `user_metadata`가 아니라 서버에서 검증한 사용자 ID 또는 `app_metadata.role = 'admin'`을 사용한다.
-- 브라우저에는 Supabase publishable key만 제공한다.
-- Supabase secret/service-role 키는 서버 전용이며 `NEXT_PUBLIC_` 접두사를 붙이지 않는다.
-- 새 테이블이 Data API에 자동 공개되지 않는 현재 설정을 고려해 필요한 역할에만 명시적으로 권한을 부여하고 RLS 정책을 함께 작성한다.
+- 관리자 API는 cookie 기반 세션의 현재 사용자를 검증한 다음에만 서버 전용 Supabase secret client를 사용한다.
+- Supabase secret/service-role 키는 RLS를 우회하므로 서버 전용이며 `NEXT_PUBLIC_` 접두사를 붙이지 않는다.
+- view가 필요하면 Postgres 15+의 `security_invoker = true`를 사용한다. `security definer` 함수는 private schema, 명시적 호출자 검사, 빈 `search_path`, `PUBLIC` 실행권한 회수 없이 만들지 않는다.
 - 인증이 필요한 응답은 공개 캐시에 저장하지 않는다.
 
 ### 환경변수
@@ -541,6 +613,8 @@ OPENAI_API_KEY=
 OPENAI_MODEL=gpt-5.6-luna
 CRON_SECRET=
 ```
+
+환경변수 값은 Supabase/Vercel 플러그인 응답에서 문서나 로그로 복사하지 않는다. Vercel Development·Preview·Production에 같은 이름을 각각 설정하고 Preview와 Production의 Supabase 값은 분리한다.
 
 ---
 
@@ -592,6 +666,7 @@ CRON_SECRET=
 | AC-21 | 관리자에서 실행 중·성공·실패 상태, 마지막 성공 시각, 처리 건수를 볼 수 있다. | 성공 실행과 강제 실패 실행을 각각 만들고 로그 목록과 상세값을 확인한다. |
 | AC-22 | 로딩·빈 결과·API 오류 상태에서 빈 화면이나 앱 충돌이 발생하지 않는다. | 각 상태 mock을 적용해 안내 문구와 재시도 또는 대체 정보를 확인한다. |
 | AC-23 | 핵심 기능을 키보드로 조작할 수 있고 상태를 색상만으로 전달하지 않는다. | Tab/Enter로 필터·상세·관리자 폼을 조작하고 배지에 텍스트가 있는지 확인한다. |
+| AC-24 | Supabase schema와 Vercel 배포가 플러그인 사전 점검, 환경 분리, migration·Preview·Production 게이트를 따른다. | 관련 WU에서 프로젝트 목록 확인, migration/advisor/type 생성 증거, 환경별 변수 이름 비교, Preview smoke test와 Production 승격·rollback 절차를 확인한다. |
 
 ### 필수 자동 검증 명령
 
@@ -725,7 +800,7 @@ MVP 기본값은 이 문서의 값을 사용한다. 발표 전 값을 변경하�
 
 다음을 모두 만족해야 MVP 완료다.
 
-- AC-01~AC-23 검증 완료
+- AC-01~AC-24 검증 완료
 - 필수 자동 검증 명령 모두 성공
 - Production 배포 성공
 - 관리자·Cron 비밀값이 저장소와 클라이언트 번들에 노출되지 않음

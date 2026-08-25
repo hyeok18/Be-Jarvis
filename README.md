@@ -8,7 +8,28 @@
 
 - 요구사항 심층 인터뷰 완료
 - 24시간 MVP 범위와 수용 기준 확정
-- 구현 시작 가능
+- WU-01 Next.js 앱 셸과 품질 게이트 완료
+- 다음 작업: WU-02 도메인 타입·알고리즘 설정·mock 계약
+
+## 로컬 실행과 품질 검사
+
+Node.js 20.9 이상과 pnpm 11을 사용합니다.
+
+```powershell
+pnpm install --frozen-lockfile
+Copy-Item .env.example .env.local
+pnpm dev
+```
+
+현재 앱 셸은 외부 서비스 값 없이 실행됩니다. 후속 작업에서 Supabase·Kakao·OpenAI를 연결할 때는 `.env.example`의 이름을 유지하고 실제 값은 `.env.local` 또는 Vercel 환경변수에만 저장합니다.
+
+```powershell
+pnpm run check:env
+pnpm run lint
+pnpm run typecheck
+pnpm test
+pnpm run build
+```
 
 구현 전 다음 문서를 순서대로 확인합니다.
 

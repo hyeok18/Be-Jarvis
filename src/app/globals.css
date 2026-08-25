@@ -1,0 +1,197 @@
+@import "tailwindcss";
+
+:root {
+  --background: #f4f7f7;
+  --surface: #ffffff;
+  --foreground: #12252b;
+  --muted: #476168;
+  --border: #d5e1e3;
+  --accent: #087f73;
+  --accent-strong: #075e57;
+  --notice: #e7f3f1;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  background: var(--background);
+}
+
+body {
+  margin: 0;
+  color: var(--foreground);
+  background:
+    radial-gradient(circle at top right, rgb(8 127 115 / 12%), transparent 36rem),
+    var(--background);
+  font-family:
+    Inter, Pretendard, "Noto Sans KR", "Apple SD Gothic Neo", system-ui, sans-serif;
+}
+
+button,
+a {
+  font: inherit;
+}
+
+button:focus-visible,
+a:focus-visible {
+  outline: 3px solid #1a8fff;
+  outline-offset: 3px;
+}
+
+main {
+  width: min(72rem, calc(100% - 2rem));
+  min-height: 100vh;
+  margin: 0 auto;
+  padding: 5rem 0;
+}
+
+.hero {
+  max-width: 52rem;
+}
+
+.eyebrow {
+  margin: 0 0 0.75rem;
+  color: var(--accent-strong);
+  font-size: 0.82rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+h1,
+h2,
+h3,
+p {
+  margin-top: 0;
+}
+
+h1 {
+  margin-bottom: 1.25rem;
+  font-size: clamp(2.5rem, 7vw, 5.5rem);
+  line-height: 0.98;
+  letter-spacing: -0.055em;
+}
+
+h2 {
+  font-size: clamp(1.8rem, 4vw, 3rem);
+  letter-spacing: -0.04em;
+}
+
+h3 {
+  font-size: 1.15rem;
+}
+
+.lede {
+  max-width: 45rem;
+  color: var(--muted);
+  font-size: clamp(1.05rem, 2vw, 1.35rem);
+  line-height: 1.7;
+}
+
+.notice {
+  margin-top: 2rem;
+  padding: 1rem 1.25rem;
+  border: 1px solid #b9d9d4;
+  border-radius: 1rem;
+  background: var(--notice);
+  line-height: 1.6;
+}
+
+.foundation {
+  display: grid;
+  gap: 2rem;
+  margin-top: 6rem;
+}
+
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.card {
+  min-height: 12rem;
+  padding: 1.5rem;
+  border: 1px solid var(--border);
+  border-radius: 1.25rem;
+  background: rgb(255 255 255 / 88%);
+  box-shadow: 0 1rem 3rem rgb(18 37 43 / 6%);
+}
+
+.card p,
+.state-shell p {
+  color: var(--muted);
+  line-height: 1.65;
+}
+
+.state-shell {
+  display: grid;
+  min-height: 100vh;
+  place-content: center;
+  justify-items: start;
+  padding-block: 3rem;
+}
+
+.state-shell h1 {
+  max-width: 45rem;
+  font-size: clamp(2rem, 6vw, 4rem);
+}
+
+.state-shell button,
+.state-shell a {
+  display: inline-flex;
+  min-height: 2.75rem;
+  align-items: center;
+  justify-content: center;
+  padding: 0.7rem 1rem;
+  border: 0;
+  border-radius: 0.75rem;
+  color: white;
+  background: var(--accent);
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.skeleton {
+  width: min(36rem, 80vw);
+  height: 8rem;
+  border-radius: 1rem;
+  background: linear-gradient(90deg, #e1e9ea 25%, #f5f8f8 50%, #e1e9ea 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s infinite;
+}
+
+@keyframes shimmer {
+  to {
+    background-position: -200% 0;
+  }
+}
+
+@media (max-width: 48rem) {
+  main {
+    padding: 3rem 0;
+  }
+
+  .foundation {
+    margin-top: 4rem;
+  }
+
+  .card-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .card {
+    min-height: auto;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton {
+    animation: none;
+  }
+}

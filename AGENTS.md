@@ -175,3 +175,53 @@ YYYY-MM-DD_WU-XX_short-slug.md
 - 새 팀원이 처음 볼 프로젝트 상태: `README.md`
 
 PRD를 변경해야 하는 발견이 생기면 현재 작업 단위에서 임의로 범위를 넓히지 않는다. 개발일지에 근거와 영향을 남기고 사용자 또는 팀의 명시적 결정을 받은 뒤 관련 문서를 함께 수정한다.
+
+## 9. Supabase·Vercel 플러그인 실행 규칙
+
+Supabase 또는 Vercel이 관련된 작업은 해당 플러그인과 저장소의 설치된 skill 지침을 먼저 읽고 사용한다. 플러그인은 개발·배포 제어 도구이며 애플리케이션 런타임 의존성으로 만들지 않는다.
+
+### 공통 사전 점검
+
+1. 해당 WU의 선행 조건과 PRD 8장의 인프라 실행 계약을 확인한다.
+2. 플러그인으로 기존 조직·팀·프로젝트를 읽기 전용 조회한다.
+3. 저장소와 이름 또는 목적이 일치하지 않는 기존 프로젝트를 임의로 재사용하지 않는다.
+4. 프로젝트·branch 생성처럼 비용이 생길 수 있는 작업은 조직, 리전, 예상 비용을 확인하고 사용자 동의를 받은 뒤 실행한다.
+5. 키, 토큰, 비밀번호, connection string은 채팅·터미널 요약·개발일지·Git diff에 출력하지 않는다.
+6. 외부 상태를 바꾸기 전에 정확한 대상 프로젝트와 환경을 다시 확인한다.
+
+### Supabase
+
+- 작업 시작 시 Supabase changelog의 관련 breaking change와 현재 공식 문서를 확인한다.
+- schema의 단일 진실원본은 `supabase/migrations/`이며 Dashboard의 기록 없는 즉석 DDL을 최종 상태로 남기지 않는다.
+- WU-03 전에는 Production project에 DDL, seed, RLS 변경을 적용하지 않는다.
+- 모든 application table에 RLS를 활성화하고 Data API 자동 노출을 전제로 하지 않는다.
+- `anon`, `authenticated` 권한은 명시적으로 최소화한다. RLS와 SQL `GRANT`는 서로 다른 게이트로 검증한다.
+- `user_metadata`를 권한 판정에 사용하지 않고 `app_metadata` 또는 서버에서 고정한 관리자 ID를 검증한다.
+- 브라우저에는 publishable key만 사용하고 secret/service-role key는 Vercel 서버 코드에만 둔다.
+- migration 적용 후 security advisor와 performance advisor를 모두 실행하고, 경고를 검토한 뒤 TypeScript 타입을 재생성한다.
+- DB 변경 테스트에는 정상 쿼리뿐 아니라 비로그인·일반 사용자·관리자 권한과 실패 rollback 또는 forward-fix 경로를 포함한다.
+
+### Vercel
+
+- Vercel 팀·프로젝트·배포 목록을 먼저 조회하고 `.vercel/project.json`과 실제 대상이 일치하는지 확인한다.
+- Development, Preview, Production 환경변수의 이름과 누락 여부만 비교하며 값은 출력하지 않는다.
+- feature/PR branch는 Preview, `main`만 Production으로 배포한다.
+- `npm run lint`, `npm run typecheck`, `npm test`, `npm run build`가 실패한 상태에서는 배포하지 않는다.
+- DB 변경이 있는 배포는 호환 가능한 migration 검증 → Supabase advisor·타입 생성 → Vercel Preview smoke test → Production 승격 순서를 지킨다.
+- Preview를 검증한 경우 같은 artifact를 promote하는 방식을 우선하고, Production 장애 시 Vercel rollback을 사용한다.
+- 배포 후 build log와 runtime error를 확인하고 결과 URL, commit, 상태, 오류 수를 개발일지에 남긴다.
+- Vercel Cron은 Production에서만 실행하고 `CRON_SECRET` 인증 실패·성공 경로를 모두 검증한다.
+
+### 연결 실패 또는 도구 부재
+
+플러그인 인증, 프로젝트 선택, 비용 확인, 환경변수가 없으면 우회해서 Production을 변경하지 않는다. 로컬에서 진행 가능한 구현과 테스트까지만 수행하고 작업 상태를 `진행 중` 또는 `막힘`으로 기록하며 정확한 재개 조건을 남긴다.
+
+<!-- BEGIN:nextjs-agent-rules -->
+
+# This is NOT the Next.js you know
+
+This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
+
+This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
+
+<!-- END:nextjs-agent-rules -->
