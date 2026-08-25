@@ -16,6 +16,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:db": "supabase test db",
+    "check:push-safety": "node scripts/check-push-safety.mjs",
     "check:env": "node scripts/check-env-contract.mjs"
   },
   "dependencies": {
