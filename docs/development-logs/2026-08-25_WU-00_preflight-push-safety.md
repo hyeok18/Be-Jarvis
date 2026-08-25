@@ -36,8 +36,9 @@
 | 문법 검사 | `node --check scripts/check-push-safety.mjs` | 성공 |
 | 정적 검사 | `pnpm run lint`, `pnpm run typecheck` | 성공, 오류 0건 |
 | 기존 테스트 | `pnpm test` | 성공, 2 files·16 tests |
-| 실제 pre-push 검사 | 커밋 후 `pnpm run check:push-safety` | 커밋 뒤 실행하여 결과 기록 |
-| 비밀값 검사 | 변경 파일 패턴 검색 | 커밋 전 실행 |
+| 실제 pre-push 검사 | 커밋 후 `pnpm run check:push-safety` | 성공, upstream remote-only 0·local-only 1·동일 파일 충돌 0 |
+| GitHub 열린 PR | 공개 GitHub API 조회 | 0개 |
+| 비밀값 검사 | 변경 파일 패턴 검색 | 성공, 노출 0건 |
 
 ## 변경된 파일
 
