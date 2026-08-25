@@ -19,7 +19,10 @@
 - WU-03 Supabase 반응·방문·크리에이터 schema와 RLS 완료
 - WU-04 식당·반응·크리에이터 합성 seed 완료
 - WU-05 counted-only 집계·방문 검증·moderation 엔진 완료
-- 다음: WU-06 공개 지도 셸과 mock 반응·매칭 UI
+- WU-06 공개 지도 셸과 mock 반응·매칭 UI 완료
+- WU-07 Kakao 지도·필터·크리에이터 레이어·fallback 완료
+- WU-08 식당 상세·한 탭 반응·개별 영상 근거 UI 완료
+- 진행 중: WU-09 Auth·반응 생성·변경 백엔드와 WU-08 UI 연결
 
 ## 로컬 실행과 품질 검사
 

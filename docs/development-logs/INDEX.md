@@ -13,7 +13,7 @@
 | WU-05 | counted-only 집계·방문 검증·moderation 엔진 | B1 | 완료 | 2026-08-25 | [기록](./2026-08-25_WU-05_reaction-engine.md) | WU-06 공개 지도 셸과 mock 반응·매칭 UI |
 | WU-06 | 공개 지도 셸과 mock 반응·매칭 UI | A3 (A1 인계) | 완료 | 2026-08-25 | [기록](./2026-08-25_WU-06_public-map-mock-ui.md) | WU-08 식당 상세·한 탭 반응·개별 영상 근거 UI |
 | WU-07 | Kakao 지도·필터·크리에이터 레이어·fallback | A2 | 완료 | 2026-08-25 | [기록](./2026-08-25_WU-07_kakao-map.md) | WU-15 실제 데이터 통합 |
-| WU-08 | 식당 상세·한 탭 반응·개별 영상 근거 UI | A3 (A1 인계) | 진행 중 | 2026-08-25 | [기록](./2026-08-25_WU-08_restaurant-detail-reaction-ui.md) | 서버 상세 route·한 탭 반응 컴포넌트부터 구현 |
+| WU-08 | 식당 상세·한 탭 반응·개별 영상 근거 UI | A3 (A1 인계) | 완료 | 2026-08-25 | [기록](./2026-08-25_WU-08_restaurant-detail-reaction-ui.md) | WU-09에서 Auth·DB UUID를 확정한 뒤 실제 반응 API 연결 |
 | WU-09 | Auth·반응 생성·변경 백엔드 | B1 | 진행 중 | 2026-08-25 | [기록](./2026-08-25_WU-09_auth-reaction-backend.md) | WU-08 로그인·반응 UI와 `/api/reactions` 연결 |
 | WU-17 | 오류·반응형·접근성·보안 | A2+공통 | 막힘 | 2026-08-25 | [기록](./2026-08-25_WU-17_quality-security.md) | WU-15·WU-16 완료와 대상 Supabase 연결 후 통합 회귀 재개 |
 

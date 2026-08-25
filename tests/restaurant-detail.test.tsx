@@ -69,6 +69,19 @@ describe("one-tap private reaction", () => {
     expect(JSON.parse(values.get(PRIVATE_REACTION_STORAGE_KEY) ?? "{}"))
       .toEqual({ "restaurant-balanced-bowl": "okay" });
   });
+
+  it("does not hide a browser storage write failure from the UI boundary", () => {
+    const storage = {
+      getItem: vi.fn(() => null),
+      setItem: vi.fn(() => {
+        throw new Error("storage disabled");
+      }),
+    };
+
+    expect(() =>
+      savePrivateReaction(storage, "restaurant-balanced-bowl", "dislike"),
+    ).toThrow("storage disabled");
+  });
 });
 
 describe("detail safety copy", () => {
