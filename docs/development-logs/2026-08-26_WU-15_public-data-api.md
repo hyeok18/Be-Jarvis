@@ -88,3 +88,13 @@
 - 검증 결과: pgTAP 12/12, Vitest 133개, lint·typecheck·build, security/performance advisor 통과.
 - push 안전 확인: `git fetch --prune origin`은 성공했다. `pnpm run check:push-safety`는 A 브랜치의 merge-base 부재에서 중단됐고 열린 PR은 0개였다. 커밋은 보존하되 원격 push는 하지 않았다.
 - 현재 재개 지점: A 브랜치를 최신 `main` 기반으로 정상화한 뒤 push 안전 검사를 다시 통과시키고, 화면 연결과 WU-15 전체 통합 회귀를 진행한다. 전체 완료 전까지 상태는 `진행 중`이다.
+
+### 2026-08-26 — 통합 빌드 게이트 복구
+
+- 추가 구현: 지도·목록·상세가 fixture 대신 공개 DTO를 서버에서 읽도록 연결하고, 관리자 YouTube 동기화·후보 route의 서버 설정 검증을 모듈 로딩이 아닌 실제 요청 시점으로 지연했다.
+- 문제와 막힌 지점: 로컬에서 `pnpm run build`가 관리자 route를 수집하는 중 `SUPABASE_SECRET_KEY` 누락으로 중단됐다. 공개 화면 검증만 하려 해도 WU-13 관리자 저장소가 eager하게 생성되는 문제였다.
+- 해결: `createConfiguredCreatorAdminDependencies`의 auth·repository를 요청 시 생성하는 adapter로 바꾸고, 관리자 로그인 route도 로그인 요청 시 auth를 조립하게 했다. 설정이 없으면 기존 안전한 503 경로를 유지한다.
+- 검증 결과: 전체 Vitest 25개 파일 137개 성공·2개 skip, lint·typecheck 성공, Next.js 16.3.2 production build 성공. 로컬 공개 지도는 Supabase 서버 설정이 없는 경우 임의 0건/fixture 대신 명시적 데이터 연결 불가 화면을 표시하는 것을 수동 확인했다.
+- 변경 파일: `src/server/admin/configured-creator-admin.ts`, `src/app/api/admin/session/route.ts`, `tests/configured-creator-admin.test.ts`, 공개 DTO UI adapter·지도·상세 연결 파일.
+- 남은 위험과 미해결 항목: 로컬에 실제 Supabase server key가 없어 실제 30곳 성공 화면은 아직 Preview 또는 설정된 개발 환경에서 확인해야 한다. YouTube API key는 수동 sync·Cron을 실제 실행할 배포 환경의 server-only 변수로만 필요하다.
+- 다음 작업에서는 어떻게 해야 하는가: Preview에서 실제 공개 목록·상세·영상 근거·반응 API의 성공 경로를 smoke test하고, 개인 취향 local storage와 matching UI가 공개 집계와 분리되는지 회귀 확인한다.

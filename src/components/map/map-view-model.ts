@@ -3,6 +3,7 @@ import type {
   RestaurantMatchResult,
   RestaurantReactionSummary,
 } from "@/domain/types";
+import type { PublicSubscriberCountState } from "@/contracts/public-restaurants";
 
 export interface CreatorVisitSource {
   restaurantId: string;
@@ -11,6 +12,7 @@ export interface CreatorVisitSource {
   videoUrl: string;
   channelTitle: string;
   subscriberCount: number | null;
+  subscriberCountState?: PublicSubscriberCountState;
   hiddenSubscriberCount: boolean;
   publishedAt: string;
   metadataFetchedAt: string;

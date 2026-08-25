@@ -5,28 +5,31 @@ import { ReactionDistribution } from "@/components/map/reaction-distribution";
 import { CreatorEvidenceList } from "@/components/restaurant-detail/creator-evidence-list";
 import { DetailMatchPanel } from "@/components/restaurant-detail/detail-match-panel";
 import { ReactionSelector } from "@/components/restaurant-detail/reaction-selector";
-import {
-  getFixtureRestaurantDetail,
-  getFixtureRestaurantIds,
-} from "@/components/restaurant-detail/restaurant-detail-fixture";
+import { PublicDataUnavailable } from "@/components/public-data/public-data-unavailable";
+import { toRestaurantDetailData } from "@/components/public-data/public-restaurant-ui-adapter";
+import { createConfiguredPublicRestaurantDependencies } from "@/server/restaurants/configured-public-restaurants";
 
 interface RestaurantDetailPageProps {
   params: Promise<{ id: string }>;
 }
 
-export const dynamicParams = false;
-
-export function generateStaticParams() {
-  return getFixtureRestaurantIds().map((id) => ({ id }));
-}
+export const dynamic = "force-dynamic";
 
 export default async function RestaurantDetailPage({
   params,
 }: RestaurantDetailPageProps) {
   const { id } = await params;
-  const detail = getFixtureRestaurantDetail(id);
+  let publicRestaurant;
 
-  if (!detail) notFound();
+  try {
+    publicRestaurant = await createConfiguredPublicRestaurantDependencies()
+      .repository.getById(id);
+  } catch {
+    return <PublicDataUnavailable retryHref={`/restaurants/${encodeURIComponent(id)}`} />;
+  }
+  if (!publicRestaurant) notFound();
+  const detail = toRestaurantDetailData(publicRestaurant);
+
 
   const {
     restaurant,
@@ -59,8 +62,8 @@ export default async function RestaurantDetailPage({
       </header>
 
       <div className="detail-demo-notice" role="note">
-        합성 식당·반응·영상 근거를 사용하는 화면입니다. 실제 방문이나 식당 품질을
-        보장하지 않습니다.
+        공개 반응은 위치 기반 방문 확인과 서버 검증을 통과한 집계만 보여줍니다. 위치
+        확인은 실제 식사를 보장하지 않습니다.
       </div>
 
       <div className="detail-layout">

@@ -285,9 +285,13 @@ export function MapExplorer({
                               <small>
                                 {source.hiddenSubscriberCount
                                   ? "구독자 수 비공개"
-                                  : source.subscriberCount === null
-                                    ? "구독자 수 확인 중"
-                                    : `구독자 ${source.subscriberCount.toLocaleString("ko-KR")}명`}
+                                  : source.subscriberCountState === "stale"
+                                    ? "구독자 수 업데이트 필요"
+                                    : source.subscriberCountState === "unavailable"
+                                      ? "구독자 수 확인 불가"
+                                      : source.subscriberCount === null
+                                        ? "구독자 수 확인 중"
+                                        : `구독자 ${source.subscriberCount.toLocaleString("ko-KR")}명`}
                                 {` · 영상 ${source.publishedAt.slice(0, 10)}`}
                                 {` · API 기준 ${source.metadataFetchedAt.slice(0, 10)}`}
                               </small>

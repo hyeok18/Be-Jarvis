@@ -1,5 +1,7 @@
 import { MapExplorer } from "@/components/map/map-explorer";
-import { getFixtureMapExplorerData } from "@/components/map/map-explorer-fixture";
+import { PublicDataUnavailable } from "@/components/public-data/public-data-unavailable";
+import { toMapExplorerData } from "@/components/public-data/public-restaurant-ui-adapter";
+import { createConfiguredPublicRestaurantDependencies } from "@/server/restaurants/configured-public-restaurants";
 
 const foundationItems = [
   {
@@ -16,8 +18,18 @@ const foundationItems = [
   },
 ];
 
-export default function Home() {
-  const data = getFixtureMapExplorerData();
+export const dynamic = "force-dynamic";
+
+export default async function Home() {
+  let data;
+
+  try {
+    const restaurants = await createConfiguredPublicRestaurantDependencies()
+      .repository.list();
+    data = toMapExplorerData(restaurants);
+  } catch {
+    return <PublicDataUnavailable retryHref="/" />;
+  }
 
   return (
     <main>
@@ -29,8 +41,8 @@ export default function Home() {
           방문 근거를 함께 살펴보는 지도를 준비하고 있습니다.
         </p>
         <div className="notice" role="note">
-          현재 화면은 합성 반응과 합성 영상 근거를 사용하는 데모입니다. 방문이나 식당
-          품질을 보장하는 자료가 아닙니다.
+          위치 기반 방문 확인을 통과한 공개 반응과 관리자가 확인한 영상 근거를
+          보여줍니다. 위치 확인은 실제 식사를 보장하지 않습니다.
         </div>
       </section>
 
