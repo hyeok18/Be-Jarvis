@@ -58,6 +58,7 @@
 - Supabase security advisor의 기존 프로젝트 설정 경고인 leaked password protection 비활성화가 남아 있다. 실제 비밀번호 Auth를 연결하는 WU-09 또는 보안 게이트 WU-17 전에 [공식 설정 가이드](https://supabase.com/docs/guides/auth/password-security#password-strength-and-leaked-password-protection)에 따라 활성화한다.
 - performance advisor의 unused index 7건은 합성 데이터만 있는 현재 사용량에서 발생한 INFO다. WU-15 실제 쿼리 통합 후 사용 통계를 보고 유지·삭제를 결정한다.
 - 브라우저 Auth·체크인 route와 운영 rate limit·위험 신호 생성은 각각 WU-09~11 범위다.
+- push 직전 검사에서 `origin/codex/wu-07-kakao-map`과 공용 문서 `docs/DEVELOPMENT_PRIORITY.md`, `docs/development-logs/INDEX.md`가 겹쳐 push를 보류했다. 두 브랜치의 코드 파일은 겹치지 않으며 통합 담당이 문서 상태를 합친 뒤 다시 검사해야 한다.
 
 ## 8. 다음 작업에서는 어떻게 해야 하는가
 
@@ -98,4 +99,5 @@
 - 새 문제 또는 막힘: 연결 도구가 적용 시점의 version `20260825062147`을 생성해 최초 CLI 파일명 `20260825060116`과 달라졌다. 비대화형 `pnpm test`는 의존성 디렉터리 재구성 확인을 요구해 중단됐다.
 - 해결 또는 시도: 원격 migration 이력을 기준으로 로컬 파일명을 `20260825062147`로 맞추고 SQL 내용은 그대로 보존했다. 설치나 lockfile 변경 없이 저장소의 고정 Node runtime으로 각 품질 도구를 직접 실행했다.
 - 검증 결과: WU-05 59/59, WU-04 22/22, seed 2회, 공개·소유 RLS, projection 전체 일치, 환경 7키, ESLint, TypeScript, Vitest 16/16, production build 성공. 생성된 `public` TypeScript 타입은 기존 파일과 완전히 동일했다.
-- 현재 재개 지점: WU-06 공개 지도 셸과 mock 반응·매칭 UI.
+- push 안전 결과: `git fetch --prune origin` 후 열린 PR 0개를 확인했지만 새 WU-07 원격 브랜치와 공용 문서 2개가 겹쳐 검사기가 push를 차단했다. force push나 임의 문서 덮어쓰기는 하지 않았다.
+- 현재 재개 지점: WU-05와 WU-07의 공용 문서 통합 담당을 정한 뒤 다시 push 안전 검사를 실행한다. 통합 후 제품 작업은 WU-06 계약 상태를 팀과 재확인한다.
