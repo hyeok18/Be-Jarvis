@@ -12,9 +12,12 @@
 
 구현 전 다음 문서를 순서대로 확인합니다.
 
-1. [PRD.md](PRD.md) — 최종 구현 계약과 수용 기준
-2. [docs/TEAM_GIT_GUIDE.md](docs/TEAM_GIT_GUIDE.md) — 4인 팀 Git·배포·AI 협업 가이드
-3. [docs/PROJECT_CONCEPT.md](docs/PROJECT_CONCEPT.md) — 인터뷰 전 초기 아이디어
+1. [AGENTS.md](AGENTS.md) — 세션 운영, 완료 게이트, 개발일지 규칙
+2. [PRD.md](PRD.md) — 최종 구현 계약과 수용 기준
+3. [docs/DEVELOPMENT_PRIORITY.md](docs/DEVELOPMENT_PRIORITY.md) — 작업 단위, 의존성, 현재 재개 지점
+4. [docs/development-logs/INDEX.md](docs/development-logs/INDEX.md) — 최신 작업 상태와 세션 인계
+5. [docs/TEAM_GIT_GUIDE.md](docs/TEAM_GIT_GUIDE.md) — 4인 팀 Git·배포·AI 협업 가이드
+6. [docs/PROJECT_CONCEPT.md](docs/PROJECT_CONCEPT.md) — 인터뷰 전 초기 아이디어
 
 ## 저장소 이력
 
