@@ -3,19 +3,19 @@
 | 항목 | 내용 |
 |---|---|
 | 작업 단위 | WU-11 |
-| 상태 | 진행 중 |
+| 상태 | 완료 |
 | 작업일 | 2026-08-25 |
 | 담당 | B1+B2 |
 | 대상 AC | AC-11~14 |
 | 기준 문서 | [PRD](../../PRD.md), [개발 우선순위](../DEVELOPMENT_PRIORITY.md) |
 | 선행 작업 | WU-05, WU-10 |
-| 다음 작업 단위 | 문서 충돌 조정 후 WU-15 |
+| 다음 작업 단위 | WU-15 |
 
 ## 1. 이번 작업의 목표
 
 - 해결하려는 문제: 인증된 반응·체크인 요청의 계정/네트워크 과다 요청과 이상 패턴을 공개 집계 전에 제한·격리한다.
 - 세션 범위: WU-11 DB migration, server-only rate guard, 반응·체크인 API 연결, 테스트와 Supabase 검증.
-- 완료 조건: AC-11~14 구현·검증과 작업 우선순위/인덱스 문서 동기화.
+- 완료 조건: AC-11~14 구현·검증과 작업 우선순위/인덱스 문서 동기화. 완료.
 - 범위 밖 항목: P1 관리자 held 검토 UI, 영수증 OCR, 자유 텍스트 댓글, WU-13 관리자 화면.
 
 ## 2. 무엇을 만들었는가
@@ -44,7 +44,7 @@
 
 - 문제: 공개 API에서 전달받은 일반 x-forwarded-for를 신뢰하면 로컬/프록시 환경에서 위조 가능성이 있다.
 - 막힌 지점: 이 노트북에는 Docker가 없어 supabase test db가 로컬 Postgres 127.0.0.1:54322에 연결하지 못했다.
-- 영향: 로컬 컨테이너 기반 DB 테스트는 실행하지 못했다. 또한 WU-13 활성 작업과 README.md, docs/DEVELOPMENT_PRIORITY.md, development-log index가 충돌 가능하므로 공용 상태 문서는 아직 변경하지 않았다.
+- 영향: 로컬 컨테이너 기반 DB 테스트는 실행하지 못했다. 원격 rollback DB 테스트로 동작 계약을 검증했다.
 
 ## 4. 어떻게 해결했는가
 
@@ -91,16 +91,15 @@
 
 - 남은 위험: RATE_LIMIT_NETWORK_SALT를 Vercel Preview/Production server-only 환경변수로 설정하기 전에는 실제 배포 요청이 fail-closed 된다.
 - 후속 작업 후보: WU-15 DB→공개 지도·상세 UI 실제 연결, P1 관리자 held 검토·복구 흐름.
-- 사용자 또는 외부 입력이 필요한 사항: WU-13 활성 브랜치와 겹치는 docs/DEVELOPMENT_PRIORITY.md, docs/development-logs/INDEX.md를 통합 담당과 조정한 뒤 WU-11 상태를 완료로 갱신해야 한다.
+- 사용자 또는 외부 입력이 필요한 사항: 없음. WU-13 병합 후 공용 상태 문서를 완료로 갱신했다.
 - 범위 밖 advisor: Supabase Auth의 leaked password protection 비활성 경고는 기존 프로젝트 설정이다. [공식 설정 안내](https://supabase.com/docs/guides/auth/password-security#password-strength-and-leaked-password-protection)를 따라 배포 전 별도 결정한다.
 - 정보성 advisor: 신규 및 기존 인덱스의 unused 표시는 아직 운영 트래픽이 없어서 발생했다. 삭제하지 않는다.
 
 ## 8. 다음 작업에서는 어떻게 해야 하는가
 
-1. WU-13 PR/브랜치 상태와 해당 팀원의 공용 문서 변경을 확인한다.
-2. 충돌 없이 docs/DEVELOPMENT_PRIORITY.md의 WU-11을 완료로, docs/development-logs/INDEX.md를 이 기록으로 갱신한다.
-3. 커밋을 push하기 전 git fetch --prune origin과 pnpm run check:push-safety를 다시 실행한다. 이 세션에서는 local Git의 remote-https helper 오류로 fetch 검증을 끝내지 못했다.
-4. 배포 전 Vercel Preview/Production에 RATE_LIMIT_NETWORK_SALT가 server-only로 존재하는지 값 없이 확인하고 Preview smoke test를 진행한다.
+1. WU-15에서 WU-11 public summary와 creator evidence를 지도·상세 UI에 실제 연결한다.
+2. 배포 전 Vercel Preview/Production에 RATE_LIMIT_NETWORK_SALT가 server-only로 존재하는지 값 없이 확인하고 Preview smoke test를 진행한다.
+3. P1 관리자 held 검토·복구를 시작할 때 proof 소비와 append-only audit transition을 다시 검증한다.
 
 ## 9. 세션 업데이트
 
@@ -108,6 +107,6 @@
 
 - 추가 구현: WU-11 migration 2개를 대상 Supabase 프로젝트에 적용하고 API guard·환경 계약·테스트를 추가했다.
 - 새 문제 또는 막힘: Docker 부재와 WU-13 공용 문서 충돌 가능성을 확인했다.
-- 해결 또는 시도: DB 테스트를 원격 rollback transaction으로 대체했고, advisor FK 경고는 후속 migration으로 해결했다.
+- 해결 또는 시도: DB 테스트를 원격 rollback transaction으로 대체했고, WU-13 병합 후 공용 문서 상태를 안전하게 갱신했다. advisor FK 경고는 후속 migration으로 해결했다.
 - 검증 결과: pgTAP 18/18, Vitest 108/108, lint/typecheck/build 성공.
-- 현재 재개 지점: 공용 문서 충돌 조정 및 push safety 재시도 전까지 WU-11 상태는 진행 중이다.
+- 현재 재개 지점: WU-11 완료. WU-15에서 실제 데이터 수직 통합을 시작한다.
