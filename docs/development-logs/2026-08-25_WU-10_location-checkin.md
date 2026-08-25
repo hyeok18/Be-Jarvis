@@ -96,3 +96,11 @@
 - 해결 또는 시도: assertion 목록을 재확인해 plan을 33으로 맞추고 동일 migration+test transaction을 다시 실행했다.
 - 검증 결과: 원격 rollback transaction에서 WU-10 pgTAP 33/33이 오류 없이 실행됐고, 직후 함수 미존재·합성 proof 0건으로 rollback을 확인했다.
 - 현재 재개 지점: 체크인 Route Handler와 기존 반응 API의 proof token digest 연결.
+
+### 2026-08-25 — checkpoint 2
+
+- 추가 구현: 인증된 `/api/visits/check-in`, 암호학적 임의 토큰 생성·SHA-256 digest 변환, proof-aware 반응 RPC transport와 안전한 오류 응답을 연결했다.
+- 새 문제 또는 막힘: Vitest가 서버 파일 내부의 `@/` 별칭을 해석하지 못했고, 함수 자체를 JSON 직렬화한 두 assertion이 `undefined`를 반환했다.
+- 해결 또는 시도: 서버 내부 import를 상대 경로로 바꾸고 실제 dependency 호출 인자·HTTP body를 검증하는 assertion으로 정리했다.
+- 검증 결과: TypeScript 정적 검사와 체크인·반응 API 테스트 25/25 통과. raw token은 체크인 성공 DTO와 브라우저→서버 요청에만 있고 Supabase RPC에는 digest만 전달됨을 확인했다.
+- 현재 재개 지점: 브라우저 geolocation 권한·정확도·거리·만료 안내와 반응 선택 연결.

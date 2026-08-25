@@ -1,3 +1,8 @@
+import {
+  digestVisitProofToken,
+  isVisitProofToken,
+} from "../visits/visit-proof-token";
+
 const reactionKinds = ["like", "okay", "dislike"] as const;
 
 export type ReactionKind = (typeof reactionKinds)[number];
@@ -15,6 +20,7 @@ type SaveReactionInput = {
   userId: string;
   restaurantId: string;
   kind: ReactionKind;
+  visitProofDigest?: string;
 };
 
 export type ReactionApiDependencies = {
@@ -45,7 +51,11 @@ type SupabaseReactionRow = {
 
 class ReactionServiceError extends Error {
   constructor(
-    readonly kind: "configuration" | "unavailable" | "not_found",
+    readonly kind:
+      | "configuration"
+      | "unavailable"
+      | "not_found"
+      | "visit_proof_invalid",
   ) {
     super(kind);
     this.name = "ReactionServiceError";
@@ -119,11 +129,14 @@ async function readReactionInput(request: Request) {
   const keys = Object.keys(record);
 
   if (
-    keys.length !== 2 ||
+    (keys.length !== 2 && keys.length !== 3) ||
     !keys.includes("restaurantId") ||
     !keys.includes("kind") ||
     !isUuid(record.restaurantId) ||
-    !isReactionKind(record.kind)
+    !isReactionKind(record.kind) ||
+    (keys.length === 3 &&
+      (!keys.includes("visitProofToken") ||
+        !isVisitProofToken(record.visitProofToken)))
   ) {
     return null;
   }
@@ -131,6 +144,10 @@ async function readReactionInput(request: Request) {
   return {
     restaurantId: record.restaurantId,
     kind: record.kind,
+    visitProofToken:
+      typeof record.visitProofToken === "string"
+        ? record.visitProofToken
+        : undefined,
   };
 }
 
@@ -181,6 +198,9 @@ export function createReactionPostHandler(dependencies: ReactionApiDependencies)
         userId: user.id,
         restaurantId: input.restaurantId,
         kind: input.kind,
+        ...(input.visitProofToken
+          ? { visitProofDigest: digestVisitProofToken(input.visitProofToken) }
+          : {}),
       });
 
       return jsonResponse({ reaction }, reaction.wasCreated ? 201 : 200);
@@ -201,6 +221,17 @@ export function createReactionPostHandler(dependencies: ReactionApiDependencies)
           503,
           "SERVICE_NOT_CONFIGURED",
           "반응 저장 서비스가 아직 설정되지 않았습니다.",
+        );
+      }
+
+      if (
+        error instanceof ReactionServiceError &&
+        error.kind === "visit_proof_invalid"
+      ) {
+        return errorResponse(
+          409,
+          "VISIT_PROOF_INVALID",
+          "방문 확인이 만료됐거나 이미 사용됐습니다. 다시 체크인해 주세요.",
         );
       }
 
@@ -333,8 +364,14 @@ export function createSupabaseReactionDependencies(
         "NEXT_PUBLIC_SUPABASE_URL",
       );
       const secretKey = requireEnvironmentValue(environment, "SUPABASE_SECRET_KEY");
+      const usesVisitProof = Boolean(input.visitProofDigest);
       const response = await fetchImplementation(
-        createSupabaseUrl(baseUrl, "/rest/v1/rpc/save_reaction_selection"),
+        createSupabaseUrl(
+          baseUrl,
+          usesVisitProof
+            ? "/rest/v1/rpc/save_reaction_with_visit_proof"
+            : "/rest/v1/rpc/save_reaction_selection",
+        ),
         {
           method: "POST",
           headers: {
@@ -342,11 +379,20 @@ export function createSupabaseReactionDependencies(
             apikey: secretKey,
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({
-            p_user_id: input.userId,
-            p_restaurant_id: input.restaurantId,
-            p_kind: input.kind,
-          }),
+          body: JSON.stringify(
+            usesVisitProof
+              ? {
+                  p_user_id: input.userId,
+                  p_restaurant_id: input.restaurantId,
+                  p_kind: input.kind,
+                  p_evidence_digest: input.visitProofDigest,
+                }
+              : {
+                  p_user_id: input.userId,
+                  p_restaurant_id: input.restaurantId,
+                  p_kind: input.kind,
+                },
+          ),
           cache: "no-store",
         },
       );
@@ -360,6 +406,25 @@ export function createSupabaseReactionDependencies(
 
         if (errorCode === "23503") {
           throw new ReactionServiceError("not_found");
+        }
+
+        const errorMessage =
+          errorBody && typeof errorBody === "object"
+            ? (errorBody as { message?: unknown }).message
+            : null;
+
+        if (
+          errorCode === "23514" &&
+          typeof errorMessage === "string" &&
+          [
+            "MISSING_VISIT_PROOF",
+            "VISIT_PROOF_MISMATCH",
+            "VISIT_PROOF_NOT_VERIFIED",
+            "VISIT_PROOF_EXPIRED",
+            "DUPLICATE_PROOF",
+          ].includes(errorMessage)
+        ) {
+          throw new ReactionServiceError("visit_proof_invalid");
         }
 
         throw new ReactionServiceError("unavailable");
