@@ -16,7 +16,8 @@
 - WU-01 Next.js 앱 셸과 품질 게이트 완료
 - WU-02 구 별점 도메인 계약 완료 — 역사 기록이며 WU-20으로 대체
 - WU-20 별점 폐지·반응·방문·크리에이터 계약 재설계 완료
-- 다음: WU-03 Supabase 반응·방문·크리에이터 schema와 RLS
+- WU-03 Supabase 반응·방문·크리에이터 schema와 RLS 완료
+- 다음: WU-04 식당·반응·크리에이터 합성 seed
 
 ## 로컬 실행과 품질 검사
 
@@ -35,8 +36,12 @@ pnpm run check:env
 pnpm run lint
 pnpm run typecheck
 pnpm test
+pnpm run test:db
 pnpm run build
 ```
+
+`test:db`는 Docker가 실행 중인 로컬 Supabase 환경을 사용합니다. 원격 DB에는
+`supabase/migrations/`와 동일한 migration만 적용하고, 테스트 fixture는 트랜잭션에서 롤백합니다.
 
 ## 구현 전 읽을 문서
 

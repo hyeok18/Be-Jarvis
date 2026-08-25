@@ -1,0 +1,3 @@
+-- Historical marker for the legacy job-finder migration that already existed in
+-- the reused remote project. Its objects are intentionally not recreated.
+-- 20260825050049_reset_legacy_job_finder_schema.sql is idempotent on a fresh DB.

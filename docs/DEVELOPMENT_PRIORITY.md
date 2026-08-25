@@ -32,8 +32,8 @@
 | 1 | WU-01 | P0 | Next.js 앱 셸과 품질 게이트 | 공통 | WU-00 | AC-27 기반 | 완료 | 앱 셸·환경·품질 명령 통과 |
 | 2 | WU-02 | P0 | 구 별점 도메인 계약 | A1+B2 | WU-01 | 과거 AC | 완료 | 역사 기록이며 WU-20으로 대체됨 |
 | 3 | WU-20 | P0 | 별점 폐지·반응·방문·크리에이터 계약 재설계 | 공통 | WU-02 | AC-01~22 기반 | 완료 | 새 계약·16개 테스트·빌드·390/1440px 검증 통과 |
-| 4 | WU-03 | P0 | Supabase 반응·방문·크리에이터 schema와 RLS | B1 | WU-20 | AC-06~13, AC-26 | **다음** | migration, RLS, GRANT, advisor, DB 타입 |
-| 5 | WU-04 | P0 | 식당·반응·크리에이터 합성 seed | B1+B2 | WU-03 | AC-03~04, AC-15~19 | 대기 | 식당 30곳, 합성 반응·방문·영상 근거 fixture |
+| 4 | WU-03 | P0 | Supabase 반응·방문·크리에이터 schema와 RLS | B1 | WU-20 | AC-06~13, AC-26 | 완료 | 원격 migration·9개 RLS·36개 DB 테스트·advisor·DB 타입 |
+| 5 | WU-04 | P0 | 식당·반응·크리에이터 합성 seed | B1+B2 | WU-03 | AC-03~04, AC-15~19 | **다음** | 식당 30곳, 합성 반응·방문·영상 근거 fixture |
 | 6 | WU-05 | P0 | counted-only 집계·방문 검증·moderation 엔진 | B1 | WU-03 | AC-03~14 | 대기 | 집계·토큰·상태·실패 복구 테스트 |
 | 7 | WU-06 | P0 | 공개 지도 셸과 mock 반응·매칭 UI | A1 | WU-20 | AC-01~05, AC-20~22 | 대기 | 세 반응·매칭·금지 필드 없는 mock UI |
 | 8 | WU-07 | P0 | Kakao 지도·필터·크리에이터 레이어·fallback | A2 | WU-06 | AC-15, AC-23~25 | 대기 | 카드·마커·레이어 동기화와 지도 실패 대체 |
@@ -152,10 +152,10 @@ WU-20은 기존 ID 사이에 새 번호를 끼우지 않는 운영 규칙에 따
 
 ## 7. 현재 재개 지점
 
-현재 재개 대상은 **WU-03 — Supabase 반응·방문·크리에이터 schema와 RLS**다.
+현재 재개 대상은 **WU-04 — 식당·반응·크리에이터 합성 seed**다.
 
-1. [`2026-08-25_WU-20_reaction-creator-contracts.md`](./development-logs/2026-08-25_WU-20_reaction-creator-contracts.md)의 남은 위험과 인계 순서를 읽는다.
-2. Supabase 연결을 읽기 전용으로 확인하고 새 조직·프로젝트·리전·비용이 필요하면 사용자 승인을 받는다.
-3. 반응·방문 증명·감사 이벤트·공개 projection·creator sync 원본을 분리한 migration을 작성한다.
-4. check·unique·FK·partial/composite index, 사용자 소유 RLS, 공개 DTO, 관리자 권한, 명시적 GRANT를 구현한다.
-5. 비로그인·본인·다른 사용자·관리자 실패 경로와 advisor·DB 타입 생성까지 검증한다.
+1. [`2026-08-25_WU-03_supabase-schema-rls.md`](./development-logs/2026-08-25_WU-03_supabase-schema-rls.md)의 남은 위험과 인계 순서를 읽는다.
+2. 실제 사용자·리뷰·위치·YouTube 데이터를 사용하지 않고 성수동 식당 30곳의 명시적 합성 fixture를 설계한다.
+3. 반응 0개·10개 미만·충분 상태와 `counted/pending/held/rejected/private_only`를 모두 포함한다.
+4. creator channel·video·candidate·confirmed·stale·hidden 구독자 상태를 포함하되 파생 공신력 점수를 만들지 않는다.
+5. `supabase/seed.sql`을 반복 실행해도 결과가 안정적이며 AC-03~04·15~19 fixture 검증이 통과해야 한다.

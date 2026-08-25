@@ -1,0 +1,2 @@
+-- WU-04 owns synthetic demo data. Keeping this file present makes local
+-- `supabase db reset` reproducible before that work unit is implemented.
