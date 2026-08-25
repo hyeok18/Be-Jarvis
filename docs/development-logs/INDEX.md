@@ -20,7 +20,7 @@
 | WU-12 | YouTube Data API 증분 동기화·stale 처리 | B2 | 완료 | 2026-08-25 | [기록](./2026-08-25_WU-12_youtube-sync.md) | WU-14 Cron 인증·동시 실행 방지 |
 | WU-13 | 크리에이터 후보 확인·sync log 관리자 UI | B2 | 완료 | 2026-08-25 | [기록](./2026-08-25_WU-13_creator-admin.md) | WU-11 완료 후 WU-15 실제 데이터 통합 지원 |
 | WU-14 | YouTube Cron·인증·동시 실행 방지 | B2 | 완료 | 2026-08-25 | [기록](./2026-08-25_WU-14_youtube-cron-safety.md) | WU-15 실제 데이터 통합에서 운영 동기화 경로 연결 |
-| WU-15 | 30곳 실제 수직 통합 | 공통 | 막힘 | 2026-08-26 | [최신 기록](./2026-08-26_WU-15_public-data-api.md) | Preview 재배포는 Ready이나 대상 Supabase server secret read-only 검증이 HTTP 401. 같은 Supabase 프로젝트의 새 server secret을 `youtube.env`와 Preview Secret에 갱신한 뒤 실제 30곳 smoke 재개 |
+| WU-15 | 30곳 실제 수직 통합 | 공통 | 진행 중 | 2026-08-26 | [최신 기록](./2026-08-26_WU-15_public-data-api.md) | Preview 실제 30곳 목록·상세·confirmed 근거 smoke 성공. `RATE_LIMIT_NETWORK_SALT` 후 반응·체크인 smoke, Kakao 키가 준비되면 지도 SDK 경로 및 390/1440 실제 데이터 회귀 |
 | WU-16 | 발표 스냅샷·백업 모드 | B2+A1 | 진행 중 | 2026-08-26 | [기록](./2026-08-26_WU-16_presentation-snapshot.md), [인계](../HANDOFF_WU-15_WU-16_UI_BASELINE.md) | Preview `be-jarvis-wu15-preview` 생성 및 `?snapshot=1&cycle=1` 직접 렌더링 확인. 실제 데이터 smoke는 새 YouTube 키·Preview 환경변수 등록 후 재개; 발표 리허설은 나중 |
 | WU-17 | 오류·반응형·접근성·보안 | A2+공통 | 막힘 | 2026-08-25 | [기록](./2026-08-25_WU-17_quality-security.md) | WU-15·WU-16 완료와 대상 Supabase 연결 후 통합 회귀 재개 |
 

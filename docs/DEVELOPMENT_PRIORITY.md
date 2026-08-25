@@ -44,7 +44,7 @@
 | 13 | WU-12 | P0 | YouTube Data API 증분 동기화·stale 처리 | B2 | WU-03, WU-04 | AC-15~19 | 완료 | 공식 API 5개 채널·영상 500개 실제 저장, live sync·42개 전체 테스트·공개 접근 차단·빌드 통과 |
 | 14 | WU-13 | P0 | 크리에이터 후보 확인·sync log 관리자 UI | B2 | WU-08, WU-12 | AC-15, AC-19 | 완료 | 관리자 실제 로그인·후보 6건·채널 5개·sync log 조회, 합성 후보 1건 확정 후 candidate 0 재검증 |
 | 15 | WU-14 | P0 | YouTube Cron·인증·동시 실행 방지 | B2 | WU-12 | AC-14, AC-18 | 완료 | `0 18 * * *`, secret 5경로, 실제 DB lock·15분 만료 복구·공개 차단, 전체 55개 테스트·빌드 |
-| 16 | WU-15 | P0 | 30곳 실제 수직 통합 | 공통 | WU-07, WU-11, WU-13 | AC-01~24 | **막힘** | Preview 재배포·YouTube 키 교체와 공개 Config 등록 완료. 대상 Supabase server secret이 HTTP 401이므로 같은 프로젝트의 새 server secret 갱신 후 실제 30곳 smoke·통합 회귀 재개 |
+| 16 | WU-15 | P0 | 30곳 실제 수직 통합 | 공통 | WU-07, WU-11, WU-13 | AC-01~24 | 진행 중 | Preview 실제 30곳 목록·상세·confirmed 근거 smoke 성공. `RATE_LIMIT_NETWORK_SALT` 후 반응·체크인 smoke, Kakao 키가 준비되면 지도 SDK 경로 및 실제 데이터 반응형 회귀 |
 | 17 | WU-16 | P0 | 발표 스냅샷·백업 모드 | B2+A1 | WU-15 | AC-14, AC-28 | 진행 중 | `?snapshot=1` 명시 백업 모드와 `?snapshot=1&cycle=1` 30초 발표 순환 구현. 전체 test 146 passed/2 skipped, typecheck, lint, Webpack build, snapshot·cycle HTTP 200, 390/1440px 확인 통과. 리허설은 사용자 요청으로 나중 진행 |
 | 18 | WU-17 | P0 | 오류·반응형·접근성·보안 | A2+공통 | WU-15, WU-16 | AC-24~26 | **막힘** | 사전 UI·fallback·정적 보안 회귀 완료; WU-15·WU-16과 대상 Supabase 연결 대기 |
 | 19 | WU-18 | P0 | Vercel Preview·Production 배포 | 공통 | WU-14, WU-17 | AC-27 | 대기 | 환경 분리, 같은 artifact, smoke, rollback |
@@ -152,7 +152,7 @@ WU-20은 기존 ID 사이에 새 번호를 끼우지 않는 운영 규칙에 따
 
 ## 7. 현재 재개 지점
 
-현재 대상은 **WU-15 — 30곳 실제 수직 통합**이며, 상태는 **막힘**이다. Preview의 새 YouTube 키와 공개 Config 등록·재배포는 끝났지만, `youtube.env`의 대상 Supabase server secret이 같은 프로젝트 REST read-only 검증에서 HTTP 401을 반환한다. 같은 프로젝트의 새 server secret을 갱신한 뒤 Preview Secret을 교체하고 실제 공개 smoke와 통합 회귀를 재개해야 한다.
+현재 대상은 **WU-15 — 30곳 실제 수직 통합**이며, 상태는 **진행 중**이다. Preview의 새 YouTube 키와 공개 Config·Supabase server secret 등록 및 재배포가 끝났고, 실제 30곳 공개 목록·상세·confirmed 영상 근거 smoke도 성공했다. 다음에는 `RATE_LIMIT_NETWORK_SALT`를 Preview server-only로 설정한 뒤 반응·체크인 성공/실패·복구 smoke를 수행하고, Kakao 공개 앱 키가 준비되면 지도 SDK 경로와 390px/1440px 실제 데이터 회귀를 확인한다.
 
 WU-11은 `codex/wu-11-abuse-controls`에서 구현했다. 대상 Supabase에 rate limit·held migration 2개를 적용했고, 원 IP·fingerprint 비저장, account/network 제한, 위험 신호 held 격리, 마지막 정상 summary 보존을 rollback pgTAP 18/18과 앱 품질 게이트로 검증했다.
 

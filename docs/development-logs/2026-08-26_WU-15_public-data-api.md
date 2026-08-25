@@ -145,3 +145,10 @@
 - 추가 확인: 사용자가 `youtube.env`의 server secret 교체 완료를 알린 뒤 같은 읽기 전용 REST 검증을 다시 실행했다.
 - 검증 결과: HTTP 401이 계속 발생했다. Vercel에 값을 전송하거나 기존 Preview Secret을 변경하지 않았으므로 Production·Preview의 배포 설정에는 추가 변경이 없다.
 - 현재 재개 지점: `NEXT_PUBLIC_SUPABASE_URL`의 project ref와 Supabase Dashboard에서 선택한 프로젝트가 같은지 먼저 대조한다. 그 정확한 프로젝트의 **Settings → API Keys → Secret keys**에서 새 `sb_secret_...` 키를 만든 뒤 로컬 파일의 해당 변수만 교체하고 재검증한다.
+
+### 2026-08-26 — 실제 Preview 공개 데이터 smoke 성공
+
+- 진단 정정: 앞선 HTTP 401은 PowerShell 요청의 User-Agent가 Supabase Secret key의 브라우저 차단 조건에 걸릴 수 있는 검사 방식이었다. 실제 Vercel 서버와 같은 Node `fetch`로 `apikey` 헤더만 사용해 재검증한 결과, 활성 식당 read-only 조회는 HTTP 200·JSON 배열·30행이었다. URL·새 server secret 조합은 정상이다.
+- 외부 설정: 사용자 승인 후 Vercel `acme/be-jarvis`의 기존 `SUPABASE_SECRET_KEY`를 새 값으로 **Preview 전용 Secret**으로 갱신했다. Vercel이 `Updated`와 Preview 범위를 표시한 것을 확인했고 Production 키·범위는 수정하지 않았다.
+- 배포 및 수동 검증: Preview 환경으로만 재배포한 deployment `BEbHAJzSaBDTHhxFLW7FHWaCMhwc`가 Ready(34초)였다. 실제 홈에서 `30곳 연결된 성수 식당`, counted-only 세 반응, confirmed YouTube 근거를 확인했다. 실제 UUID 상세에서도 세 반응 분포(좋아요/그냥 그래요/싫어요), 개인 반응 분리 안내, 로그인·체크인 전 상태, confirmed 원본 영상만 표시되는 것을 확인했다.
+- 현재 상태: WU-15는 더 이상 Supabase server secret 때문에 막히지 않으며 `진행 중`이다. 남은 실제 smoke는 `RATE_LIMIT_NETWORK_SALT` 설정 후 로그인·반응·체크인 성공/실패·복구 경로, Kakao 공개 앱 키가 준비된 경우 지도 SDK 경로, Preview의 390px/1440px 실제 데이터 회귀다. 현재 키가 없는 상태에서도 지도 fallback과 공개 목록은 정상 동작한다.
