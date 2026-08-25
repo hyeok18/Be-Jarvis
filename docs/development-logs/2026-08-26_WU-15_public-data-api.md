@@ -130,3 +130,12 @@
 - 변경 파일: 이 개발일지와 `docs/development-logs/INDEX.md`만 갱신한다. 코드, API, migration, package, lockfile, 비밀값은 수정하지 않았다.
 - 남은 위험과 미해결 항목: 팀에서 `codex/mobile-map-prototype`와 `codex/kakao-map-update`의 활성 여부 또는 통합 담당을 확정하기 전에는 `codex/ui-baseline`을 push·PR로 올리지 않는다. 기존에 노출 가능성이 생긴 YouTube 키도 폐기·재발급 전까지 Preview smoke와 YouTube sync를 재개하지 않는다.
 - 다음 작업에서는 어떻게 해야 하는가: 먼저 팀에 `codex/mobile-map-prototype`의 홈/상세 변경을 폐기할지, UI 기준선에 흡수할지, 별도 통합 담당이 처리할지 결정하도록 공유한다. 동시에 사용자가 Google Cloud Console에서 기존 YouTube 키를 폐기하고 새 서버 전용 키를 준비하면 Preview Config 등록과 실제 30곳 smoke test를 재개한다.
+
+### 2026-08-26 — Preview 재배포 및 실제 데이터 연결 재검증
+
+- 추가 작업: `acme/be-jarvis`의 `codex/ui-baseline` Preview에 새 `YOUTUBE_DATA_API_KEY`를 Preview 전용 Secret으로 교체 등록했다. `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`는 Preview 전용 Config로 등록했고, Production 범위는 선택하지 않았다. 같은 커밋 `6dadd3b`을 Preview 환경으로 재배포해 Ready 상태와 배포 URL을 확인했다.
+- 새 문제 또는 막힘: 재배포된 실제 홈은 안전한 `공개 데이터 연결` 오류 화면을 표시했다. 로컬 `youtube.env`의 `NEXT_PUBLIC_SUPABASE_URL`과 `SUPABASE_SECRET_KEY`를 서버 repository와 같은 REST 요청 방식으로 읽기 전용 검증한 결과 HTTP 401이었고, Bearer 인증을 추가한 검증도 HTTP 401이었다. 따라서 현재 Supabase 서버 키는 대상 프로젝트에서 인증되지 않으며, YouTube 키나 UI 코드의 문제가 아니다.
+- 해결 또는 시도: 키의 존재·형식과 URL 형식만 비노출 방식으로 확인했고, 비밀값·응답 본문·헤더는 출력하거나 기록하지 않았다. 인증 실패를 0건 데이터나 스냅샷으로 숨기지 않고 기존 `PUBLIC_DATA_UNAVAILABLE` 화면을 유지했다. `NEXT_PUBLIC_KAKAO_MAP_APP_KEY`, `KAKAO_REST_API_KEY`, `RATE_LIMIT_NETWORK_SALT`는 현재 Preview에 없어 각각 지도 fallback 및 반응·체크인 smoke 보류 상태다.
+- 검증 결과: Preview 배포 Ready(34초), 실제 홈의 명시적 장애 화면, Supabase REST 활성 식당 read-only HTTP 401을 확인했다. 기존 로컬 품질 게이트 결과는 유지되며, 이번 세션은 외부 환경 설정만 변경해 lint/typecheck/test/build를 재실행하지 않았다.
+- 변경 파일: Vercel Preview 환경변수 범위(외부 설정)와 이 개발일지·인덱스·우선순위 문서만 변경했다. Production 환경변수, Supabase schema/data, application code, package/lockfile은 수정하지 않았다.
+- 현재 재개 지점: Supabase Dashboard에서 **이 Preview가 읽어야 하는 같은 프로젝트의 새 server secret key**를 다시 발급·검증해 `youtube.env`의 `SUPABASE_SECRET_KEY`를 교체한다. 그 값을 Preview Secret에 갱신하고 재배포한 뒤, 실제 목록 30곳 → 실제 UUID 상세 → confirmed evidence → 반응/check-in 실패·복구 경로 순으로 smoke test한다. 유효한 키를 채팅·Git·개발일지에 붙여넣지 않는다.
