@@ -3,7 +3,7 @@
 | 항목 | 내용 |
 |---|---|
 | 작업 단위 | WU-05 |
-| 상태 | 진행 중 |
+| 상태 | 완료 |
 | 작업일 | 2026-08-25 |
 | 담당 | B1 |
 | 대상 AC | AC-03~14 |
@@ -40,11 +40,14 @@
 - checkpoint 1 원격 rollback 검증: pgTAP 16번까지 성공, counted insert·kind 변경·held 제외·잘못된 counted 실패·마지막 정상 projection 보존 확인.
 - checkpoint 2 원격 rollback 검증: pgTAP 35번까지 성공, 120m·100m·24시간 경계와 proof 소유권·상태·만료·재사용·비변경 실패 확인.
 - checkpoint 3 원격 rollback 검증: pgTAP 59번까지 성공, 단일 신호 hold·proof 무결성 reject·허용 전이·감사 append-only·실패 시 마지막 정상 projection 보존 확인.
-- 각 검증 후 WU-05 객체 미존재, 기존 WU-04 proof 22건·최대 counted 12건 summary 유지 확인. 완성 migration은 아직 적용하지 않았다.
+- 각 checkpoint 검증 후 WU-05 객체 미존재, 기존 WU-04 proof 22건·최대 counted 12건 summary 유지 확인.
+- 완성 migration `20260825062147_wu_05_reaction_engine`을 `Be-jarvis` 프로젝트에 적용하고 migration history와 로컬 파일명을 일치시켰다.
+- 적용 후 WU-05 pgTAP 59/59, WU-04 fixture 22/22, seed 2회 멱등 적용, 익명 공개·사용자 소유 RLS, counted-only 전체 projection 일치를 확인했다.
+- `check:env`, ESLint, TypeScript, Vitest 16/16, Next.js production build가 모두 성공했다.
 
 ## 6. 변경된 파일
 
-- `supabase/migrations/20260825060116_wu_05_reaction_engine.sql`
+- `supabase/migrations/20260825062147_wu_05_reaction_engine.sql`
 - `supabase/tests/wu_05_reaction_engine_test.sql`
 - `docs/DEVELOPMENT_PRIORITY.md`
 - `docs/development-logs/INDEX.md`
@@ -52,14 +55,16 @@
 
 ## 7. 남은 위험과 미해결 항목
 
-- 전체 migration 적용·advisor·회귀가 남아 있다.
+- Supabase security advisor의 기존 프로젝트 설정 경고인 leaked password protection 비활성화가 남아 있다. 실제 비밀번호 Auth를 연결하는 WU-09 또는 보안 게이트 WU-17 전에 [공식 설정 가이드](https://supabase.com/docs/guides/auth/password-security#password-strength-and-leaked-password-protection)에 따라 활성화한다.
+- performance advisor의 unused index 7건은 합성 데이터만 있는 현재 사용량에서 발생한 INFO다. WU-15 실제 쿼리 통합 후 사용 통계를 보고 유지·삭제를 결정한다.
+- 브라우저 Auth·체크인 route와 운영 rate limit·위험 신호 생성은 각각 WU-09~11 범위다.
 
 ## 8. 다음 작업에서는 어떻게 해야 하는가
 
-1. 전체 migration을 `Be-jarvis` 원격 프로젝트에 적용한다.
-2. pgTAP·seed 멱등성·공개 경계 회귀를 다시 검증한다.
-3. security/performance advisor와 생성 타입을 확인한다.
-4. 전체 저장소 품질 게이트 후 push 충돌 검사를 수행한다.
+1. WU-06은 공개 summary의 `like_count`, `okay_count`, `dislike_count`, `counted_total`만 mock UI에 노출하고 숫자 품질점수를 만들지 않는다.
+2. B1 후속 WU-09는 WU-08 완료 뒤 Auth·반응 endpoint를 이 private 엔진에 연결한다.
+3. WU-10은 원본 좌표를 저장하지 않고 `evaluate_location_checkin`의 결과로 proof token만 생성한다.
+4. WU-11은 행동 신호를 `decide_reaction_moderation`에 전달하되 신호 하나로 계정을 사기라고 단정하지 않는다.
 
 ## 9. 세션 업데이트
 
@@ -86,3 +91,11 @@
 - 해결 또는 시도: 단일 행동 신호는 hold, proof 무결성 실패만 reject, 모든 변경은 append-only 이벤트와 한 transaction으로 처리.
 - 검증 결과: 테스트 계획을 59개로 맞춘 뒤 원격 rollback pgTAP 59/59 성공. 실패한 감사 FK가 반응 상태와 counted-only projection까지 함께 원복하는 것을 확인했다.
 - 현재 재개 지점: checkpoint 4 전체 migration 적용·advisor·회귀.
+
+### 2026-08-25 — checkpoint 4
+
+- 추가 구현: 완성 migration 원격 적용, 이력 정렬, seed·RLS·projection 회귀와 완료 문서 동기화.
+- 새 문제 또는 막힘: 연결 도구가 적용 시점의 version `20260825062147`을 생성해 최초 CLI 파일명 `20260825060116`과 달라졌다. 비대화형 `pnpm test`는 의존성 디렉터리 재구성 확인을 요구해 중단됐다.
+- 해결 또는 시도: 원격 migration 이력을 기준으로 로컬 파일명을 `20260825062147`로 맞추고 SQL 내용은 그대로 보존했다. 설치나 lockfile 변경 없이 저장소의 고정 Node runtime으로 각 품질 도구를 직접 실행했다.
+- 검증 결과: WU-05 59/59, WU-04 22/22, seed 2회, 공개·소유 RLS, projection 전체 일치, 환경 7키, ESLint, TypeScript, Vitest 16/16, production build 성공. 생성된 `public` TypeScript 타입은 기존 파일과 완전히 동일했다.
+- 현재 재개 지점: WU-06 공개 지도 셸과 mock 반응·매칭 UI.

@@ -1,3 +1,4 @@
+-- Remote migration version: 20260825062147.
 -- WU-05 checkpoint 1: counted-only summary projection.
 -- Functions stay in the unexposed private schema. The trigger makes every raw
 -- reaction mutation and its public projection one short atomic transaction.

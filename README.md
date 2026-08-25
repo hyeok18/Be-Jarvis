@@ -18,7 +18,8 @@
 - WU-20 별점 폐지·반응·방문·크리에이터 계약 재설계 완료
 - WU-03 Supabase 반응·방문·크리에이터 schema와 RLS 완료
 - WU-04 식당·반응·크리에이터 합성 seed 완료
-- 다음: WU-05 counted-only 집계·방문 검증·moderation 엔진
+- WU-05 counted-only 집계·방문 검증·moderation 엔진 완료
+- 다음: WU-06 공개 지도 셸과 mock 반응·매칭 UI
 
 ## 로컬 실행과 품질 검사
 

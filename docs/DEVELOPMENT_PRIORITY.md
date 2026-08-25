@@ -34,8 +34,8 @@
 | 3 | WU-20 | P0 | 별점 폐지·반응·방문·크리에이터 계약 재설계 | 공통 | WU-02 | AC-01~22 기반 | 완료 | 새 계약·16개 테스트·빌드·390/1440px 검증 통과 |
 | 4 | WU-03 | P0 | Supabase 반응·방문·크리에이터 schema와 RLS | B1 | WU-20 | AC-06~13, AC-26 | 완료 | 원격 migration·9개 RLS·36개 DB 테스트·advisor·DB 타입 |
 | 5 | WU-04 | P0 | 식당·반응·크리에이터 합성 seed | B1+B2 | WU-03 | AC-03~04, AC-15~19 | 완료 | 원격 seed 2회·fixture 검증 22/22·익명 공개 경계 통과 |
-| 6 | WU-05 | P0 | counted-only 집계·방문 검증·moderation 엔진 | B1 | WU-03 | AC-03~14 | **진행 중** | checkpoint 3: 원격 rollback pgTAP 59/59, 최종 적용·회귀 대기 |
-| 7 | WU-06 | P0 | 공개 지도 셸과 mock 반응·매칭 UI | A1 | WU-20 | AC-01~05, AC-20~22 | 대기 | 세 반응·매칭·금지 필드 없는 mock UI |
+| 6 | WU-05 | P0 | counted-only 집계·방문 검증·moderation 엔진 | B1 | WU-03 | AC-03~14 | 완료 | 원격 migration·pgTAP 59/59·seed 2회·WU-04 22/22·advisor·전체 품질 게이트 |
+| 7 | WU-06 | P0 | 공개 지도 셸과 mock 반응·매칭 UI | A1 | WU-20 | AC-01~05, AC-20~22 | **다음** | 세 반응·매칭·금지 필드 없는 mock UI |
 | 8 | WU-07 | P0 | Kakao 지도·필터·크리에이터 레이어·fallback | A2 | WU-06 | AC-15, AC-23~25 | 대기 | 카드·마커·레이어 동기화와 지도 실패 대체 |
 | 9 | WU-08 | P0 | 식당 상세·한 탭 반응·개별 영상 근거 UI | A1 | WU-06 | AC-01~05, AC-15, AC-17~18 | 대기 | 상세 반응·체크인 상태·YouTube 출처 표시 |
 | 10 | WU-09 | P0 | 일반 사용자 Auth·반응 생성·변경 | B1 | WU-03, WU-08 | AC-05~07, AC-09~10 | 대기 | 소유권·unique·감사 이벤트 검증 |
@@ -152,10 +152,10 @@ WU-20은 기존 ID 사이에 새 번호를 끼우지 않는 운영 규칙에 따
 
 ## 7. 현재 재개 지점
 
-현재 재개 대상은 **WU-05 — counted-only 집계·방문 검증·moderation 엔진**이다.
+현재 재개 대상은 **WU-06 — 공개 지도 셸과 mock 반응·매칭 UI**다.
 
-1. [`2026-08-25_WU-04_synthetic-seed.md`](./development-logs/2026-08-25_WU-04_synthetic-seed.md)의 fixture 수치와 남은 위험을 먼저 읽는다.
-2. `counted`이면서 활성인 반응만 반영하는 원자적 summary 갱신 함수를 설계한다.
-3. 위치 정확도·거리·24시간 만료와 proof 재사용을 서버 경계에서 판정한다.
-4. 전체 migration 적용 후 pgTAP·seed 멱등성·advisor·저장소 품질 게이트를 통과시킨다.
+1. [`2026-08-25_WU-05_reaction-engine.md`](./development-logs/2026-08-25_WU-05_reaction-engine.md)의 공개 summary 계약과 남은 위험을 먼저 읽는다.
+2. 별점·종합점수 없이 세 반응 분포와 데이터 부족 상태를 mock 데이터로 표시한다.
+3. 공개 반응과 분리된 개인 매칭도·제외 음식 UI를 구현한다.
+4. WU-07이 재사용할 카드·목록 선택 계약과 390px/1440px 검증을 남긴다.
 5. 갱신 실패 시 이전 정상 summary를 보존하는 DB 실패·복구 테스트까지 통과한다.
