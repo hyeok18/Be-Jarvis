@@ -129,7 +129,11 @@ pnpm install --frozen-lockfile --config.confirmModulesPurge=false
 
 ## 6. push/PR이 막힌 이유
 
-push 전 안전검사에서 아래 두 원격 브랜치 때문에 멈춘 상태다.
+push 전 안전검사를 최신 원격 fetch 포함으로 재시도했고, 아래 브랜치 문제 때문에 멈춘 상태다.
+
+- 실행: 번들 Node로 `scripts/check-push-safety.mjs`
+- 결과: `origin/main...origin/codex/kakao-map-update` 비교에서 `no merge base`
+- 결론: feature branch도 아직 push하지 않는다.
 
 1. `origin/codex/kakao-map-update`
    - `origin/main`과 merge-base가 없다.

@@ -138,3 +138,11 @@
 - 해결 또는 시도: Webpack dev 서버에서 순환 URL 두 개를 HTTP로 확인했고, Codex 패널에 `/?snapshot=1&cycle=1` preview를 열어 사람이 바로 확인할 수 있게 했다.
 - 검증 결과: 전체 Vitest 146 passed, 2 skipped. `/?snapshot=1&cycle=1`, `/restaurants/restaurant-balanced-bowl?snapshot=1&cycle=1` 모두 HTTP 200이며 `30초 발표 전환`, `발표 백업 모드` 문구를 포함했다.
 - 현재 재개 지점: 브라우저 390px/1440px 눈검수와 3회 발표 리허설만 남았다. Preview smoke와 YouTube 키 교체는 계속 세부 구현 단계로 이월한다.
+
+### 2026-08-26 — push-safety 재확인
+
+- 추가 구현: 코드 변경 없음. push 전 안전검사 결과만 최신화했다.
+- 새 문제 또는 막힘: `pnpm run check:push-safety`는 PATH에 `node`가 없어 실패했고, 번들 Node 직접 실행은 sandbox 네트워크 제한과 Git `dubious ownership` 보호장치를 순서대로 만났다.
+- 해결 또는 시도: 이 저장소 경로만 Git `safe.directory`로 등록한 뒤 번들 Node로 `scripts/check-push-safety.mjs`를 재실행했다.
+- 검증 결과: fetch 이후 `origin/main...origin/codex/kakao-map-update` 비교에서 `no merge base`로 실패했다.
+- 현재 재개 지점: push하지 않는다. `origin/codex/kakao-map-update`를 직접 merge/cherry-pick/전체 복사하지 말고, 팀에서 충돌·브랜치 처리 방침을 먼저 확정해야 한다.
