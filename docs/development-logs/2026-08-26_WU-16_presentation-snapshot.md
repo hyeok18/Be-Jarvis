@@ -63,13 +63,13 @@
 | 관련 단위 테스트 | `node node_modules/vitest/vitest.mjs run tests/map-explorer-view-model.test.tsx tests/restaurant-detail.test.tsx` | 성공 | 2개 파일, 18개 테스트 통과 |
 | 정적 검사 | `node node_modules/typescript/bin/tsc --noEmit` | 성공 | 오류 0 |
 | lint | `node node_modules/eslint/bin/eslint.js .` | 성공 | 오류 0 |
-| 빌드 | `pnpm run build` | 미실행 | 시간 절약을 위해 스킵. 이전 UI 기준선 빌드는 통과했으나 이번 변경 뒤 전체 build는 미실행 |
-| 수동 AC 검증 | 브라우저 390px·1440px | 미실행 | 시간 절약을 위해 스킵 |
-| 실패·복구 경로 | 실제 Supabase 실패 후 링크 확인 | 부분 성공 | `PublicDataUnavailable` 링크 렌더링 단위 테스트로 확인. 실제 서버 실패 브라우저 검증은 미실행 |
+| 빌드 | `node node_modules/next/dist/bin/next build --webpack` | 성공 | Next.js 16.3.2 Webpack production build 성공 |
+| 수동 AC 검증 | 브라우저 390px·1440px | 미실행 | 시각적 브라우저 검증은 아직 미실행 |
+| 실패·복구 경로 | Webpack dev 서버 HTTP 확인 | 부분 성공 | `/?snapshot=1`, `/restaurants/restaurant-balanced-bowl?snapshot=1` 모두 200, `발표 백업 모드` 문구 포함 |
 
 - 통과한 AC: AC-14 일부, AC-28 일부.
 - 실패한 AC: 없음.
-- 미실행 테스트와 이유: build와 브라우저 수동 검증은 사용자의 시간 단축 요청에 따라 스킵했다.
+- 미실행 테스트와 이유: 브라우저 390px/1440px 수동 검증과 전체 test는 사용자의 시간 단축 요청에 따라 스킵했다.
 - 테스트 데이터 안전 확인: 합성 fixture만 사용했다.
 - 비밀값 노출 확인: 없음.
 
@@ -109,7 +109,7 @@
 - 새 문제 또는 막힘: pnpm 검증 중 격리 worktree의 `node_modules` junction이 재생성되어 `.bin` 실행이 깨졌다.
 - 해결 또는 시도: `pnpm install --frozen-lockfile --config.confirmModulesPurge=false`로 로컬 store 기반 의존성을 복구했고, 이후 번들 Node 절대경로로 테스트·typecheck·lint를 실행했다.
 - 검증 결과: 관련 테스트 18개, typecheck, lint 통과. build와 브라우저 수동 검증은 시간 절약을 위해 미실행.
-- 현재 재개 지점: WU-16은 진행 중이다. 세부 스냅샷 전환과 브라우저·build 검증은 나중 구현 단계에서 이어간다.
+- 현재 재개 지점: WU-16은 진행 중이다. 세부 스냅샷 전환과 브라우저 390px/1440px 검증은 나중 구현 단계에서 이어간다.
 
 ### 2026-08-26 — 팀 인계 문서 추가
 
@@ -118,3 +118,11 @@
 - 해결 또는 시도: 사용량이 부족해도 다른 팀원이 문서 하나로 이어갈 수 있도록 INDEX와 WU-16 일지에서 인계 문서를 연결했다.
 - 검증 결과: 문서 변경만 수행했다. 추가 코드 테스트는 미실행.
 - 현재 재개 지점: 다음 팀원은 인계 문서의 `다음 팀원의 추천 진행 순서`부터 따르면 된다.
+
+### 2026-08-26 — build와 snapshot HTTP 검증
+
+- 추가 구현: 코드 변경 없음. 사용량 부족 대비 인계 문서에 5% 근접 시 인계 프로토콜을 유지했다.
+- 새 문제 또는 막힘: `next dev` 기본 Turbopack은 `node_modules` junction이 저장소 루트 밖을 가리켜 실패했다.
+- 해결 또는 시도: Webpack build와 Webpack dev 서버로 검증했다.
+- 검증 결과: `node node_modules/next/dist/bin/next build --webpack` 성공. Webpack dev 서버에서 `/?snapshot=1`, `/restaurants/restaurant-balanced-bowl?snapshot=1`이 모두 HTTP 200을 반환하고 `발표 백업 모드` 문구를 포함했다.
+- 현재 재개 지점: 남은 최소 검증은 390px/1440px 시각 확인이다. Preview smoke와 YouTube 키 교체는 계속 세부 구현 단계로 이월한다.

@@ -6,8 +6,10 @@
 
 - 작업 폴더: `C:\Users\user\Desktop\ai 3일차\Be-Jarvis-ui-baseline`
 - 브랜치: `codex/ui-baseline`
-- 최신 로컬 커밋: `ca0b589 feat: add presentation snapshot mode`
+- 최신 로컬 커밋은 `git log -1 --oneline`으로 확인한다.
+- 이 문서 기준 최근 커밋: `1a96f2a docs: add WU-15 WU-16 handoff`
 - 직전 커밋:
+  - `ca0b589 feat: add presentation snapshot mode`
   - `7304340 docs: record UI baseline push blockers`
   - `26e06b7 feat: establish UI baseline for WU-15 integration`
   - `d1944fa docs: record Vercel preview security block`
@@ -25,7 +27,7 @@
 - Production 배포
 - `codex/mobile-map-prototype` 충돌 조정 후 PR 생성
 - 30초 자동 스냅샷 전환
-- 전체 build와 390px/1440px 브라우저 수동 검증
+- 390px/1440px 브라우저 수동 검증
 
 대신 지금 사용할 수 있는 최소 발표 경로를 만들었다.
 
@@ -95,10 +97,11 @@ git diff --name-only origin/main...HEAD
   - 관련 테스트 2개 파일, 18개 테스트 통과
   - typecheck 성공
   - lint 성공
+  - Next.js 16.3.2 Webpack production build 성공
+  - Webpack dev 서버에서 `/?snapshot=1`, `/restaurants/restaurant-balanced-bowl?snapshot=1` HTTP 200 확인
 
-발표 백업 모드 추가 후 시간상 미실행:
+발표 백업 모드 추가 후 아직 미실행:
 
-- 전체 build
 - 전체 test
 - 390px/1440px 브라우저 수동 검증
 - Preview smoke
@@ -109,6 +112,7 @@ Node/PATH 이슈가 있을 때는 아래처럼 번들 Node 절대경로로 실�
 & "C:\Users\user\.cache\codex-runtimes\codex-primary-runtime\dependencies\node\bin\node.exe" node_modules\vitest\vitest.mjs run tests/map-explorer-view-model.test.tsx tests/restaurant-detail.test.tsx
 & "C:\Users\user\.cache\codex-runtimes\codex-primary-runtime\dependencies\node\bin\node.exe" node_modules\typescript\bin\tsc --noEmit
 & "C:\Users\user\.cache\codex-runtimes\codex-primary-runtime\dependencies\node\bin\node.exe" node_modules\eslint\bin\eslint.js .
+& "C:\Users\user\.cache\codex-runtimes\codex-primary-runtime\dependencies\node\bin\node.exe" node_modules\next\dist\bin\next build --webpack
 ```
 
 pnpm이 `node_modules` purge 확인에서 막히거나 `.bin`이 깨지면 아래로 복구했다.
@@ -147,6 +151,21 @@ push 전 안전검사에서 아래 두 원격 브랜치 때문에 멈춘 상태�
 
 ## 8. 다음 팀원의 추천 진행 순서
 
+### 사용량 5% 근접 또는 컨텍스트 부족 시 자동 인계 프로토콜
+
+현재 Codex 도구에는 `사용량이 정확히 5% 남았을 때`를 조건으로 트리거하는 자동화가 없다. 따라서 이 작업을 이어받는 AI나 팀원은 사용량·컨텍스트가 위험해 보이면 즉시 아래 순서로 멈추고 인계한다.
+
+1. `git status --short --branch`로 작업 트리 상태를 확인한다.
+2. 진행 중 변경이 있으면 관련 개발일지와 이 인계 문서를 최신 상태로 갱신한다.
+3. 안전한 범위의 파일만 커밋한다.
+4. push는 충돌/키 블로커가 해결되기 전까지 하지 않는다.
+5. 최종 메시지에 브랜치, 최신 커밋, 변경 파일, 미실행 검증, 다음 재개 지점을 남긴다.
+6. 다음 담당자에게 이 문서 경로를 먼저 전달한다.
+
+긴 작업을 시작할 때는 완성 전까지 기다리지 말고, 기능 단위 하나가 끝날 때마다 이 문서와 개발일지를 갱신한다.
+
+## 9. 다음 팀원의 추천 진행 순서
+
 시간이 없고 발표가 우선이면:
 
 1. `codex/ui-baseline`에서 앱을 실행한다.
@@ -159,11 +178,11 @@ push 전 안전검사에서 아래 두 원격 브랜치 때문에 멈춘 상태�
 
 1. 기존 YouTube 키 폐기와 새 키 준비를 먼저 끝낸다.
 2. `codex/mobile-map-prototype`와 `codex/kakao-map-update`의 처리 방침을 팀에서 확정한다.
-3. `pnpm run build` 또는 번들 Node 기반 `next build --webpack`을 실행한다.
-4. 390px/1440px에서 `/?snapshot=1`과 실제 데이터 화면을 확인한다.
+3. 390px/1440px에서 `/?snapshot=1`과 실제 데이터 화면을 확인한다.
+4. 필요하면 전체 test를 다시 실행한다.
 5. 안전검사 통과 후 feature branch만 push하고 PR을 만든다.
 
-## 9. 다음 AI에게 줄 프롬프트
+## 10. 다음 AI에게 줄 프롬프트
 
 아래를 그대로 붙여넣으면 된다.
 
@@ -174,7 +193,7 @@ Be-Jarvis의 `codex/ui-baseline` 브랜치에서 이어가 주세요.
 
 현재 상황:
 - 브랜치: `codex/ui-baseline`
-- 최신 로컬 커밋: `ca0b589 feat: add presentation snapshot mode`
+- 최신 로컬 커밋은 `git log -1 --oneline`으로 확인하세요.
 - WU-15 UI 기준선과 WU-16 최소 발표 백업 모드는 구현되어 있습니다.
 - 홈 백업 URL: `/?snapshot=1`
 - 상세 백업 URL 예시: `/restaurants/restaurant-balanced-bowl?snapshot=1`
@@ -185,7 +204,7 @@ Be-Jarvis의 `codex/ui-baseline` 브랜치에서 이어가 주세요.
 - Vercel Preview smoke
 - Production 배포
 - 30초 자동 스냅샷 전환
-- 전체 build와 390px/1440px 수동 검증
+- 390px/1440px 수동 검증
 - push/PR 충돌 조정
 
 주의:
@@ -198,12 +217,12 @@ Be-Jarvis의 `codex/ui-baseline` 브랜치에서 이어가 주세요.
 
 다음 우선순위:
 1. 발표가 급하면 `/?snapshot=1`과 `/restaurants/restaurant-balanced-bowl?snapshot=1`을 실행 가능한 상태로 확인하세요.
-2. 시간이 생기면 build와 390px/1440px 브라우저 검증을 먼저 하세요.
+2. 시간이 생기면 390px/1440px 브라우저 검증을 먼저 하세요.
 3. 세부 구현 단계에서는 YouTube 키 폐기·신규 키 등록과 Preview smoke를 재개하세요.
 4. push 전에는 `git fetch --prune origin`과 `pnpm run check:push-safety`를 실행하고, 위 충돌 브랜치 처리 담당이 정해졌는지 확인하세요.
 ```
 
-## 10. 절대 하지 말 것
+## 11. 절대 하지 말 것
 
 - `main` 직접 push
 - force push
