@@ -156,3 +156,11 @@
 - 검증 결과: 환경 계약, lint, typecheck, WU-09 관련 테스트 20개, 전체 75개 테스트, Turbopack 프로덕션 빌드가 통과했다. 관련 테스트 미실행·실패는 없다.
 - advisor 결과: RLS·함수 보안 오류 없음. 유출 비밀번호 보호 꺼짐 WARN 1건과 합성 데이터 초기 미사용 인덱스 INFO 5건을 확인했다.
 - 다음 재개 지점: WU-10에서 단기 방문 proof의 발급·소비와 원본 좌표 비저장 경계를 먼저 구현한다.
+
+### 2026-08-25 — checkpoint 5 (push 보류)
+
+- 로컬 완료 커밋: `a4cf3da` (`feat: complete WU-09 auth reaction flow`).
+- 원격 확인: `origin/main`은 branch 생성 기준 commit과 동일하고 열린 PR은 0개다.
+- 충돌 후보: 미병합 `origin/codex/mobile-map-prototype` (`53f0775`, 작성자 `dpsjwl`, 17:02 KST)가 `src/app/globals.css`, `src/app/restaurants/[id]/page.tsx`를 함께 수정한다.
+- 안전 검사 결과: `check:push-safety`가 위 두 파일 겹침으로 push를 차단했다. force push나 충돌 무시는 하지 않았다.
+- 정확한 재개 조건: 해당 branch 담당자 또는 팀이 prototype을 비활성·폐기한다고 확인하거나, 통합 담당과 유지할 변경을 합의한 뒤 fetch와 안전 검사를 다시 실행한다.
