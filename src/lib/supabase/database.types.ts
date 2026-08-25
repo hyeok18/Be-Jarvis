@@ -1,5 +1,5 @@
-// Generated from Supabase project uexhvfkfcoyiuabkinfx after WU-03.
-// Regenerate after every database migration; do not edit by hand.
+// Generated from Supabase project uexhvfkfcoyiuabkinfx after WU-10.
+// Regenerate after every database migration; do not edit schema types by hand.
 
 export type Json =
   | string
@@ -444,7 +444,57 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      acquire_youtube_sync_run: {
+        Args: { p_started_at: string; p_trigger_kind: string }
+        Returns: string
+      }
+      issue_location_visit_proof: {
+        Args: {
+          p_accuracy_meters: number
+          p_checked_at?: string
+          p_evidence_digest: string
+          p_restaurant_id: string
+          p_user_id: string
+          p_user_latitude: number
+          p_user_longitude: number
+        }
+        Returns: {
+          config_version: string
+          expires_at: string
+          is_valid: boolean
+          reason_code: string
+          verified_at: string
+          visit_proof_id: string
+        }[]
+      }
+      save_reaction_selection: {
+        Args: { p_kind: string; p_restaurant_id: string; p_user_id: string }
+        Returns: {
+          moderation_status: string
+          reaction_id: string
+          reaction_kind: string
+          saved_at: string
+          was_changed: boolean
+          was_created: boolean
+        }[]
+      }
+      save_reaction_with_visit_proof: {
+        Args: {
+          p_checked_at?: string
+          p_evidence_digest: string
+          p_kind: string
+          p_restaurant_id: string
+          p_user_id: string
+        }
+        Returns: {
+          moderation_status: string
+          reaction_id: string
+          reaction_kind: string
+          saved_at: string
+          was_changed: boolean
+          was_created: boolean
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never

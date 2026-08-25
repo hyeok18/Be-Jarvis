@@ -3,7 +3,7 @@
 | 항목 | 내용 |
 |---|---|
 | 작업 단위 | WU-10 |
-| 상태 | 진행 중 |
+| 상태 | 완료 |
 | 작업일 | 2026-08-25 |
 | 담당 | B1 |
 | 대상 AC | AC-07, AC-08, AC-13 중 방문 토큰 재사용 |
@@ -20,64 +20,91 @@
 
 ## 2. 무엇을 만들었는가
 
-- 구현 또는 문서화한 내용: 진행 중.
-- 사용자 또는 시스템 동작 변화: 진행 중.
+- 구현 또는 문서화한 내용: service-role 전용 위치 proof 발급·반응 승격 RPC, 임의 토큰의 SHA-256 digest 저장, 120m·정확도 100m·24시간·일회 소비 검증, 인증 Route Handler, 사용자 클릭 기반 geolocation UI를 구현했다.
+- 사용자 또는 시스템 동작 변화: 로그인 사용자는 식당 상세에서 위치 체크인을 실행하고 성공한 proof를 다음 한 번의 반응에 사용할 수 있다. 증명 없는 반응은 계속 로컬·서버 `private_only`로 남고, 유효 proof를 원자 소비한 반응만 `counted`가 된다.
 
 변경한 파일:
 
-- `supabase/migrations/20260825113309_wu_10_location_visit_proof.sql`
+- `supabase/migrations/20260825115028_wu_10_location_visit_proof.sql`
+- `supabase/tests/wu_10_location_visit_proof_test.sql`
+- `src/app/api/visits/check-in/route.ts`
+- `src/server/visits/visit-proof-api.ts`
+- `src/server/visits/visit-proof-token.ts`
+- `src/server/reactions/reaction-api.ts`
+- `src/components/restaurant-detail/visit-check-in.ts`
+- `src/components/restaurant-detail/reaction-selector.tsx`
+- `src/components/restaurant-detail/reaction-submit.ts`
+- `src/app/restaurants/[id]/page.tsx`
+- `src/app/globals.css`
+- `src/lib/supabase/database.types.ts`
+- `tests/visit-proof-api.test.ts`
+- `tests/visit-check-in.test.ts`
+- `tests/reaction-api.test.ts`
+- `tests/reaction-auth-ui.test.ts`
+- `tests/restaurant-detail.test.tsx`
+- `README.md`
 - `docs/DEVELOPMENT_PRIORITY.md`
 - `docs/development-logs/INDEX.md`
 - `docs/development-logs/2026-08-25_WU-10_location-checkin.md`
 
 ## 3. 무엇이 문제였고 어디에서 막혔는가
 
-- 문제: 로컬 sandbox에서 Supabase CLI의 사용자 프로필 telemetry 파일 쓰기가 차단됐다.
-- 막힌 지점: migration 생성 전 CLI 도움말 확인.
-- 영향: 권한 승인 후 CLI로 migration을 정상 생성했으며 구현에는 영향이 없다.
+- 문제: Supabase CLI 프로필 쓰기 차단, pgTAP plan 불일치, Vitest 별칭 해석, React purity lint, 브라우저 검증 CLI 부재가 순서대로 발생했다.
+- 막힌 지점: migration 생성, DB checkpoint 완료 판정, 서버 테스트 import, 클라이언트 만료 예측, 최종 실제 화면 검사.
+- 영향: 각 checkpoint에서 해결했고 필수 구현·테스트·DB 적용에는 남은 차단이 없다. 실제 사용자의 정밀 위치 전송은 수행하지 않았다.
 
 ## 4. 어떻게 해결했는가
 
-- 원인: Supabase CLI가 저장소 밖 사용자 프로필에 자체 상태 파일을 쓴다.
-- 선택한 해결 방법: 사용자 승인 범위에서 저장소 고정 버전 CLI의 `migration new`만 실행했다.
-- 다른 선택지를 쓰지 않은 이유: 임의 timestamp 파일 생성은 저장소의 migration 생성 규칙을 위반한다.
+- 원인: 도구별 sandbox·module resolution·최신 DOM 타입 차이와 렌더 중 비결정 값 금지 규칙이 원인이었다.
+- 선택한 해결 방법: 승인된 고정 Supabase CLI만 사용하고, pgTAP plan을 33으로 맞췄다. 서버 내부 import는 상대 경로로 바꾸고, 만료는 클라이언트 시각이 아닌 서버에서만 판정했다. 설치 없는 인앱 브라우저 검증으로 대체했다.
+- 다른 선택지를 쓰지 않은 이유: 임의 migration timestamp, raw token DB 전송, 클라이언트 권위 만료 판정, 새 브라우저 패키지 설치는 각각 이력·보안·일관성·lockfile 위험이 있다.
 
 ## 5. 테스트와 검증
 
 | 검증 항목 | 실행 방법·명령 | 결과 | 증거 또는 비고 |
 |---|---|---|---|
-| 관련 단위 테스트 | 구현 후 실행 | 미실행 | 구현 진행 중 |
-| 정적 검사 | 구현 후 실행 | 미실행 | 구현 진행 중 |
-| 빌드 | 구현 후 실행 | 미실행 | 구현 진행 중 |
-| 수동 AC 검증 | 구현 후 실행 | 미실행 | 구현 진행 중 |
-| 실패·복구 경로 | 구현 후 실행 | 미실행 | 구현 진행 중 |
+| 관련 DB 테스트 | 원격 rollback 후 적용, `wu_10_location_visit_proof_test.sql` | 성공 | rollback·적용 후 각각 pgTAP 33/33, 합성 proof 0건 복귀 |
+| 관련 단위 테스트 | `vitest run` | 성공 | 전체 98개 통과, live YouTube opt-in 2개 기존 skip |
+| 정적 검사 | 환경 계약, ESLint, `tsc --noEmit` | 성공 | 환경 7키, lint·type 오류 0개 |
+| 빌드 | Next.js 16.3.2 Turbopack production build | 성공 | `/api/visits/check-in` dynamic route와 상세 SSG 3개 생성 |
+| 수동 AC 검증 | 인앱 브라우저 390×844, 1440×900 | 성공 | 반응 버튼 3개, 체크인 안내·비로그인 disabled, overflow·overlay·console 오류 0개 |
+| 실패·복구 경로 | 위치·서버 mock과 DB transaction | 성공 | 권한 거절·위치 불가·timeout·정확도·거리·만료·재사용·소유권 불일치에서 공개 projection 불변 |
+| Supabase advisor | security·performance advisor | 주의 1건 | RLS/함수 권한 오류 없음; 기존 유출 비밀번호 보호 WARN 1건, 미사용 index INFO 5건 |
 
-- 통과한 AC: 없음(진행 중).
+- 통과한 AC: AC-07, AC-08, AC-13 중 방문 proof 재사용 차단.
 - 실패한 AC: 없음.
-- 미실행 테스트와 이유: 구현 전 세션 시작 기록 단계다.
-- 테스트 데이터 안전 확인: 합성 데이터만 사용 예정.
+- 미실행 테스트와 이유: 실제 사용자 위치와 Production 배포를 함께 쓰는 최종 E2E는 정밀 위치 전송 동의가 필요해 실행하지 않았고 WU-19 릴리스 게이트에 남겼다. live YouTube 통합 테스트 2개는 WU-10과 무관한 opt-in 환경이라 기존대로 skip했다.
+- 테스트 데이터 안전 확인: DB는 합성 UUID·식당만 사용했고 transaction rollback 후 0건을 확인했다. 브라우저 위치는 mock만 사용했다.
 - 비밀값 노출 확인: 없음.
 
 ## 6. 변경된 파일
 
 | 파일 | 변경 이유 |
 |---|---|
-| `supabase/migrations/20260825113309_wu_10_location_visit_proof.sql` | Supabase CLI로 생성한 WU-10 schema 변경 진실원본 |
-| `docs/DEVELOPMENT_PRIORITY.md` | WU-10 진행 상태 반영 |
-| `docs/development-logs/INDEX.md` | 진행 일지와 재개 지점 연결 |
+| `supabase/migrations/20260825115028_wu_10_location_visit_proof.sql` | Supabase CLI로 생성하고 원격 이력 version에 맞춘 WU-10 schema 변경 진실원본 |
+| `supabase/tests/wu_10_location_visit_proof_test.sql` | proof 발급·소비·경계·rollback 33개 검증 |
+| `src/server/visits/*`, `src/app/api/visits/check-in/route.ts` | 인증 체크인과 raw token→digest 서버 경계 |
+| `src/server/reactions/reaction-api.ts` | proof-aware 반응 RPC와 409 복구 응답 |
+| `src/components/restaurant-detail/*`, `src/app/restaurants/[id]/page.tsx` | 사용자 동작 위치 요청·체크인·한 탭 반응 UI |
+| `src/app/globals.css` | 체크인 상태와 390px 반응형 스타일 |
+| `src/lib/supabase/database.types.ts` | 적용된 WU-10·WU-14 함수 타입 재생성 |
+| `tests/visit-proof-api.test.ts`, `tests/visit-check-in.test.ts` | 서버·브라우저 위치 경계와 실패 copy 검증 |
+| `tests/reaction-api.test.ts`, `tests/reaction-auth-ui.test.ts`, `tests/restaurant-detail.test.tsx` | 기존 반응·상세 UI proof 회귀 |
+| `docs/DEVELOPMENT_PRIORITY.md`, `README.md` | WU-10 완료와 WU-11 다음 상태 반영 |
+| `docs/development-logs/INDEX.md` | 완료 일지와 WU-11 재개 지점 연결 |
 | `docs/development-logs/2026-08-25_WU-10_location-checkin.md` | 구현·문제·검증·인계 기록 |
 
 ## 7. 남은 위험과 미해결 항목
 
-- 남은 위험: 브라우저 위치 권한은 자동 테스트만으로 실제 OS 권한 창까지 완전히 재현하기 어렵다.
+- 남은 위험: 실제 OS 위치 권한과 현장 GPS 편차는 합성·mock만으로 완전히 재현할 수 없다. Supabase Auth의 유출 비밀번호 보호가 꺼져 있다는 기존 advisor WARN이 남아 있다.
 - 후속 작업 후보: WU-11에서 rate limit과 위험 신호를 proof·반응 명령 앞단에 추가한다.
-- 사용자 또는 외부 입력이 필요한 사항: 최종 수동 검증에서 실제 브라우저 위치 권한 허용 또는 거절 동작이 필요할 수 있다.
+- 사용자 또는 외부 입력이 필요한 사항: WU-19 현장 E2E에서 실제 위치 전송을 승인한 테스트 계정·기기가 필요하다. 유출 비밀번호 보호는 운영 정책·요금제를 확인한 뒤 Dashboard에서 활성화한다.
 
 ## 8. 다음 작업에서는 어떻게 해야 하는가
 
-1. proof 발급·소비 migration과 pgTAP 경계를 먼저 완료한다.
-2. 인증된 체크인 Route Handler와 반응 token 전달 계약을 연결한다.
-3. 브라우저 UI와 실패·복구·원본 위치 비저장 검증까지 통과한 뒤 WU-11을 `다음`으로 바꾼다.
+1. WU-11은 WU-05 moderation 설정과 WU-10의 두 Route Handler를 읽고 mutation 전 rate-limit 순서를 확정한다.
+2. IP 원문·안정적 fingerprint 없이 계정·일 단위 network hash와 최대 7일 보존을 구현한다.
+3. `held/rejected` 감사·운영 복구와 실패 시 마지막 정상 projection 보존을 검증한 뒤 WU-15 선행 조건을 갱신한다.
 
 ## 9. 세션 업데이트
 
@@ -112,3 +139,11 @@
 - 해결 또는 시도: 만료 판정은 권위 있는 서버 검증에만 맡기고 409 복구 안내로 통일했다. 테스트 mock은 전체 위치 payload를 전송하지 않는 상태를 유지하면서 DOM 타입만 충족했다.
 - 검증 결과: TypeScript, 수정 TS/TSX ESLint, 브라우저 체크인·API·반응·상세 UI 테스트 50/50 통과. 권한 거절·위치 불가·시간 초과·정확도 부족·거리 초과·만료/재사용 안내를 검증했다.
 - 현재 재개 지점: migration 적용, advisor·타입 재생성, 전체 품질 게이트와 실제 브라우저 수동 확인.
+
+### 2026-08-25 — checkpoint 4 (완료)
+
+- 추가 구현: 원격 migration 적용, 원격 version과 로컬 파일명 정렬, DB 타입 재생성, 완료 문서·WU-11 인계를 반영했다.
+- 새 문제 또는 막힘: 원격 적용 도구가 CLI 생성 시각과 다른 version `20260825115028`을 만들었고 `agent-browser` 실행 파일이 없었다.
+- 해결 또는 시도: SQL은 바꾸지 않고 로컬 migration 파일명만 원격 이력에 맞췄다. 설치 없이 인앱 브라우저로 동일 수동 검증을 수행했다.
+- 검증 결과: 적용 후 DB 33/33, 함수 적용·anon/authenticated 직접 실행 차단·합성 proof 0건, advisor, 생성 타입, 환경 7키, lint, typecheck, 전체 98개 테스트, production build가 통과했다. 390/1440px 모두 overlay·overflow·console 오류가 없었다.
+- 현재 재개 지점: WU-11 rate limit·위험 신호·보류 큐. PR 병합은 사용자의 지시에 따라 WU-10 완료 뒤 별도 안전 확인 단계에서 진행한다.
