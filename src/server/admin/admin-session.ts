@@ -105,6 +105,17 @@ function usesSecureCookie(request: Request) {
   return new URL(request.url).protocol === "https:";
 }
 
+function isSameOrigin(request: Request) {
+  const origin = request.headers.get("origin");
+  if (!origin) return false;
+
+  try {
+    return new URL(origin).origin === new URL(request.url).origin;
+  } catch {
+    return false;
+  }
+}
+
 export function readAdminSessionToken(request: Request) {
   const cookieHeader = request.headers.get("cookie");
   if (!cookieHeader) return null;
@@ -139,6 +150,14 @@ export function createAdminSessionPostHandler(
   dependencies: Pick<AdminAuthDependencies, "signInWithPassword">,
 ) {
   return async function POST(request: Request) {
+    if (!isSameOrigin(request)) {
+      return errorResponse(
+        403,
+        "ORIGIN_REJECTED",
+        "요청 출처를 확인할 수 없습니다.",
+      );
+    }
+
     const credentials = await readCredentials(request);
 
     if (!credentials) {

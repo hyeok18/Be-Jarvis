@@ -16,7 +16,10 @@ const user = {
 function createLoginRequest(body: unknown, url = "https://example.com/api/admin/session") {
   return new Request(url, {
     method: "POST",
-    headers: { "content-type": "application/json" },
+    headers: {
+      "content-type": "application/json",
+      origin: new URL(url).origin,
+    },
     body: JSON.stringify(body),
   });
 }
@@ -60,6 +63,22 @@ describe("admin session API", () => {
       expect(response.status).toBe(400);
     }
 
+    expect(signInWithPassword).not.toHaveBeenCalled();
+  });
+
+  it("rejects cross-origin login attempts before checking credentials", async () => {
+    const signInWithPassword = vi.fn();
+    const request = createLoginRequest({
+      email: "admin@example.com",
+      password: "correct-password",
+    });
+    request.headers.set("origin", "https://attacker.example");
+
+    const response = await createAdminSessionPostHandler({ signInWithPassword })(
+      request,
+    );
+
+    expect(response.status).toBe(403);
     expect(signInWithPassword).not.toHaveBeenCalled();
   });
 
