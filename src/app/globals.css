@@ -99,6 +99,418 @@ h3 {
   line-height: 1.6;
 }
 
+.map-section {
+  margin-top: 5rem;
+}
+
+.map-section-heading {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 2rem;
+}
+
+.map-section-heading > div:first-child {
+  max-width: 42rem;
+}
+
+.map-section-heading p:not(.eyebrow) {
+  color: var(--muted);
+  line-height: 1.65;
+}
+
+.creator-layer-toggle,
+.filter-chip,
+.map-visibility-toggle {
+  border: 1px solid var(--border);
+  color: var(--foreground);
+  background: var(--surface);
+  cursor: pointer;
+}
+
+.creator-layer-toggle {
+  display: inline-flex;
+  min-height: 3rem;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.7rem 0.9rem;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.creator-layer-toggle[aria-pressed="true"] {
+  border-color: #e04f2f;
+  background: #fff1ed;
+}
+
+.toggle-state {
+  padding: 0.25rem 0.5rem;
+  border-radius: 999px;
+  color: var(--muted);
+  background: var(--background);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.category-filter {
+  display: flex;
+  gap: 0.55rem;
+  margin: 1.5rem 0;
+  overflow-x: auto;
+  padding: 0.2rem 0.15rem 0.55rem;
+  scrollbar-width: thin;
+}
+
+.filter-chip {
+  flex: none;
+  min-height: 2.6rem;
+  padding: 0.55rem 0.9rem;
+  border-radius: 999px;
+}
+
+.filter-chip[aria-pressed="true"] {
+  border-color: var(--accent);
+  color: white;
+  background: var(--accent);
+}
+
+.map-visibility-toggle {
+  display: none;
+  width: 100%;
+  min-height: 2.8rem;
+  margin-bottom: 0.8rem;
+  border-radius: 0.8rem;
+  font-weight: 750;
+}
+
+.map-explorer-layout {
+  display: grid;
+  grid-template-columns: minmax(18rem, 0.78fr) minmax(0, 1.55fr);
+  min-height: 36rem;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 1.5rem;
+  background: var(--surface);
+  box-shadow: 0 1.5rem 4rem rgb(18 37 43 / 8%);
+}
+
+.restaurant-list {
+  display: grid;
+  align-content: start;
+  gap: 0.8rem;
+  max-height: 42rem;
+  margin: 0;
+  overflow-y: auto;
+  padding: 1rem;
+  list-style: none;
+}
+
+.restaurant-list-item {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.restaurant-card {
+  display: grid;
+  width: 100%;
+  gap: 0.7rem;
+  padding: 1.1rem;
+  border: 1px solid var(--border);
+  border-radius: 1rem;
+  color: var(--foreground);
+  background: #fbfdfd;
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
+}
+
+.restaurant-card:hover {
+  border-color: #91bab5;
+  transform: translateY(-1px);
+}
+
+.restaurant-card[aria-pressed="true"] {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgb(8 127 115 / 15%);
+  background: #f1faf8;
+}
+
+.restaurant-card > strong {
+  font-size: 1.15rem;
+}
+
+.creator-source-list {
+  display: grid;
+  gap: 0.4rem;
+  margin: 0;
+  padding: 0 0.25rem 0.35rem;
+  list-style: none;
+}
+
+.creator-source-list a {
+  display: grid;
+  gap: 0.2rem;
+  padding: 0.7rem 0.8rem;
+  border: 1px solid #f0c5b8;
+  border-radius: 0.8rem;
+  color: var(--foreground);
+  background: #fff7f3;
+  text-decoration: none;
+}
+
+.creator-source-list a:hover,
+.creator-source-list a:focus-visible {
+  border-color: #df8c73;
+  outline: none;
+  box-shadow: 0 0 0 2px rgb(224 79 47 / 14%);
+}
+
+.creator-source-list span,
+.creator-source-list small {
+  color: var(--muted);
+  font-size: 0.72rem;
+  line-height: 1.45;
+}
+
+.creator-source-list strong {
+  font-size: 0.82rem;
+  line-height: 1.4;
+}
+
+.restaurant-card-topline,
+.reaction-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.category-badge,
+.creator-badge,
+.forming-state {
+  width: fit-content;
+  border-radius: 999px;
+  font-size: 0.76rem;
+  font-weight: 750;
+}
+
+.category-badge {
+  padding: 0.25rem 0.5rem;
+  color: var(--accent-strong);
+  background: var(--notice);
+}
+
+.creator-badge {
+  padding: 0.25rem 0.5rem;
+  color: #a12f16;
+  background: #fff0e9;
+}
+
+.restaurant-address {
+  color: var(--muted);
+  font-size: 0.88rem;
+  line-height: 1.45;
+}
+
+.reaction-summary span {
+  padding: 0.28rem 0.48rem;
+  border-radius: 0.45rem;
+  color: #304b52;
+  background: #eef3f4;
+  font-size: 0.78rem;
+}
+
+.forming-state {
+  padding: 0.3rem 0.55rem;
+  color: #725312;
+  background: #fff7da;
+}
+
+.map-panel {
+  position: relative;
+  min-width: 0;
+  border-left: 1px solid var(--border);
+  background: #dfe9e7;
+}
+
+.map-canvas-shell,
+.map-canvas {
+  width: 100%;
+  height: 100%;
+  min-height: 36rem;
+}
+
+.map-canvas-shell {
+  position: relative;
+}
+
+.map-canvas {
+  position: relative;
+  overflow: hidden;
+}
+
+.map-loading {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 2rem;
+  color: var(--muted);
+  background: linear-gradient(135deg, #e6efed, #f7fbfa);
+  text-align: center;
+}
+
+.map-legend {
+  position: absolute;
+  right: 0.8rem;
+  bottom: 0.8rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+  margin: 0;
+  padding: 0.55rem 0.7rem;
+  border: 1px solid rgb(18 37 43 / 12%);
+  border-radius: 0.75rem;
+  background: rgb(255 255 255 / 92%);
+  box-shadow: 0 0.5rem 1.5rem rgb(18 37 43 / 12%);
+  font-size: 0.72rem;
+}
+
+.map-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.legend-dot {
+  display: inline-block;
+  width: 0.65rem;
+  height: 0.65rem;
+  border-radius: 999px;
+}
+
+.legend-dot.standard {
+  background: var(--accent);
+}
+
+.legend-dot.creator {
+  background: #e04f2f;
+}
+
+.legend-dot.selected {
+  border: 2px solid #132f38;
+  background: #f3cb53;
+}
+
+.kakao-info-window {
+  display: grid;
+  min-width: 10rem;
+  gap: 0.2rem;
+  padding: 0.7rem 0.85rem;
+  border-radius: 0.65rem;
+  color: var(--foreground);
+  background: white;
+  box-shadow: 0 0.6rem 1.5rem rgb(18 37 43 / 18%);
+  font-family: inherit;
+}
+
+.kakao-info-window span,
+.kakao-info-window em {
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-style: normal;
+}
+
+.kakao-info-window em {
+  color: #a12f16;
+  font-weight: 750;
+}
+
+.kakao-info-window a {
+  margin-top: 0.2rem;
+  color: var(--accent-strong);
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+
+.map-fallback {
+  display: grid;
+  align-content: start;
+  gap: 1rem;
+  min-height: 36rem;
+  padding: 1.5rem;
+  color: var(--foreground);
+  background: linear-gradient(135deg, #e7f3f1, #f8fbfb);
+}
+
+.map-fallback-title {
+  margin-bottom: 0.35rem;
+  font-weight: 800;
+}
+
+.map-fallback p {
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.map-fallback ul {
+  display: grid;
+  gap: 0.7rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.map-fallback li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.7rem;
+  border: 1px solid var(--border);
+  border-radius: 0.8rem;
+  background: rgb(255 255 255 / 82%);
+}
+
+.map-fallback li button {
+  display: grid;
+  gap: 0.25rem;
+  border: 0;
+  color: inherit;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+}
+
+.map-fallback li button[aria-pressed="true"] strong {
+  color: var(--accent-strong);
+}
+
+.map-fallback li span,
+.map-fallback li a {
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+
+.map-fallback li a {
+  color: var(--accent-strong);
+  font-weight: 700;
+}
+
+.map-fallback-links {
+  display: grid;
+  justify-items: end;
+  gap: 0.35rem;
+}
+
+.empty-map-result {
+  padding: 2rem;
+  border: 1px dashed var(--border);
+  border-radius: 1rem;
+  color: var(--muted);
+  background: var(--surface);
+  text-align: center;
+}
+
 .foundation {
   display: grid;
   gap: 2rem;
@@ -181,6 +593,56 @@ h3 {
     margin-top: 4rem;
   }
 
+  .map-section {
+    margin-top: 3.5rem;
+  }
+
+  .map-section-heading {
+    display: grid;
+    align-items: start;
+  }
+
+  .creator-layer-toggle {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .map-visibility-toggle {
+    display: block;
+  }
+
+  .map-explorer-layout {
+    grid-template-columns: 1fr;
+    min-height: 0;
+  }
+
+  .restaurant-list {
+    max-height: none;
+  }
+
+  .map-panel {
+    min-height: 27rem;
+    border-top: 1px solid var(--border);
+    border-left: 0;
+  }
+
+  .map-canvas-shell,
+  .map-canvas,
+  .map-fallback {
+    min-height: 27rem;
+  }
+
+  .map-legend {
+    right: 0.55rem;
+    bottom: 0.55rem;
+    left: 0.55rem;
+    justify-content: center;
+  }
+
+  .map-fallback li {
+    grid-template-columns: 1fr;
+  }
+
   .card-grid {
     grid-template-columns: 1fr;
   }
@@ -193,5 +655,9 @@ h3 {
 @media (prefers-reduced-motion: reduce) {
   .skeleton {
     animation: none;
+  }
+
+  .restaurant-card {
+    transition: none;
   }
 }

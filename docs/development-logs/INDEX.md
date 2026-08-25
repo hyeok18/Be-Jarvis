@@ -9,6 +9,7 @@
 | WU-02 | 구 별점 도메인 계약 | A1+B2 | 완료 | 2026-08-25 | [기록](./2026-08-25_WU-02_domain-contracts.md) | 역사 기록이며 WU-20 계약으로 대체됨 |
 | WU-20 | 별점 폐지·반응·방문·크리에이터 계약 재설계 | 공통 | 완료 | 2026-08-25 | [기록](./2026-08-25_WU-20_reaction-creator-contracts.md) | WU-03 Supabase 반응·방문·크리에이터 schema와 RLS |
 | WU-03 | Supabase 반응·방문·크리에이터 schema와 RLS | B1 | 다음 | 2026-08-25 | 미작성 | WU-20 일지의 migration·RLS 재개 순서부터 시작 |
+| WU-07 | Kakao 지도·필터·크리에이터 레이어·fallback | A2 | 진행 중 | 2026-08-25 | [기록](./2026-08-25_WU-07_kakao-map.md) | WU-06 최종 공개 화면 계약 통합 후 완료 처리 |
 
 ## 상태 갱신 규칙
 
