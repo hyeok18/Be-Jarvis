@@ -154,3 +154,12 @@
 - 해결 또는 시도: `.map-fallback li a`에 `inline-flex`, `min-height: 2.75rem`, 보조 padding을 적용했다.
 - 검증 결과: Browser viewport 390x844와 1440x900에서 홈·상세 백업 화면 모두 가로 overflow 없음, 핵심 문구 표시, 작은 터치 타깃 없음. 전체 Vitest 146 passed, 2 skipped. typecheck, lint, Webpack build 성공.
 - 현재 재개 지점: 사용자가 발표 리허설과 발표 자료는 나중에 만들기로 했으므로, 다음은 YouTube 키 교체·Preview smoke 또는 PR 설명 보강 중 하나를 선택하면 된다.
+
+### 2026-08-26 — Vercel Preview 배포·발표 백업 URL 확인
+
+- 추가 구현: 코드 변경 없이 `acme` 팀에 `be-jarvis-wu15-preview` Vercel Preview 프로젝트와 배포를 생성했다. Production 배포와 main 변경은 하지 않았다.
+- 배포 결과: `https://be-jarvis-wu15-preview-fait3mpkg-acme-29f2.vercel.app/?snapshot=1&cycle=1` (`dpl_EbKFGQWyQNwmHb8viTmTuCgtL2Mu`, `fedb64d`).
+- 검증 결과: 배포 URL을 브라우저에서 직접 열어 제목, `발표 백업 모드`, 30초 자동 전환 안내, 식당 목록·반응 분포·지도 fallback·상세 링크가 렌더링됨을 확인했다.
+- 새 문제 또는 막힘: Vercel 조회 API는 생성 직후 deployment ID를 404로 반환하여 build log를 수집하지 못했다. 실제 Supabase·YouTube 환경변수가 아직 등록되지 않았으므로, 이 URL은 명시적 `snapshot=1` 발표 백업 화면 검증용이다.
+- 안전 확인: 전송한 것은 `src/`, `public/`, Next/Vercel 설정과 패키지 메타데이터뿐이다. `.env*`, 문서, 테스트, Supabase migration·seed는 전송하지 않았고, 전송 파일에서 하드코딩 credential-like 값은 발견되지 않았다.
+- 현재 재개 지점: 새 YouTube 키를 등록한 뒤 Preview 환경변수 이름·누락 여부만 비교하고 실제 공개 데이터 smoke를 실행한다. Production 승격은 그 뒤 별도 승인으로 진행한다.

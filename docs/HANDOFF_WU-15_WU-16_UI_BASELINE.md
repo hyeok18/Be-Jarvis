@@ -24,7 +24,7 @@
 
 시간이 부족하므로 아래 항목은 스킵하고 나중 세부 구현에서 이어간다.
 
-- 기존 YouTube API 키 폐기·신규 키 발급·Vercel Preview 등록
+- 기존 YouTube API 키 폐기·신규 키 발급·Vercel Preview 환경변수 등록
 - 실제 Preview smoke test
 - Production 배포
 - `codex/mobile-map-prototype` 충돌 조정 후 PR 생성
@@ -111,6 +111,15 @@ git diff --name-only origin/main...HEAD
 
 - Preview smoke
 - 발표 리허설과 발표 자료 작성
+
+## Vercel Preview 배포 현황 (2026-08-26)
+
+- 팀/프로젝트: `acme` / `be-jarvis-wu15-preview`
+- Preview URL: `https://be-jarvis-wu15-preview-fait3mpkg-acme-29f2.vercel.app/?snapshot=1&cycle=1`
+- 배포 ID/커밋: `dpl_EbKFGQWyQNwmHb8viTmTuCgtL2Mu` / `fedb64d`
+- 범위: `codex/ui-baseline`의 실행 소스와 설정만 전송한 Preview다. Production/main에는 영향이 없다.
+- 확인 완료: 브라우저에서 발표 백업 모드, 30초 자동 전환 안내, 식당 목록과 지도 fallback이 렌더링된다.
+- 아직 하지 않은 것: 새 YouTube 키와 Preview 환경변수 등록, 실데이터 공개 API smoke, Production 승격. 즉, 발표 시에는 위 URL의 `snapshot=1`을 사용하고 실데이터 성공 화면으로 설명하면 안 된다.
 
 Node/PATH 이슈가 있을 때는 아래처럼 번들 Node 절대경로로 실행했다.
 
