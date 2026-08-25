@@ -1,3 +1,10 @@
+import { MapExplorer } from "@/components/map/map-explorer";
+import { CREATOR_EVIDENCE_FIXTURE, DOMAIN_FIXTURE } from "@/domain/fixtures";
+import {
+  selectPublishableCreatorEvidence,
+  summarizeRestaurantReactions,
+} from "@/domain/signals";
+
 const foundationItems = [
   {
     title: "세 가지 반응",
@@ -14,6 +21,25 @@ const foundationItems = [
 ];
 
 export default function Home() {
+  const reactionSummaries = DOMAIN_FIXTURE.restaurants.map((restaurant) =>
+    summarizeRestaurantReactions(restaurant.id, DOMAIN_FIXTURE.reactions),
+  );
+  const publishableCreatorEvidence = selectPublishableCreatorEvidence(
+    CREATOR_EVIDENCE_FIXTURE,
+    DOMAIN_FIXTURE.now,
+  );
+  const creatorVisitSources = publishableCreatorEvidence.map((item) => ({
+    restaurantId: item.evidence.restaurantId,
+    videoId: item.video.youtubeVideoId,
+    videoTitle: item.video.title,
+    videoUrl: `https://www.youtube.com/watch?v=${encodeURIComponent(item.video.youtubeVideoId)}`,
+    channelTitle: item.channel.title,
+    subscriberCount: item.channel.subscriberCount,
+    hiddenSubscriberCount: item.channel.hiddenSubscriberCount,
+    publishedAt: item.video.publishedAt,
+    metadataFetchedAt: item.video.metadataFetchedAt,
+  }));
+
   return (
     <main>
       <section className="hero" aria-labelledby="page-title">
@@ -28,6 +54,12 @@ export default function Home() {
           품질을 보장하는 자료가 아닙니다.
         </div>
       </section>
+
+      <MapExplorer
+        restaurants={DOMAIN_FIXTURE.restaurants}
+        reactionSummaries={reactionSummaries}
+        creatorVisitSources={creatorVisitSources}
+      />
 
       <section className="foundation" aria-labelledby="foundation-title">
         <div>
