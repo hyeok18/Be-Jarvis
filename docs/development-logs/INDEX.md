@@ -16,6 +16,7 @@
 | WU-09 | Auth·반응 생성·변경 백엔드 | B1 | 진행 중 | 2026-08-25 | [기록](./2026-08-25_WU-09_auth-reaction-backend.md) | WU-08 로그인·반응 UI와 `/api/reactions` 연결 |
 | WU-12 | YouTube Data API 증분 동기화·stale 처리 | B2 | 완료 | 2026-08-25 | [기록](./2026-08-25_WU-12_youtube-sync.md) | WU-14 Cron 인증·동시 실행 방지 |
 | WU-14 | YouTube Cron·인증·동시 실행 방지 | B2 | 완료 | 2026-08-25 | [기록](./2026-08-25_WU-14_youtube-cron-safety.md) | WU-08 완료 뒤 WU-13 관리자 후보 확인·sync log UI 시작 |
+| WU-17 | 오류·반응형·접근성·보안 | A2+공통 | 막힘 | 2026-08-25 | [기록](./2026-08-25_WU-17_quality-security.md) | WU-15·WU-16 완료와 대상 Supabase 연결 후 통합 회귀 재개 |
 
 ## 상태 갱신 규칙
 
