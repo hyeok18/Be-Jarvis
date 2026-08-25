@@ -790,6 +790,39 @@ h3 {
   text-decoration: none;
 }
 
+.state-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+}
+
+.state-shell a.secondary-state-action {
+  border: 1px solid var(--accent);
+  color: var(--accent-strong);
+  background: var(--surface);
+}
+
+.presentation-snapshot-notice {
+  display: grid;
+  gap: 0.25rem;
+  margin-bottom: 1rem;
+  padding: 0.8rem 0.95rem;
+  border: 1px solid #e6c781;
+  border-radius: 0.9rem;
+  color: #6f4d05;
+  background: #fff8df;
+  line-height: 1.5;
+}
+
+.presentation-snapshot-notice strong {
+  color: #5f4304;
+}
+
+.presentation-snapshot-notice span {
+  color: #725a1a;
+  font-size: 0.84rem;
+}
+
 .restaurant-detail-page {
   width: min(68rem, calc(100% - 2rem));
 }

@@ -1,4 +1,5 @@
 import { MapExplorer } from "@/components/map/map-explorer";
+import { getFixtureMapExplorerData } from "@/components/map/map-explorer-fixture";
 import { PublicDataUnavailable } from "@/components/public-data/public-data-unavailable";
 import { toMapExplorerData } from "@/components/public-data/public-restaurant-ui-adapter";
 import { createConfiguredPublicRestaurantDependencies } from "@/server/restaurants/configured-public-restaurants";
@@ -22,15 +23,25 @@ const foundationItems = [
 
 export const dynamic = "force-dynamic";
 
-export default async function Home() {
+interface HomeProps {
+  searchParams: Promise<{ snapshot?: string }>;
+}
+
+export default async function Home({ searchParams }: HomeProps) {
+  const { snapshot } = await searchParams;
+  const snapshotMode = snapshot === "1";
   let data;
 
-  try {
-    const restaurants = await createConfiguredPublicRestaurantDependencies()
-      .repository.list();
-    data = toMapExplorerData(restaurants);
-  } catch {
-    return <PublicDataUnavailable retryHref="/" />;
+  if (snapshotMode) {
+    data = getFixtureMapExplorerData();
+  } else {
+    try {
+      const restaurants = await createConfiguredPublicRestaurantDependencies()
+        .repository.list();
+      data = toMapExplorerData(restaurants);
+    } catch {
+      return <PublicDataUnavailable retryHref="/" snapshotHref="/?snapshot=1" />;
+    }
   }
 
   return (
@@ -47,6 +58,15 @@ export default async function Home() {
       </header>
 
       <section className={styles.hero} aria-labelledby="page-title">
+        {snapshotMode ? (
+          <div className="presentation-snapshot-notice" role="note">
+            <strong>발표 백업 모드</strong>
+            <span>
+              Supabase·YouTube·Preview 연결 없이 합성 스냅샷으로 화면 흐름만
+              시연합니다. 실제 공개 데이터 연결은 나중 구현에서 재개합니다.
+            </span>
+          </div>
+        ) : null}
         <div className={styles.heroCopy}>
           <p className="eyebrow">별점 없는 맛집 탐색</p>
           <h1 id="page-title">누가 다녀왔고, 내 취향에는 맞을까요?</h1>
@@ -71,6 +91,7 @@ export default async function Home() {
 
       <MapExplorer
         {...data}
+        detailHrefSuffix={snapshotMode ? "?snapshot=1" : ""}
       />
 
       <section className={styles.foundation} aria-labelledby="foundation-title">

@@ -11,6 +11,7 @@ import { PersonalMatchSummary } from "../src/components/map/personal-match-summa
 import { ReactionDistribution } from "../src/components/map/reaction-distribution";
 import { SelectedRestaurantSheet } from "../src/components/map/selected-restaurant-sheet";
 import { getFixtureMapExplorerData } from "../src/components/map/map-explorer-fixture";
+import { PublicDataUnavailable } from "../src/components/public-data/public-data-unavailable";
 import { DOMAIN_FIXTURE } from "../src/domain/fixtures";
 import {
   calculateRestaurantMatch,
@@ -107,6 +108,37 @@ describe("selected restaurant UI boundary", () => {
     expect(markup).toContain(`/restaurants/${restaurant.id}`);
     expect(markup).not.toContain("별점");
     expect(markup).not.toContain("종합점수");
+  });
+
+  it("keeps the presentation snapshot flag on detail links", () => {
+    const data = getFixtureMapExplorerData();
+    const restaurant = data.restaurants[0];
+
+    const markup = renderToStaticMarkup(
+      createElement(SelectedRestaurantSheet, {
+        restaurant,
+        creatorSources: [],
+        detailHrefSuffix: "?snapshot=1",
+        onClose: () => undefined,
+      }),
+    );
+
+    expect(markup).toContain(`/restaurants/${restaurant.id}?snapshot=1`);
+  });
+});
+
+describe("presentation backup state", () => {
+  it("offers an explicit snapshot mode without silently replacing public data", () => {
+    const markup = renderToStaticMarkup(
+      createElement(PublicDataUnavailable, {
+        retryHref: "/",
+        snapshotHref: "/?snapshot=1",
+      }),
+    );
+
+    expect(markup).toContain("식당 데이터를 잠시 불러올 수 없습니다");
+    expect(markup).toContain("발표 백업 모드로 보기");
+    expect(markup).toContain("/?snapshot=1");
   });
 });
 

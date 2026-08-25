@@ -26,12 +26,17 @@ const MODES: readonly { id: ExplorerMode; label: string }[] = [
   { id: "personal", label: "나와의 매칭" },
 ];
 
+interface MapExplorerProps extends MapExplorerData {
+  detailHrefSuffix?: string;
+}
+
 export function MapExplorer({
   restaurants,
   reactionSummaries,
   personalMatches,
   creatorVisitSources,
-}: MapExplorerData) {
+  detailHrefSuffix = "",
+}: MapExplorerProps) {
   const [mode, setMode] = useState<ExplorerMode>("public");
   const [selectedCategory, setSelectedCategory] = useState(ALL_CATEGORIES);
   const [creatorLayerActive, setCreatorLayerActive] = useState(false);
@@ -282,7 +287,7 @@ export function MapExplorer({
                         <PersonalMatchSummary match={match} />
                       )}
                       <Link
-                        href={`/restaurants/${restaurant.id}`}
+                        href={`/restaurants/${restaurant.id}${detailHrefSuffix}`}
                         className="restaurant-detail-link"
                       >
                         상세 보기 · 반응 남기기
@@ -344,6 +349,7 @@ export function MapExplorer({
                     summary={selectedSummary}
                     match={selectedMatch}
                     creatorSources={selectedCreatorSources}
+                    detailHrefSuffix={detailHrefSuffix}
                     onClose={() => setSelectedRestaurantId(null)}
                   />
                 ) : (

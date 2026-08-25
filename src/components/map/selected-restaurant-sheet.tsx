@@ -16,6 +16,7 @@ interface SelectedRestaurantSheetProps {
   summary?: RestaurantReactionSummary;
   match?: RestaurantMatchResult;
   creatorSources: readonly CreatorVisitSource[];
+  detailHrefSuffix?: string;
   onClose: () => void;
 }
 
@@ -24,6 +25,7 @@ export function SelectedRestaurantSheet({
   summary,
   match,
   creatorSources,
+  detailHrefSuffix = "",
   onClose,
 }: SelectedRestaurantSheetProps) {
   const firstCreatorSource = creatorSources[0];
@@ -77,7 +79,10 @@ export function SelectedRestaurantSheet({
         )}
       </div>
 
-      <Link className={styles.detailLink} href={`/restaurants/${restaurant.id}`}>
+      <Link
+        className={styles.detailLink}
+        href={`/restaurants/${restaurant.id}${detailHrefSuffix}`}
+      >
         식당 상세 · 반응 남기기
       </Link>
     </aside>

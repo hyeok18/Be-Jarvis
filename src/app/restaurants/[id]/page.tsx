@@ -5,6 +5,7 @@ import { ReactionDistribution } from "@/components/map/reaction-distribution";
 import { CreatorEvidenceList } from "@/components/restaurant-detail/creator-evidence-list";
 import { DetailMatchPanel } from "@/components/restaurant-detail/detail-match-panel";
 import { ReactionSelector } from "@/components/restaurant-detail/reaction-selector";
+import { getFixtureRestaurantDetail } from "@/components/restaurant-detail/restaurant-detail-fixture";
 import { PublicDataUnavailable } from "@/components/public-data/public-data-unavailable";
 import { toRestaurantDetailData } from "@/components/public-data/public-restaurant-ui-adapter";
 import { createConfiguredPublicRestaurantDependencies } from "@/server/restaurants/configured-public-restaurants";
@@ -13,24 +14,41 @@ import styles from "./page.module.css";
 
 interface RestaurantDetailPageProps {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ snapshot?: string }>;
 }
 
 export const dynamic = "force-dynamic";
 
 export default async function RestaurantDetailPage({
   params,
+  searchParams,
 }: RestaurantDetailPageProps) {
   const { id } = await params;
-  let publicRestaurant;
+  const { snapshot } = await searchParams;
+  const snapshotMode = snapshot === "1";
+  let detail;
 
-  try {
-    publicRestaurant = await createConfiguredPublicRestaurantDependencies()
-      .repository.getById(id);
-  } catch {
-    return <PublicDataUnavailable retryHref={`/restaurants/${encodeURIComponent(id)}`} />;
+  if (snapshotMode) {
+    detail = getFixtureRestaurantDetail(id);
+  } else {
+    let publicRestaurant;
+
+    try {
+      publicRestaurant = await createConfiguredPublicRestaurantDependencies()
+        .repository.getById(id);
+    } catch {
+      const encodedId = encodeURIComponent(id);
+      return (
+        <PublicDataUnavailable
+          retryHref={`/restaurants/${encodedId}`}
+          snapshotHref={`/restaurants/${encodedId}?snapshot=1`}
+        />
+      );
+    }
+    if (!publicRestaurant) notFound();
+    detail = toRestaurantDetailData(publicRestaurant);
   }
-  if (!publicRestaurant) notFound();
-  const detail = toRestaurantDetailData(publicRestaurant);
+  if (!detail) notFound();
 
 
   const {
@@ -47,7 +65,11 @@ export default async function RestaurantDetailPage({
   return (
     <main className={`restaurant-detail-page ${styles.page}`}>
       <header className={styles.topBar}>
-        <Link href="/" className="detail-back-link" aria-label="지도로 돌아가기">
+        <Link
+          href={snapshotMode ? "/?snapshot=1" : "/"}
+          className="detail-back-link"
+          aria-label="지도로 돌아가기"
+        >
           ←
         </Link>
         <strong>맛집 상세</strong>
@@ -55,6 +77,15 @@ export default async function RestaurantDetailPage({
       </header>
 
       <section className={`detail-hero ${styles.hero}`} aria-labelledby="restaurant-title">
+        {snapshotMode ? (
+          <div className="presentation-snapshot-notice" role="note">
+            <strong>발표 백업 모드</strong>
+            <span>
+              합성 스냅샷 상세 화면입니다. 실제 DB·YouTube 성공 경로 검증은 키
+              교체와 Preview 설정 후 재개합니다.
+            </span>
+          </div>
+        ) : null}
         <div className="restaurant-card-topline">
           <span className="category-badge">{restaurant.categoryName}</span>
           {creatorVisitSources.length > 0 && (

@@ -45,7 +45,7 @@
 | 14 | WU-13 | P0 | 크리에이터 후보 확인·sync log 관리자 UI | B2 | WU-08, WU-12 | AC-15, AC-19 | 완료 | 관리자 실제 로그인·후보 6건·채널 5개·sync log 조회, 합성 후보 1건 확정 후 candidate 0 재검증 |
 | 15 | WU-14 | P0 | YouTube Cron·인증·동시 실행 방지 | B2 | WU-12 | AC-14, AC-18 | 완료 | `0 18 * * *`, secret 5경로, 실제 DB lock·15분 만료 복구·공개 차단, 전체 55개 테스트·빌드 |
 | 16 | WU-15 | P0 | 30곳 실제 수직 통합 | 공통 | WU-07, WU-11, WU-13 | AC-01~24 | **막힘** | 공개 DTO/API·실제 DB 경계 검증 완료. 기존 YouTube 키 폐기·신규 키 교체 및 Preview Config 등록 후 smoke·통합 회귀 재개 |
-| 17 | WU-16 | P0 | 발표 스냅샷·백업 모드 | B2+A1 | WU-15 | AC-14, AC-28 | 대기 | 기준·변경 스냅샷 30초 전환과 원본 불변 |
+| 17 | WU-16 | P0 | 발표 스냅샷·백업 모드 | B2+A1 | WU-15 | AC-14, AC-28 | 진행 중 | 시간 단축용 `?snapshot=1` 명시 백업 모드 구현·관련 테스트 18개·typecheck·lint 통과. 30초 전환·build·수동 검증은 후속 세부 구현으로 이월 |
 | 18 | WU-17 | P0 | 오류·반응형·접근성·보안 | A2+공통 | WU-15, WU-16 | AC-24~26 | **막힘** | 사전 UI·fallback·정적 보안 회귀 완료; WU-15·WU-16과 대상 Supabase 연결 대기 |
 | 19 | WU-18 | P0 | Vercel Preview·Production 배포 | 공통 | WU-14, WU-17 | AC-27 | 대기 | 환경 분리, 같은 artifact, smoke, rollback |
 | 20 | WU-19 | P0 | 전체 AC 검증·기능 동결·발표 리허설 | 공통 | WU-18 | AC-01~28 | 대기 | 전체 게이트, 3회 성공, P0/P1 0개 |
