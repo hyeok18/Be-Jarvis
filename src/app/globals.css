@@ -9,6 +9,9 @@
   --accent: #087f73;
   --accent-strong: #075e57;
   --notice: #e7f3f1;
+  --like: #087f73;
+  --okay: #d08000;
+  --dislike: #a84747;
 }
 
 * {
@@ -103,6 +106,34 @@ h3 {
   margin-top: 5rem;
 }
 
+.explorer-tabs {
+  display: inline-grid;
+  grid-template-columns: repeat(2, minmax(8rem, 1fr));
+  gap: 0.25rem;
+  margin-bottom: 1.5rem;
+  padding: 0.3rem;
+  border: 1px solid var(--border);
+  border-radius: 0.9rem;
+  background: #e7eeee;
+}
+
+.explorer-tabs button {
+  min-height: 2.8rem;
+  padding: 0.6rem 1rem;
+  border: 0;
+  border-radius: 0.65rem;
+  color: var(--muted);
+  background: transparent;
+  cursor: pointer;
+  font-weight: 800;
+}
+
+.explorer-tabs button[aria-selected="true"] {
+  color: var(--accent-strong);
+  background: var(--surface);
+  box-shadow: 0 0.25rem 0.8rem rgb(18 37 43 / 10%);
+}
+
 .map-section-heading {
   display: flex;
   align-items: end;
@@ -174,6 +205,26 @@ h3 {
   background: var(--accent);
 }
 
+.excluded-food-notice {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  padding: 0.9rem 1rem;
+  border: 1px solid #e8c3b4;
+  border-radius: 0.9rem;
+  color: #713521;
+  background: #fff6f1;
+  line-height: 1.5;
+}
+
+.excluded-food-notice span {
+  color: #82513f;
+  font-size: 0.86rem;
+  text-align: right;
+}
+
 .map-visibility-toggle {
   display: none;
   width: 100%;
@@ -224,18 +275,30 @@ h3 {
   transition: border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
 }
 
+.restaurant-card-select {
+  display: grid;
+  width: 100%;
+  gap: 0.7rem;
+  padding: 0;
+  border: 0;
+  color: inherit;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+}
+
 .restaurant-card:hover {
   border-color: #91bab5;
   transform: translateY(-1px);
 }
 
-.restaurant-card[aria-pressed="true"] {
+.restaurant-card[data-selected="true"] {
   border-color: var(--accent);
   box-shadow: 0 0 0 2px rgb(8 127 115 / 15%);
   background: #f1faf8;
 }
 
-.restaurant-card > strong {
+.restaurant-card-select > strong {
   font-size: 1.15rem;
 }
 
@@ -277,8 +340,7 @@ h3 {
   line-height: 1.4;
 }
 
-.restaurant-card-topline,
-.reaction-summary {
+.restaurant-card-topline {
   display: flex;
   flex-wrap: wrap;
   gap: 0.45rem;
@@ -286,7 +348,7 @@ h3 {
 
 .category-badge,
 .creator-badge,
-.forming-state {
+.match-order-badge {
   width: fit-content;
   border-radius: 999px;
   font-size: 0.76rem;
@@ -305,24 +367,163 @@ h3 {
   background: #fff0e9;
 }
 
+.match-order-badge {
+  padding: 0.25rem 0.5rem;
+  color: #385493;
+  background: #edf2ff;
+}
+
 .restaurant-address {
   color: var(--muted);
   font-size: 0.88rem;
   line-height: 1.45;
 }
 
-.reaction-summary span {
-  padding: 0.28rem 0.48rem;
-  border-radius: 0.45rem;
-  color: #304b52;
-  background: #eef3f4;
+.reaction-distribution,
+.personal-match-summary {
+  display: grid;
+  gap: 0.7rem;
+  padding-top: 0.8rem;
+  border-top: 1px solid var(--border);
+}
+
+.reaction-distribution-heading,
+.match-percent-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  color: var(--muted);
   font-size: 0.78rem;
 }
 
-.forming-state {
-  padding: 0.3rem 0.55rem;
+.reaction-distribution-heading strong {
+  color: var(--foreground);
+  font-size: 0.82rem;
+}
+
+.reaction-distribution ul,
+.personal-match-summary ul {
+  display: grid;
+  gap: 0.55rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.reaction-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.3rem 0.7rem;
+  align-items: center;
+  color: #304b52;
+  font-size: 0.78rem;
+}
+
+.reaction-name {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-weight: 750;
+}
+
+.reaction-name i {
+  font-size: 0.65rem;
+  font-style: normal;
+}
+
+.reaction-like .reaction-name i {
+  color: var(--like);
+}
+
+.reaction-okay .reaction-name i {
+  color: var(--okay);
+}
+
+.reaction-dislike .reaction-name i {
+  color: var(--dislike);
+}
+
+.reaction-count {
+  font-variant-numeric: tabular-nums;
+}
+
+.reaction-track {
+  grid-column: 1 / -1;
+  height: 0.38rem;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #e6ecec;
+}
+
+.reaction-track > span {
+  display: block;
+  width: var(--reaction-width);
+  height: 100%;
+  border-radius: inherit;
+  background: currentcolor;
+}
+
+.reaction-like .reaction-track {
+  color: var(--like);
+}
+
+.reaction-okay .reaction-track {
+  color: var(--okay);
+}
+
+.reaction-dislike .reaction-track {
+  color: var(--dislike);
+}
+
+.reaction-data-note,
+.match-data-note,
+.personal-match-summary p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.76rem;
+  line-height: 1.5;
+}
+
+.reaction-data-note {
+  padding: 0.55rem 0.65rem;
+  border-radius: 0.65rem;
   color: #725312;
   background: #fff7da;
+}
+
+.match-percent-row strong {
+  color: #23488b;
+  font-size: 1.35rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.personal-match-summary li {
+  position: relative;
+  padding-left: 1rem;
+  color: #304b52;
+  font-size: 0.78rem;
+  line-height: 1.45;
+}
+
+.personal-match-summary li::before {
+  position: absolute;
+  top: 0.15rem;
+  left: 0;
+  color: #4569aa;
+  content: "✓";
+  font-weight: 900;
+}
+
+.match-data-note {
+  padding: 0.55rem 0.65rem;
+  border-radius: 0.65rem;
+  color: #385493;
+  background: #edf2ff;
+}
+
+.personal-match-summary.needs-preferences {
+  gap: 0.35rem;
 }
 
 .map-panel {
@@ -597,6 +798,11 @@ h3 {
     margin-top: 3.5rem;
   }
 
+  .explorer-tabs {
+    display: grid;
+    width: 100%;
+  }
+
   .map-section-heading {
     display: grid;
     align-items: start;
@@ -605,6 +811,15 @@ h3 {
   .creator-layer-toggle {
     width: 100%;
     justify-content: center;
+  }
+
+  .excluded-food-notice {
+    display: grid;
+    gap: 0.3rem;
+  }
+
+  .excluded-food-notice span {
+    text-align: left;
   }
 
   .map-visibility-toggle {

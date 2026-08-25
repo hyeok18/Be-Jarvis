@@ -35,7 +35,7 @@
 | 4 | WU-03 | P0 | Supabase 반응·방문·크리에이터 schema와 RLS | B1 | WU-20 | AC-06~13, AC-26 | 완료 | 원격 migration·9개 RLS·36개 DB 테스트·advisor·DB 타입 |
 | 5 | WU-04 | P0 | 식당·반응·크리에이터 합성 seed | B1+B2 | WU-03 | AC-03~04, AC-15~19 | 완료 | 원격 seed 2회·fixture 검증 22/22·익명 공개 경계 통과 |
 | 6 | WU-05 | P0 | counted-only 집계·방문 검증·moderation 엔진 | B1 | WU-03 | AC-03~14 | 완료 | 원격 migration·pgTAP 59/59·seed 2회·WU-04 22/22·advisor·전체 품질 게이트 |
-| 7 | WU-06 | P0 | 공개 지도 셸과 mock 반응·매칭 UI | A3 (A1 인계) | WU-20 | AC-01~05, AC-20~22 | **다음** | 세 반응·매칭·금지 필드 없는 mock UI |
+| 7 | WU-06 | P0 | 공개 지도 셸과 mock 반응·매칭 UI | A3 (A1 인계) | WU-20 | AC-01~05, AC-20~22 | **진행 중** | A1 인계 문서 통합·최신 main 기준 36개 회귀 테스트 통과, mock UI 구현 중 |
 | 8 | WU-07 | P0 | Kakao 지도·필터·크리에이터 레이어·fallback | A2 | WU-06 | AC-15, AC-23~25 | 완료 | props 계약 합의, 지도·출처·fallback·390/1440·Tab/Enter·품질 게이트 통과 |
 | 9 | WU-08 | P0 | 식당 상세·한 탭 반응·개별 영상 근거 UI | A3 (A1 인계) | WU-06 | AC-01~05, AC-15, AC-17~18 | 대기 | 상세 반응·체크인 상태·YouTube 출처 표시 |
 | 10 | WU-09 | P0 | 일반 사용자 Auth·반응 생성·변경 | B1 | WU-03, WU-08 | AC-05~07, AC-09~10 | 진행 중 | DB 명령 34/34·API 11개 테스트 완료, WU-08 UI 연결 대기 |

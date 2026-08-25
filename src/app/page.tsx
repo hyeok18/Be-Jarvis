@@ -1,6 +1,7 @@
 import { MapExplorer } from "@/components/map/map-explorer";
 import { CREATOR_EVIDENCE_FIXTURE, DOMAIN_FIXTURE } from "@/domain/fixtures";
 import {
+  calculateRestaurantMatch,
   selectPublishableCreatorEvidence,
   summarizeRestaurantReactions,
 } from "@/domain/signals";
@@ -23,6 +24,19 @@ const foundationItems = [
 export default function Home() {
   const reactionSummaries = DOMAIN_FIXTURE.restaurants.map((restaurant) =>
     summarizeRestaurantReactions(restaurant.id, DOMAIN_FIXTURE.reactions),
+  );
+  const personalMatches = DOMAIN_FIXTURE.restaurantProfiles.map(
+    (restaurantProfile) =>
+      calculateRestaurantMatch({
+        profile: DOMAIN_FIXTURE.userProfile,
+        restaurant: restaurantProfile,
+        ...(restaurantProfile.restaurantId === "restaurant-balanced-bowl"
+          ? {
+              similarUserEvidence: { fitPercent: 88, overlapCount: 7 },
+              visitEvidence: { fitPercent: 90, sampleSize: 3 },
+            }
+          : {}),
+      }),
   );
   const publishableCreatorEvidence = selectPublishableCreatorEvidence(
     CREATOR_EVIDENCE_FIXTURE,
@@ -58,6 +72,7 @@ export default function Home() {
       <MapExplorer
         restaurants={DOMAIN_FIXTURE.restaurants}
         reactionSummaries={reactionSummaries}
+        personalMatches={personalMatches}
         creatorVisitSources={creatorVisitSources}
       />
 

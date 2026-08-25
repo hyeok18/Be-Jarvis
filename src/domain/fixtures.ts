@@ -41,6 +41,19 @@ export const DOMAIN_FIXTURE = {
       region: "성수동",
       createdAt: FIXTURE_TIME,
     },
+    {
+      id: "restaurant-green-table",
+      kakaoPlaceId: "synthetic-place-003",
+      name: "초록 테이블 성수",
+      categoryGroupCode: "CE7",
+      categoryName: "카페",
+      roadAddress: "서울 성동구 합성로 3",
+      address: "서울 성동구 성수동 합성 3",
+      latitude: 37.5441,
+      longitude: 127.058,
+      region: "성수동",
+      createdAt: FIXTURE_TIME,
+    },
   ] satisfies readonly Restaurant[],
   visitProofs: [
     {
@@ -168,6 +181,19 @@ export const DOMAIN_FIXTURE = {
         service: 80,
       },
       foodTags: ["shellfish", "seafood"],
+    },
+    {
+      restaurantId: "restaurant-green-table",
+      axisProfile: {
+        spicy: 35,
+        sweet: 55,
+        light: 85,
+        rich: 35,
+        value: 80,
+        cleanliness: 95,
+        service: 85,
+      },
+      foodTags: ["vegetable", "dessert"],
     },
   ] satisfies readonly RestaurantPreferenceProfile[],
 } as const;

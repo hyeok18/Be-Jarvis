@@ -11,7 +11,7 @@
 | WU-03 | Supabase 반응·방문·크리에이터 schema와 RLS | B1 | 완료 | 2026-08-25 | [기록](./2026-08-25_WU-03_supabase-schema-rls.md) | WU-04 합성 seed |
 | WU-04 | 식당·반응·크리에이터 합성 seed | B1+B2 | 완료 | 2026-08-25 | [기록](./2026-08-25_WU-04_synthetic-seed.md) | WU-05 counted-only 집계·방문 검증·moderation 엔진 |
 | WU-05 | counted-only 집계·방문 검증·moderation 엔진 | B1 | 완료 | 2026-08-25 | [기록](./2026-08-25_WU-05_reaction-engine.md) | WU-06 공개 지도 셸과 mock 반응·매칭 UI |
-| WU-06 | 공개 지도 셸과 mock 반응·매칭 UI | A3 (A1 인계) | 다음 | 2026-08-25 | [A3 인계](../HANDOFF_A3_WU-06_WU-08.md) | WU-05의 공개 summary 계약과 A3 인계서를 읽고 mock UI 시작 |
+| WU-06 | 공개 지도 셸과 mock 반응·매칭 UI | A3 (A1 인계) | 진행 중 | 2026-08-25 | [기록](./2026-08-25_WU-06_public-map-mock-ui.md) | 공개 반응·개인 매칭 탭과 제외 음식 UI 구현 후 390/1440px 검증 |
 | WU-07 | Kakao 지도·필터·크리에이터 레이어·fallback | A2 | 완료 | 2026-08-25 | [기록](./2026-08-25_WU-07_kakao-map.md) | WU-15 실제 데이터 통합 |
 | WU-09 | Auth·반응 생성·변경 백엔드 | B1 | 진행 중 | 2026-08-25 | [기록](./2026-08-25_WU-09_auth-reaction-backend.md) | WU-08 로그인·반응 UI와 `/api/reactions` 연결 |
 | WU-17 | 오류·반응형·접근성·보안 | A2+공통 | 막힘 | 2026-08-25 | [기록](./2026-08-25_WU-17_quality-security.md) | WU-15·WU-16 완료와 대상 Supabase 연결 후 통합 회귀 재개 |
