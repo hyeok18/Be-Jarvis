@@ -51,7 +51,7 @@
 
 | 검증 항목 | 실행 방법·명령 | 결과 | 증거 또는 비고 |
 |---|---|---|---|
-| 관련 단위 테스트 | 직접 Node로 `vitest run` | 성공 | 9개 파일, 49개 테스트 통과; WU-08 전용 7개 |
+| 관련 단위 테스트 | 직접 Node로 `vitest run` | 성공 | 최신 main 병합 후 13개 파일·68개 통과, 외부 통합 2개 미실행; WU-08 전용 7개 통과 |
 | 정적 검사 | 직접 Node로 `eslint .`, `tsc --noEmit` | 성공 | 오류 0개 |
 | 빌드 | `next build --webpack` | 성공 | 3개 상세 경로 SSG 생성. 기본 Turbopack은 worktree Junction 제약으로 미사용 |
 | 수동 AC 검증 | in-app browser, 1440×900·390×844 | 성공 | 가로 overflow 없음, 3버튼, 공개 3명 유지, 새로고침 개인 반응 복원, 0건·영상 없음 상태, 출처 링크 확인 |
@@ -59,7 +59,7 @@
 
 - 통과한 AC: AC-01~05, AC-15, AC-17~18의 WU-08 UI 범위.
 - 실패한 AC: 없음.
-- 미실행 테스트와 이유: 실제 Auth·`/api/reactions`·위치 체크인은 WU-09·10 범위라 실행하지 않았다. 격리 worktree의 표준 `pnpm run build`는 공유 Junction 삭제 위험과 Turbopack 제약 때문에 실행하지 않고 동일 코드의 webpack production build로 대체했다.
+- 미실행 테스트와 이유: 실제 Auth·`/api/reactions`·위치 체크인은 WU-09·10 범위라 실행하지 않았다. WU-12·14의 live YouTube/Supabase 통합 2개는 명시적 실행 환경변수가 없어 건너뛰었다. 격리 worktree의 표준 `pnpm run build`는 공유 Junction 삭제 위험과 Turbopack 제약 때문에 실행하지 않고 동일 코드의 webpack production build로 대체했다.
 - 테스트 데이터 안전 확인: 합성 식당·반응·영상 데이터만 사용했다.
 - 비밀값 노출 확인: 없음.
 
@@ -109,3 +109,11 @@
 - 해결 또는 시도: 공유 의존성을 보존한 직접 Node 품질 명령·webpack build를 사용하고 `dynamicParams = false`로 미등록 ID를 실제 404로 수정했다.
 - 검증 결과: 전체 49개 테스트, lint, typecheck, webpack production build, 390×844·1440×900, 반응 선택·변경·복원, HTTP 404·복구 링크 모두 통과.
 - 현재 재개 지점: WU-09 Auth·DB UUID 계약을 확정한 뒤 `ReactionSelector`를 실제 반응 API에 연결한다.
+
+### 2026-08-25 — push 직전 main 통합
+
+- 추가 구현: 없음. 원격 main의 WU-12·WU-14 변경 9개 commit을 현재 브랜치에 병합해 공용 우선순위와 일지 인덱스를 함께 보존했다.
+- 새 문제 또는 막힘: 최초 push 안전 검사에서 원격 main의 공용 문서 변경을 감지해 push가 차단됐다.
+- 해결 또는 시도: 열린 PR이 WU-09 하나이고 구현 파일이 겹치지 않음을 확인한 뒤 `origin/main`을 일반 merge했다.
+- 검증 결과: 병합 후 68개 통과·외부 통합 2개 미실행, lint·typecheck·webpack production build 통과. WU-08·12·14 문서 상태가 모두 유지됐다.
+- 현재 재개 지점: 안전 검사를 다시 실행하고 통과할 때만 일반 push한다.
