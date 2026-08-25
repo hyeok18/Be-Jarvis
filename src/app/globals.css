@@ -1,4 +1,6 @@
 @import "tailwindcss";
+@import "./detail.css";
+@import "./map-mobile.css";
 
 :root {
   --background: #f4f7f7;
