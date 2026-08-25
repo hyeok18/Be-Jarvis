@@ -5,8 +5,10 @@ import { ReactionDistribution } from "@/components/map/reaction-distribution";
 import { CreatorEvidenceList } from "@/components/restaurant-detail/creator-evidence-list";
 import { DetailMatchPanel } from "@/components/restaurant-detail/detail-match-panel";
 import { ReactionSelector } from "@/components/restaurant-detail/reaction-selector";
-import { getFixtureRestaurantDetail } from "@/components/restaurant-detail/restaurant-detail-view-model";
-import { DOMAIN_FIXTURE } from "@/domain/fixtures";
+import {
+  getFixtureRestaurantDetail,
+  getFixtureRestaurantIds,
+} from "@/components/restaurant-detail/restaurant-detail-fixture";
 
 interface RestaurantDetailPageProps {
   params: Promise<{ id: string }>;
@@ -15,7 +17,7 @@ interface RestaurantDetailPageProps {
 export const dynamicParams = false;
 
 export function generateStaticParams() {
-  return DOMAIN_FIXTURE.restaurants.map((restaurant) => ({ id: restaurant.id }));
+  return getFixtureRestaurantIds().map((id) => ({ id }));
 }
 
 export default async function RestaurantDetailPage({

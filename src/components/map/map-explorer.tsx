@@ -3,11 +3,7 @@
 import Link from "next/link";
 import { useCallback, useMemo, useRef, useState } from "react";
 
-import type {
-  Restaurant,
-  RestaurantMatchResult,
-  RestaurantReactionSummary,
-} from "@/domain/types";
+import type { RestaurantMatchResult } from "@/domain/types";
 
 import { CategoryFilter } from "./category-filter";
 import { CreatorLayerToggle } from "./creator-layer-toggle";
@@ -17,16 +13,10 @@ import {
   type CreatorVisitSource,
   type ExplorerMode,
 } from "./map-view-model";
+import type { MapExplorerData } from "./map-explorer-data";
 import { PersonalMatchSummary } from "./personal-match-summary";
 import { ReactionDistribution } from "./reaction-distribution";
 import { RestaurantMap } from "./restaurant-map";
-
-interface MapExplorerProps {
-  restaurants: readonly Restaurant[];
-  reactionSummaries: readonly RestaurantReactionSummary[];
-  personalMatches: readonly RestaurantMatchResult[];
-  creatorVisitSources: readonly CreatorVisitSource[];
-}
 
 const ALL_CATEGORIES = "전체";
 const MODES: readonly { id: ExplorerMode; label: string }[] = [
@@ -39,7 +29,7 @@ export function MapExplorer({
   reactionSummaries,
   personalMatches,
   creatorVisitSources,
-}: MapExplorerProps) {
+}: MapExplorerData) {
   const [mode, setMode] = useState<ExplorerMode>("public");
   const [selectedCategory, setSelectedCategory] = useState(ALL_CATEGORIES);
   const [creatorLayerActive, setCreatorLayerActive] = useState(false);
