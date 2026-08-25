@@ -98,3 +98,13 @@
 - 변경 파일: `src/server/admin/configured-creator-admin.ts`, `src/app/api/admin/session/route.ts`, `tests/configured-creator-admin.test.ts`, 공개 DTO UI adapter·지도·상세 연결 파일.
 - 남은 위험과 미해결 항목: 로컬에 실제 Supabase server key가 없어 실제 30곳 성공 화면은 아직 Preview 또는 설정된 개발 환경에서 확인해야 한다. YouTube API key는 수동 sync·Cron을 실제 실행할 배포 환경의 server-only 변수로만 필요하다.
 - 다음 작업에서는 어떻게 해야 하는가: Preview에서 실제 공개 목록·상세·영상 근거·반응 API의 성공 경로를 smoke test하고, 개인 취향 local storage와 matching UI가 공개 집계와 분리되는지 회귀 확인한다.
+
+### 2026-08-26 — Vercel Preview 환경 연결 보안 중단
+
+- 추가 작업: `acme/be-jarvis` Vercel 프로젝트와 GitHub 저장소 연결을 확인했고, Preview 전용 범위에 `SUPABASE_SECRET_KEY`를 Secret으로 등록했다. Production 범위에는 이 값을 등록하지 않았다.
+- 문제와 막힌 지점: YouTube API 키를 Vercel 입력 폼에 넣은 뒤 브라우저 자동화의 폼 상태 출력이 값을 마스킹하지 않는 문제가 발생했다. 저장 버튼은 누르지 않았고 입력 폼을 닫아 Vercel에는 해당 YouTube 키를 등록하지 않았다.
+- 해결 또는 안전 조치: 노출 가능성이 있는 YouTube 키는 즉시 폐기·교체가 필요한 것으로 처리했다. 원래 키를 다시 사용하거나 기록하지 않으며, 새 키가 준비되기 전에는 `YOUTUBE_DATA_API_KEY` 등록·YouTube sync·Cron 검증을 재개하지 않는다.
+- 검증 결과: Vercel 프로젝트가 `hyeok18/Be-Jarvis` 저장소에 연결됐고 Production·Preview 배포가 아직 없음을 Dashboard에서 확인했다. Preview-only 선택 상태로 Supabase server secret 1개가 등록된 것을 이름과 범위만으로 확인했다. 이 세션에서는 새 Preview 배포, smoke test, YouTube sync를 실행하지 않았다.
+- 변경 파일: Vercel 외부 설정(Preview Secret 1개)과 이 개발일지·인덱스만 변경했다. 키 값, 원본 GPS, 사용자 정보는 기록하지 않았다.
+- 남은 위험과 미해결 항목: 새 YouTube Data API 키의 발급·제한 설정과 `youtube.env` 교체가 필요하다. Preview 공개 성공 화면에는 추가로 공개 Supabase 설정·Kakao 공개 앱 키를 Config로 등록해야 하며, 공개 server secret은 Preview 범위만 유지해야 한다.
+- 다음 작업에서는 어떻게 해야 하는가: 사용자가 Google Cloud Console에서 기존 YouTube 키를 삭제 또는 제한 해제 대신 **폐기 후 새 키 발급**하고 로컬 `youtube.env`를 새 값으로 교체한 뒤, 먼저 새 키가 노출되지 않는 등록 경로를 선택한다. 그 다음 Preview의 공개 Config 3개를 등록하고 feature branch Preview에서 smoke test를 실행한다.
