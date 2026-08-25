@@ -302,6 +302,26 @@ h3 {
   font-size: 1.15rem;
 }
 
+.restaurant-detail-link {
+  display: inline-flex;
+  min-height: 2.6rem;
+  align-items: center;
+  justify-content: center;
+  padding: 0.6rem 0.8rem;
+  border: 1px solid var(--accent);
+  border-radius: 0.75rem;
+  color: var(--accent-strong);
+  background: var(--surface);
+  font-size: 0.84rem;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.restaurant-detail-link:hover {
+  color: white;
+  background: var(--accent);
+}
+
 .creator-source-list {
   display: grid;
   gap: 0.4rem;
@@ -770,6 +790,222 @@ h3 {
   text-decoration: none;
 }
 
+.restaurant-detail-page {
+  width: min(68rem, calc(100% - 2rem));
+}
+
+.detail-back-link {
+  display: inline-flex;
+  margin-bottom: 2.5rem;
+  color: var(--accent-strong);
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.detail-hero {
+  display: grid;
+  max-width: 52rem;
+  gap: 0.9rem;
+}
+
+.detail-hero h1 {
+  margin: 0;
+}
+
+.detail-hero p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 1.05rem;
+}
+
+.detail-hero > a {
+  width: fit-content;
+  color: var(--accent-strong);
+  font-weight: 750;
+}
+
+.detail-demo-notice {
+  margin: 2rem 0;
+  padding: 0.9rem 1rem;
+  border: 1px solid #b9d9d4;
+  border-radius: 0.9rem;
+  background: var(--notice);
+  line-height: 1.55;
+}
+
+.detail-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.55fr) minmax(17rem, 0.85fr);
+  gap: 1.25rem;
+  align-items: start;
+}
+
+.detail-primary-column,
+.detail-side-column {
+  display: grid;
+  gap: 1.25rem;
+}
+
+.detail-panel {
+  display: grid;
+  gap: 1rem;
+  padding: 1.4rem;
+  border: 1px solid var(--border);
+  border-radius: 1.25rem;
+  background: rgb(255 255 255 / 92%);
+  box-shadow: 0 1rem 3rem rgb(18 37 43 / 6%);
+}
+
+.detail-panel h2 {
+  margin: 0;
+  font-size: clamp(1.35rem, 3vw, 2rem);
+}
+
+.detail-panel .eyebrow {
+  margin-bottom: 0.25rem;
+}
+
+.detail-panel-heading {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.private-reaction-badge,
+.creator-evidence-count,
+.visit-proof-panel > span {
+  width: fit-content;
+  padding: 0.35rem 0.6rem;
+  border-radius: 999px;
+  color: var(--accent-strong);
+  background: var(--notice);
+  font-size: 0.75rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.reaction-choice-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.7rem;
+}
+
+.reaction-choice {
+  display: grid;
+  min-height: 6.2rem;
+  place-content: center;
+  gap: 0.45rem;
+  border: 2px solid var(--border);
+  border-radius: 1rem;
+  color: var(--foreground);
+  background: var(--surface);
+  cursor: pointer;
+}
+
+.reaction-choice span {
+  font-size: 1.25rem;
+}
+
+.reaction-choice-like span {
+  color: var(--like);
+}
+
+.reaction-choice-okay span {
+  color: var(--okay);
+}
+
+.reaction-choice-dislike span {
+  color: var(--dislike);
+}
+
+.reaction-choice[aria-pressed="true"] {
+  border-color: var(--accent);
+  background: var(--notice);
+  box-shadow: 0 0 0 3px rgb(8 127 115 / 12%);
+}
+
+.private-reaction-notice,
+.detail-match-excluded {
+  display: grid;
+  gap: 0.25rem;
+  padding: 0.85rem 1rem;
+  border-radius: 0.85rem;
+  line-height: 1.5;
+}
+
+.private-reaction-notice {
+  border: 1px solid #d6dfb6;
+  background: #fbfdec;
+}
+
+.private-reaction-notice span,
+.detail-match-excluded span,
+.detail-match-excluded small,
+.detail-disclaimer,
+.visit-proof-panel p,
+.detail-empty-state {
+  color: var(--muted);
+}
+
+.detail-match-excluded {
+  border: 1px solid #e8c3b4;
+  color: #713521;
+  background: #fff6f1;
+}
+
+.detail-disclaimer,
+.visit-proof-panel p,
+.detail-empty-state {
+  margin: 0;
+  font-size: 0.88rem;
+  line-height: 1.65;
+}
+
+.detail-creator-list {
+  display: grid;
+  gap: 0.7rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.detail-creator-list a {
+  display: grid;
+  gap: 0.3rem;
+  padding: 1rem;
+  border: 1px solid #f0c5b8;
+  border-radius: 0.9rem;
+  color: var(--foreground);
+  background: #fff7f3;
+  text-decoration: none;
+}
+
+.detail-creator-list a:hover,
+.detail-creator-list a:focus-visible {
+  border-color: #df8c73;
+  outline: none;
+  box-shadow: 0 0 0 3px rgb(224 79 47 / 14%);
+}
+
+.detail-creator-list span,
+.detail-creator-list small {
+  color: var(--muted);
+}
+
+.detail-creator-list small {
+  line-height: 1.5;
+}
+
+.detail-creator-list b {
+  color: #a12f16;
+  font-size: 0.82rem;
+}
+
+.visit-proof-panel strong {
+  line-height: 1.5;
+}
+
 .skeleton {
   width: min(36rem, 80vw);
   height: 8rem;
@@ -864,6 +1100,34 @@ h3 {
 
   .card {
     min-height: auto;
+  }
+
+  .restaurant-detail-page {
+    padding-top: 2.5rem;
+  }
+
+  .detail-back-link {
+    margin-bottom: 1.75rem;
+  }
+
+  .detail-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .detail-panel-heading {
+    display: grid;
+  }
+
+  .reaction-choice-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .reaction-choice {
+    grid-template-columns: auto 1fr;
+    min-height: 3.6rem;
+    align-items: center;
+    justify-items: start;
+    padding-inline: 1rem;
   }
 }
 

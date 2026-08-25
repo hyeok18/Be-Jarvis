@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useCallback, useMemo, useRef, useState } from "react";
 
 import type {
@@ -270,6 +271,12 @@ export function MapExplorer({
                       {mode === "personal" && match && (
                         <PersonalMatchSummary match={match} />
                       )}
+                      <Link
+                        href={`/restaurants/${restaurant.id}`}
+                        className="restaurant-detail-link"
+                      >
+                        상세 보기 · 반응 남기기
+                      </Link>
                     </article>
                     {hasCreatorVisit && (
                       <ul
