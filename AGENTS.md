@@ -8,18 +8,20 @@
 
 1. `AGENTS.md`
 2. `PRD.md`
-3. `docs/DEVELOPMENT_PRIORITY.md`
-4. `docs/development-logs/INDEX.md`
-5. 현재 작업 단위의 최신 개발일지
-6. `docs/TEAM_GIT_GUIDE.md`
-7. `README.md`
-8. `docs/PROJECT_CONCEPT.md`
+3. `docs/VISION_ROADMAP.md`
+4. `docs/DEVELOPMENT_PRIORITY.md`
+5. `docs/development-logs/INDEX.md`
+6. 현재 작업 단위의 최신 개발일지
+7. `docs/TEAM_GIT_GUIDE.md`
+8. `README.md`
+9. `docs/PROJECT_CONCEPT.md`
 
 요구사항이 충돌하면 다음 순서로 판단한다.
 
 ```text
 사용자의 현재 명시적 지시
 → PRD.md
+→ VISION_ROADMAP.md
 → DEVELOPMENT_PRIORITY.md
 → 현재 작업 단위의 최신 개발일지
 → TEAM_GIT_GUIDE.md
@@ -160,6 +162,12 @@ YYYY-MM-DD_WU-XX_short-slug.md
 - 모든 파생 결과는 `analysis_run_id`와 `algorithm_version`으로 재현 가능해야 한다.
 - 실패한 분석은 마지막 정상 공개 결과를 덮어쓰지 않는다.
 - 점수 조정 근거를 사용자 화면에서 설명할 수 있어야 한다.
+- 공개 평점·신뢰도·종합점수는 리뷰어 개인 가중치, 리뷰어 활동·평점 분포, 사용자 취향, 방문 이력, 리뷰어 유사도를 입력으로 사용하지 않는다.
+- 리뷰 좋아요·싫어요는 버전 있는 완만한 상·하한 가중치로만 공개 점수에 반영한다.
+- 개인화 매칭과 개인화 신뢰도는 공개 점수를 덮어쓰지 않고 별도 결과로 계산한다.
+- 안 먹는 음식은 개인화 점수 감점이 아니라 명시적 제외를 기본으로 하며 사용자가 해제할 수 있어야 한다.
+- P0의 취향·방문 만족도는 브라우저 로컬에만 저장한다. 서버 저장을 시작하면 사용자 소유 RLS·삭제·초기화·비공개 캐시 조건을 먼저 구현한다.
+- 실제 사용자 투표는 인증, 리뷰당 1표, 자기 리뷰 투표 차단, rate limit 없이 공개 집계에 반영하지 않는다.
 - 서버 전용 키와 `.env*`, 토큰, 관리자 정보는 커밋하거나 브라우저 번들·로그·개발일지에 노출하지 않는다.
 - 관련 없는 기존 변경을 삭제하거나 되돌리지 않는다.
 - `git reset --hard`, 강제 push 등 다른 팀원의 작업을 잃을 수 있는 복구 방법을 사용하지 않는다.
@@ -169,6 +177,7 @@ YYYY-MM-DD_WU-XX_short-slug.md
 변경 내용에 따라 다음 문서를 함께 갱신한다.
 
 - 제품 범위·수용 기준·점수 계약: `PRD.md`
+- 장기 비전·P0/P1/P2 경계·성공 지표: `docs/VISION_ROADMAP.md`
 - 작업 순서·의존성·상태·완료 증거: `docs/DEVELOPMENT_PRIORITY.md`
 - 실제 구현 과정·문제·테스트·인계: `docs/development-logs/`
 - 팀 Git·PR·배포 협업 방식: `docs/TEAM_GIT_GUIDE.md`

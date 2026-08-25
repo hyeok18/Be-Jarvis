@@ -2,14 +2,15 @@
 
 광고성·협찬성 리뷰가 맛집 평점을 왜곡하는 문제를 줄이기 위한 24시간 해커톤 프로젝트입니다.
 
-이 서비스는 리뷰를 무조건 삭제하거나 조작 여부를 단정하지 않습니다. 고평점 급증, 문장 유사도, 리뷰어 평점 분포 등 여러 신호로 리뷰 신뢰도를 계산하고, 맛 점수와 종합점수 및 계산 근거를 함께 보여주는 것을 목표로 합니다.
+이 서비스는 리뷰를 무조건 삭제하거나 조작 여부를 단정하지 않습니다. 맛·청결·서비스의 다면 별점과 리뷰 신뢰도로 공개 점수를 계산하고, 별도로 사용자의 취향·제외 음식·이전 만족도를 반영한 나와의 매칭도를 근거와 함께 보여주는 것을 목표로 합니다.
 
 ## 현재 상태
 
 - 요구사항 심층 인터뷰 완료
 - 24시간 MVP 범위와 수용 기준 확정
 - WU-01 Next.js 앱 셸과 품질 게이트 완료
-- 다음 작업: WU-02 도메인 타입·알고리즘 설정·mock 계약
+- WU-02 다면 별점·공개/개인화 도메인 계약 완료
+- 다음 작업: WU-03 Supabase 스키마·RLS·관리자 권한 기반
 
 ## 로컬 실행과 품질 검사
 
@@ -35,10 +36,11 @@ pnpm run build
 
 1. [AGENTS.md](AGENTS.md) — 세션 운영, 완료 게이트, 개발일지 규칙
 2. [PRD.md](PRD.md) — 최종 구현 계약과 수용 기준
-3. [docs/DEVELOPMENT_PRIORITY.md](docs/DEVELOPMENT_PRIORITY.md) — 작업 단위, 의존성, 현재 재개 지점
-4. [docs/development-logs/INDEX.md](docs/development-logs/INDEX.md) — 최신 작업 상태와 세션 인계
-5. [docs/TEAM_GIT_GUIDE.md](docs/TEAM_GIT_GUIDE.md) — 4인 팀 Git·배포·AI 협업 가이드
-6. [docs/PROJECT_CONCEPT.md](docs/PROJECT_CONCEPT.md) — 인터뷰 전 초기 아이디어
+3. [docs/VISION_ROADMAP.md](docs/VISION_ROADMAP.md) — 공개 점수·개인화 비전과 P0/P1/P2 경계
+4. [docs/DEVELOPMENT_PRIORITY.md](docs/DEVELOPMENT_PRIORITY.md) — 작업 단위, 의존성, 현재 재개 지점
+5. [docs/development-logs/INDEX.md](docs/development-logs/INDEX.md) — 최신 작업 상태와 세션 인계
+6. [docs/TEAM_GIT_GUIDE.md](docs/TEAM_GIT_GUIDE.md) — 4인 팀 Git·배포·AI 협업 가이드
+7. [docs/PROJECT_CONCEPT.md](docs/PROJECT_CONCEPT.md) — 인터뷰 전 초기 아이디어
 
 ## 저장소 이력
 
