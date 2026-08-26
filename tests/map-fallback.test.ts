@@ -41,4 +41,20 @@ describe("MapFallback", () => {
     );
     expect(markup).toContain("YouTube 원본 보기");
   });
+
+  it("uses a canonical Kakao place link when the place ID is numeric", () => {
+    const [fixtureRestaurant] = DOMAIN_FIXTURE.restaurants;
+    const restaurant = { ...fixtureRestaurant, kakaoPlaceId: "57374817" };
+    const markup = renderToStaticMarkup(
+      createElement(MapFallback, {
+        reason: "지도 SDK를 사용할 수 없습니다.",
+        restaurants: [restaurant],
+        creatorVisitSources: [],
+        selectedRestaurantId: restaurant.id,
+        onSelectRestaurant: () => undefined,
+      }),
+    );
+
+    expect(markup).toContain("https://place.map.kakao.com/57374817");
+  });
 });

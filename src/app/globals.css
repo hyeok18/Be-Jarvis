@@ -723,6 +723,12 @@ h3 {
   gap: 0.35rem;
 }
 
+.map-fallback-links a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
+}
+
 .empty-map-result {
   padding: 2rem;
   border: 1px dashed var(--border);

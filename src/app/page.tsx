@@ -1,10 +1,17 @@
 import { MapExplorer } from "@/components/map/map-explorer";
-import { CREATOR_EVIDENCE_FIXTURE, DOMAIN_FIXTURE } from "@/domain/fixtures";
+import { getFixtureMapExplorerData } from "@/components/map/map-explorer-fixture";
+import { PublicDataUnavailable } from "@/components/public-data/public-data-unavailable";
 import {
-  calculateRestaurantMatch,
-  selectPublishableCreatorEvidence,
-  summarizeRestaurantReactions,
-} from "@/domain/signals";
+  toMapExplorerData,
+  type MapExplorerData,
+} from "@/components/public-data/public-restaurant-ui-adapter";
+import { createConfiguredPublicRestaurantDependencies } from "@/server/restaurants/configured-public-restaurants";
+
+export const dynamic = "force-dynamic";
+
+interface HomeProps {
+  searchParams: Promise<{ snapshot?: string }>;
+}
 
 const foundationItems = [
   {
@@ -21,38 +28,22 @@ const foundationItems = [
   },
 ];
 
-export default function Home() {
-  const reactionSummaries = DOMAIN_FIXTURE.restaurants.map((restaurant) =>
-    summarizeRestaurantReactions(restaurant.id, DOMAIN_FIXTURE.reactions),
-  );
-  const personalMatches = DOMAIN_FIXTURE.restaurantProfiles.map(
-    (restaurantProfile) =>
-      calculateRestaurantMatch({
-        profile: DOMAIN_FIXTURE.userProfile,
-        restaurant: restaurantProfile,
-        ...(restaurantProfile.restaurantId === "restaurant-balanced-bowl"
-          ? {
-              similarUserEvidence: { fitPercent: 88, overlapCount: 7 },
-              visitEvidence: { fitPercent: 90, sampleSize: 3 },
-            }
-          : {}),
-      }),
-  );
-  const publishableCreatorEvidence = selectPublishableCreatorEvidence(
-    CREATOR_EVIDENCE_FIXTURE,
-    DOMAIN_FIXTURE.now,
-  );
-  const creatorVisitSources = publishableCreatorEvidence.map((item) => ({
-    restaurantId: item.evidence.restaurantId,
-    videoId: item.video.youtubeVideoId,
-    videoTitle: item.video.title,
-    videoUrl: `https://www.youtube.com/watch?v=${encodeURIComponent(item.video.youtubeVideoId)}`,
-    channelTitle: item.channel.title,
-    subscriberCount: item.channel.subscriberCount,
-    hiddenSubscriberCount: item.channel.hiddenSubscriberCount,
-    publishedAt: item.video.publishedAt,
-    metadataFetchedAt: item.video.metadataFetchedAt,
-  }));
+export default async function Home({ searchParams }: HomeProps) {
+  const { snapshot } = await searchParams;
+  const snapshotMode = snapshot === "1";
+  let data: MapExplorerData;
+
+  if (snapshotMode) {
+    data = getFixtureMapExplorerData();
+  } else {
+    try {
+      const restaurants = await createConfiguredPublicRestaurantDependencies()
+        .repository.list();
+      data = toMapExplorerData(restaurants);
+    } catch {
+      return <PublicDataUnavailable retryHref="/" snapshotHref="/?snapshot=1" />;
+    }
+  }
 
   return (
     <main>
@@ -64,16 +55,17 @@ export default function Home() {
           방문 근거를 함께 살펴보는 지도를 준비하고 있습니다.
         </p>
         <div className="notice" role="note">
-          현재 화면은 합성 반응과 합성 영상 근거를 사용하는 데모입니다. 방문이나 식당
-          품질을 보장하는 자료가 아닙니다.
+          {snapshotMode
+            ? "발표 백업 모드입니다. 합성 스냅샷으로 지도 흐름을 확인할 수 있습니다."
+            : "공개 반응은 방문 확인 집계만, 영상 근거는 최신 상태로 확인된 항목만 표시합니다."}
         </div>
       </section>
 
       <MapExplorer
-        restaurants={DOMAIN_FIXTURE.restaurants}
-        reactionSummaries={reactionSummaries}
-        personalMatches={personalMatches}
-        creatorVisitSources={creatorVisitSources}
+        restaurants={data.restaurants}
+        reactionSummaries={data.reactionSummaries}
+        personalMatches={data.personalMatches}
+        creatorVisitSources={data.creatorVisitSources}
       />
 
       <section className="foundation" aria-labelledby="foundation-title">

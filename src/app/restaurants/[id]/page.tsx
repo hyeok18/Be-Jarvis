@@ -2,27 +2,54 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { ReactionDistribution } from "@/components/map/reaction-distribution";
+import { getKakaoPlaceHref } from "@/components/map/kakao-place-link";
 import { CreatorEvidenceList } from "@/components/restaurant-detail/creator-evidence-list";
 import { DetailMatchPanel } from "@/components/restaurant-detail/detail-match-panel";
 import { ReactionSelector } from "@/components/restaurant-detail/reaction-selector";
 import { getFixtureRestaurantDetail } from "@/components/restaurant-detail/restaurant-detail-view-model";
-import { DOMAIN_FIXTURE } from "@/domain/fixtures";
+import { PublicDataUnavailable } from "@/components/public-data/public-data-unavailable";
+import {
+  toRestaurantDetailData,
+  type RestaurantDetailData,
+} from "@/components/public-data/public-restaurant-ui-adapter";
+import { createConfiguredPublicRestaurantDependencies } from "@/server/restaurants/configured-public-restaurants";
 
 interface RestaurantDetailPageProps {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ snapshot?: string }>;
 }
 
-export const dynamicParams = false;
-
-export function generateStaticParams() {
-  return DOMAIN_FIXTURE.restaurants.map((restaurant) => ({ id: restaurant.id }));
-}
+export const dynamic = "force-dynamic";
 
 export default async function RestaurantDetailPage({
   params,
+  searchParams,
 }: RestaurantDetailPageProps) {
   const { id } = await params;
-  const detail = getFixtureRestaurantDetail(id);
+  const { snapshot } = await searchParams;
+  const snapshotMode = snapshot === "1";
+  let detail: RestaurantDetailData | null;
+
+  if (snapshotMode) {
+    detail = getFixtureRestaurantDetail(id);
+  } else {
+    let publicRestaurant;
+
+    try {
+      publicRestaurant = await createConfiguredPublicRestaurantDependencies()
+        .repository.getById(id);
+    } catch {
+      const encodedId = encodeURIComponent(id);
+      return (
+        <PublicDataUnavailable
+          retryHref={`/restaurants/${encodedId}`}
+          snapshotHref={`/restaurants/${encodedId}?snapshot=1`}
+        />
+      );
+    }
+    if (!publicRestaurant) notFound();
+    detail = toRestaurantDetailData(publicRestaurant);
+  }
 
   if (!detail) notFound();
 
@@ -34,7 +61,7 @@ export default async function RestaurantDetailPage({
     creatorVisitSources,
   } = detail;
   const address = restaurant.roadAddress ?? restaurant.address ?? "주소 확인 중";
-  const kakaoSearchUrl = `https://map.kakao.com/link/search/${encodeURIComponent(restaurant.name)}`;
+  const kakaoSearchUrl = getKakaoPlaceHref(restaurant);
 
   return (
     <main className="restaurant-detail-page">
@@ -57,8 +84,10 @@ export default async function RestaurantDetailPage({
       </header>
 
       <div className="detail-demo-notice" role="note">
-        합성 식당·반응·영상 근거를 사용하는 화면입니다. 실제 방문이나 식당 품질을
-        보장하지 않습니다.
+        {snapshotMode
+          ? "발표 백업 모드의 합성 스냅샷입니다."
+          : "공개 반응은 검증 집계만, 영상 근거는 최신 상태로 확인된 항목만 표시합니다."}
+        실제 방문이나 식당 품질을 보장하지 않습니다.
       </div>
 
       <div className="detail-layout">

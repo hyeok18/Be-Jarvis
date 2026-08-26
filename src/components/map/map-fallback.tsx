@@ -1,5 +1,6 @@
 import type { Restaurant } from "@/domain/types";
 
+import { getKakaoPlaceHref } from "./kakao-place-link";
 import type { CreatorVisitSource } from "./map-view-model";
 
 interface MapFallbackProps {
@@ -45,7 +46,7 @@ export function MapFallback({
             </button>
             <div className="map-fallback-links">
               <a
-                href={`https://map.kakao.com/link/map/${encodeURIComponent(restaurant.name)},${restaurant.latitude},${restaurant.longitude}`}
+                href={getKakaoPlaceHref(restaurant)}
                 target="_blank"
                 rel="noopener noreferrer"
               >
