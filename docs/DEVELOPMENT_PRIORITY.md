@@ -152,7 +152,7 @@ WU-20은 기존 ID 사이에 새 번호를 끼우지 않는 운영 규칙에 따
 
 ## 7. 현재 재개 지점
 
-현재 대상은 **WU-15 — 30곳 실제 수직 통합**이며, 상태는 **진행 중**이다. Preview의 새 YouTube 키와 공개 Config·Supabase server secret·`RATE_LIMIT_NETWORK_SALT`·Kakao 공개 앱 키 등록 및 재배포가 끝났고, 실제 30곳 공개 목록·상세·confirmed 영상 근거와 비로그인 개인 반응 경로, 390px/1440px 실제 데이터 반응형·키보드, Kakao 지도 canvas·marker·선택 시트, 합성 테스트 계정 로그인·인증 후 개인 반응·계정 정리, lint·typecheck·전체 Vitest·Webpack production build도 성공했다. 실제 위치를 제공하지 않는 자동화 브라우저에서는 체크인 timeout 복구를 확인했다. 다음에는 실제 위치 응답 가능한 브라우저에서 120m·정확도 100m 조건의 체크인→공개 반응 성공, 권한 거부·거리 초과·proof 재사용 실패·복구를 확인한다.
+현재 대상은 **WU-15 — 30곳 실제 수직 통합**이며, 상태는 **진행 중**이다. Preview의 새 YouTube 키와 공개 Config·Supabase server secret·`RATE_LIMIT_NETWORK_SALT`·Kakao 공개 앱 키 등록 및 재배포가 끝났고, 실제 30곳 공개 목록·상세·confirmed 영상 근거와 비로그인 개인 반응 경로, 390px/1440px 실제 데이터 반응형·키보드, Kakao 지도 canvas·marker·선택 시트, 합성 테스트 계정 로그인·인증 후 개인 반응·계정 정리, lint·typecheck·전체 Vitest·Webpack production build도 성공했다. 서버 RPC 권한 보정 후 스마트폰에서 Auth·abuse guard·위치 증명 호출이 모두 200으로 통과했고, `OUT_OF_RANGE` 거리 초과 복구도 확인했다. 다음에는 실제 위치 응답 가능한 브라우저에서 120m·정확도 100m 조건의 체크인 성공→공개 반응, 권한 거부·proof 재사용 실패·복구를 확인한다.
 
 WU-11은 `codex/wu-11-abuse-controls`에서 구현했다. 대상 Supabase에 rate limit·held migration 2개를 적용했고, 원 IP·fingerprint 비저장, account/network 제한, 위험 신호 held 격리, 마지막 정상 summary 보존을 rollback pgTAP 18/18과 앱 품질 게이트로 검증했다.
 
