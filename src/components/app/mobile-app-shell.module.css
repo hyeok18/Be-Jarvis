@@ -2,74 +2,53 @@
   display: grid;
   min-height: 100dvh;
   place-items: center;
-  padding: 24px;
+  padding: 0;
   background: #f6f7f5;
 }
 
 .welcomeCard {
   position: relative;
-  width: min(390px, 100%);
-  height: min(844px, 100dvh);
+  width: min(492px, 100%);
+  aspect-ratio: 492 / 862;
   overflow: hidden;
-  border-radius: 42px;
   background: #dbe9e5;
-  box-shadow: 0 18px 42px rgb(55 68 62 / 12%);
 }
 
 .welcomeImage {
   z-index: 0;
-  object-fit: cover;
-}
-
-.welcomeCard h1 {
-  position: absolute;
-  top: 92px;
-  right: 0;
-  left: 0;
-  z-index: 2;
-  margin: 0;
-  color: #171f1d;
-  font-size: 38px;
-  font-weight: 950;
-  letter-spacing: -0.1em;
-  text-align: center;
-  text-shadow: 0 2px 8px rgb(255 255 255 / 55%);
+  object-fit: contain;
 }
 
 .welcomeStart {
   position: absolute;
-  right: 28px;
-  bottom: 28px;
-  left: 28px;
+  right: 8.5%;
+  bottom: 4.6%;
+  left: 10.2%;
   z-index: 2;
-  display: flex;
-  align-items: center;
-  width: calc(100% - 56px);
-  height: 58px;
-  padding: 5px;
+  width: auto;
+  height: 7.8%;
+  padding: 0;
   border: 0;
-  border-radius: 30px;
-  color: #fff;
-  background: rgb(24 34 31 / 92%);
-  font-size: 0.78rem;
-  font-weight: 850;
+  border-radius: 16px;
+  background: transparent;
+  cursor: pointer;
 }
 
-.welcomeStart span {
-  display: grid;
-  width: 46px;
-  height: 46px;
-  place-items: center;
-  border-radius: 50%;
-  color: #384541;
-  background: #eef1ef;
-  font-size: 1.7rem;
-  line-height: 1;
+.welcomeStart:focus-visible {
+  outline: 3px solid #29b577;
+  outline-offset: -3px;
 }
 
-.welcomeStart strong {
-  flex: 1;
-  text-align: center;
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  padding: 0;
+  border: 0;
+  margin: -1px;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
 }
 
 .appShell {

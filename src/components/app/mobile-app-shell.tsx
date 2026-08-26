@@ -207,16 +207,15 @@ export function MobileAppShell({
         <section className={styles.welcomeCard}>
           <Image
             className={styles.welcomeImage}
-            src="/food-creator-hero-v2.png"
-            alt="음식을 소개하는 크리에이터"
+            src="/start-screen-user.png"
+            alt=""
             fill
             priority
-            sizes="(max-width: 390px) 100vw, 390px"
+            sizes="(max-width: 492px) 100vw, 492px"
           />
-          <h1>쟤가 먹길래</h1>
+          <h1 className={styles.srOnly}>쟤가 먹길래</h1>
           <button className={styles.welcomeStart} type="button" onClick={() => setStarted(true)}>
-            <span aria-hidden="true">›</span>
-            <strong>쟤가 먹길래 시작하기</strong>
+            <span className={styles.srOnly}>쟤가 먹길래 시작하기</span>
           </button>
         </section>
       </main>
