@@ -11,7 +11,7 @@ import {
 } from "../src/components/restaurant-detail/private-reaction-store";
 import { ReactionSelector } from "../src/components/restaurant-detail/reaction-selector";
 import { getReactionRestaurantId } from "../src/components/restaurant-detail/reaction-restaurant-map";
-import { getFixtureRestaurantDetail } from "../src/components/restaurant-detail/restaurant-detail-view-model";
+import { getFixtureRestaurantDetail } from "../src/components/restaurant-detail/restaurant-detail-fixture";
 
 describe("restaurant detail view model", () => {
   it("exposes only confirmed, fresh creator evidence in subscriber order", () => {

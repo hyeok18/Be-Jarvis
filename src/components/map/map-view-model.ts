@@ -3,6 +3,7 @@ import type {
   RestaurantMatchResult,
   RestaurantReactionSummary,
 } from "@/domain/types";
+import type { PublicSubscriberCountState } from "@/contracts/public-restaurants";
 
 export interface CreatorVisitSource {
   restaurantId: string;
@@ -11,6 +12,7 @@ export interface CreatorVisitSource {
   videoUrl: string;
   channelTitle: string;
   subscriberCount: number | null;
+  subscriberCountState?: PublicSubscriberCountState;
   hiddenSubscriberCount: boolean;
   publishedAt: string;
   metadataFetchedAt: string;
@@ -18,6 +20,21 @@ export interface CreatorVisitSource {
 
 export type ExplorerMode = "public" | "personal";
 export type ReactionDataState = "empty" | "forming" | "established";
+
+export function toggleCategorySelection(
+  selectedCategory: string,
+  requestedCategory: string,
+  allCategory = "전체",
+) {
+  if (
+    requestedCategory !== allCategory &&
+    requestedCategory === selectedCategory
+  ) {
+    return allCategory;
+  }
+
+  return requestedCategory;
+}
 
 export function getReactionDataState(
   summary: RestaurantReactionSummary,

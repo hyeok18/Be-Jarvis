@@ -3,30 +3,22 @@
 import Link from "next/link";
 import { useCallback, useMemo, useRef, useState } from "react";
 
-import type {
-  Restaurant,
-  RestaurantMatchResult,
-  RestaurantReactionSummary,
-} from "@/domain/types";
+import type { RestaurantMatchResult } from "@/domain/types";
 
 import { CategoryFilter } from "./category-filter";
 import { CreatorLayerToggle } from "./creator-layer-toggle";
+import styles from "./map-explorer.module.css";
 import {
   formatFoodTag,
   sortRestaurantsForMode,
   type CreatorVisitSource,
   type ExplorerMode,
 } from "./map-view-model";
+import type { MapExplorerData } from "./map-explorer-data";
 import { PersonalMatchSummary } from "./personal-match-summary";
 import { ReactionDistribution } from "./reaction-distribution";
 import { RestaurantMap } from "./restaurant-map";
-
-interface MapExplorerProps {
-  restaurants: readonly Restaurant[];
-  reactionSummaries: readonly RestaurantReactionSummary[];
-  personalMatches: readonly RestaurantMatchResult[];
-  creatorVisitSources: readonly CreatorVisitSource[];
-}
+import { SelectedRestaurantSheet } from "./selected-restaurant-sheet";
 
 const ALL_CATEGORIES = "전체";
 const MODES: readonly { id: ExplorerMode; label: string }[] = [
@@ -34,17 +26,22 @@ const MODES: readonly { id: ExplorerMode; label: string }[] = [
   { id: "personal", label: "나와의 매칭" },
 ];
 
+interface MapExplorerProps extends MapExplorerData {
+  detailHrefSuffix?: string;
+}
+
 export function MapExplorer({
   restaurants,
   reactionSummaries,
   personalMatches,
   creatorVisitSources,
+  detailHrefSuffix = "",
 }: MapExplorerProps) {
   const [mode, setMode] = useState<ExplorerMode>("public");
   const [selectedCategory, setSelectedCategory] = useState(ALL_CATEGORIES);
   const [creatorLayerActive, setCreatorLayerActive] = useState(false);
   const [selectedRestaurantId, setSelectedRestaurantId] = useState<string | null>(
-    restaurants[0]?.id ?? null,
+    null,
   );
   const [mapOpen, setMapOpen] = useState(true);
   const tabRefs = useRef<Array<HTMLButtonElement | null>>([]);
@@ -112,10 +109,25 @@ export function MapExplorer({
     (restaurant) => restaurant.id === selectedRestaurantId,
   )
     ? selectedRestaurantId
-    : (visibleRestaurants[0]?.id ?? null);
+    : null;
+  const selectedRestaurant =
+    visibleRestaurants.find(
+      (restaurant) => restaurant.id === activeSelectedRestaurantId,
+    ) ?? null;
+  const selectedSummary = selectedRestaurant
+    ? summaryByRestaurantId.get(selectedRestaurant.id)
+    : undefined;
+  const selectedMatch = selectedRestaurant
+    ? matchByRestaurantId.get(selectedRestaurant.id)
+    : undefined;
+  const selectedCreatorSources = selectedRestaurant
+    ? (creatorSourcesByRestaurantId.get(selectedRestaurant.id) ?? [])
+    : [];
 
   const handleSelectRestaurant = useCallback((restaurantId: string) => {
-    setSelectedRestaurantId(restaurantId);
+    setSelectedRestaurantId((current) =>
+      current === restaurantId ? null : restaurantId,
+    );
   }, []);
 
   const handleTabKeyDown = (index: number, key: string) => {
@@ -132,7 +144,10 @@ export function MapExplorer({
   };
 
   return (
-    <section className="map-section" aria-labelledby="map-section-title">
+    <section
+      className={`map-section ${styles.explorer}`}
+      aria-labelledby="map-section-title"
+    >
       <div className="explorer-tabs" role="tablist" aria-label="식당 탐색 기준">
         {MODES.map((item, index) => (
           <button
@@ -272,7 +287,7 @@ export function MapExplorer({
                         <PersonalMatchSummary match={match} />
                       )}
                       <Link
-                        href={`/restaurants/${restaurant.id}`}
+                        href={`/restaurants/${restaurant.id}${detailHrefSuffix}`}
                         className="restaurant-detail-link"
                       >
                         상세 보기 · 반응 남기기
@@ -295,9 +310,13 @@ export function MapExplorer({
                               <small>
                                 {source.hiddenSubscriberCount
                                   ? "구독자 수 비공개"
-                                  : source.subscriberCount === null
-                                    ? "구독자 수 확인 중"
-                                    : `구독자 ${source.subscriberCount.toLocaleString("ko-KR")}명`}
+                                  : source.subscriberCountState === "stale"
+                                    ? "구독자 수 업데이트 필요"
+                                    : source.subscriberCountState === "unavailable"
+                                      ? "구독자 수 확인 불가"
+                                      : source.subscriberCount === null
+                                        ? "구독자 수 확인 중"
+                                        : `구독자 ${source.subscriberCount.toLocaleString("ko-KR")}명`}
                                 {` · 영상 ${source.publishedAt.slice(0, 10)}`}
                                 {` · API 기준 ${source.metadataFetchedAt.slice(0, 10)}`}
                               </small>
@@ -324,6 +343,21 @@ export function MapExplorer({
                   <span><i className="legend-dot creator" /> 확인된 영상 방문</span>
                   <span><i className="legend-dot selected" /> 선택한 식당</span>
                 </p>
+                {selectedRestaurant ? (
+                  <SelectedRestaurantSheet
+                    restaurant={selectedRestaurant}
+                    summary={selectedSummary}
+                    match={selectedMatch}
+                    creatorSources={selectedCreatorSources}
+                    detailHrefSuffix={detailHrefSuffix}
+                    onClose={() => setSelectedRestaurantId(null)}
+                  />
+                ) : (
+                  <div className={styles.selectionHint} role="status">
+                    <strong>지도에서 맛집을 선택해 보세요.</strong>
+                    <span>마커나 목록 카드를 누르면 핵심 근거를 함께 보여 드려요.</span>
+                  </div>
+                )}
               </div>
             )}
           </div>

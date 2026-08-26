@@ -1,3 +1,5 @@
+import { toggleCategorySelection } from "./map-view-model";
+
 interface CategoryFilterProps {
   categories: readonly string[];
   selectedCategory: string;
@@ -17,7 +19,9 @@ export function CategoryFilter({
           type="button"
           className="filter-chip"
           aria-pressed={category === selectedCategory}
-          onClick={() => onSelect(category)}
+          onClick={() =>
+            onSelect(toggleCategorySelection(selectedCategory, category))
+          }
         >
           {category}
         </button>

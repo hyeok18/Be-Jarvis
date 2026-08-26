@@ -1,95 +1,41 @@
-import { MapExplorer } from "@/components/map/map-explorer";
-import { CREATOR_EVIDENCE_FIXTURE, DOMAIN_FIXTURE } from "@/domain/fixtures";
-import {
-  calculateRestaurantMatch,
-  selectPublishableCreatorEvidence,
-  summarizeRestaurantReactions,
-} from "@/domain/signals";
+import { MobileAppShell } from "@/components/app/mobile-app-shell";
+import { getFixtureMapExplorerData } from "@/components/map/map-explorer-fixture";
+import { PublicDataUnavailable } from "@/components/public-data/public-data-unavailable";
+import { toMapExplorerData } from "@/components/public-data/public-restaurant-ui-adapter";
+import { createConfiguredPublicRestaurantDependencies } from "@/server/restaurants/configured-public-restaurants";
 
-const foundationItems = [
-  {
-    title: "세 가지 반응",
-    description: "좋아요, 그냥 그래요, 싫어요만 남겨 선택 부담을 줄입니다.",
-  },
-  {
-    title: "나와의 매칭",
-    description: "안 먹는 음식과 내 취향을 공개 반응과 섞지 않고 따로 계산합니다.",
-  },
-  {
-    title: "영상 속 방문 근거",
-    description: "확인된 맛집 탐방 영상과 최신 채널 출처를 지도에 연결합니다.",
-  },
-];
 
-export default function Home() {
-  const reactionSummaries = DOMAIN_FIXTURE.restaurants.map((restaurant) =>
-    summarizeRestaurantReactions(restaurant.id, DOMAIN_FIXTURE.reactions),
-  );
-  const personalMatches = DOMAIN_FIXTURE.restaurantProfiles.map(
-    (restaurantProfile) =>
-      calculateRestaurantMatch({
-        profile: DOMAIN_FIXTURE.userProfile,
-        restaurant: restaurantProfile,
-        ...(restaurantProfile.restaurantId === "restaurant-balanced-bowl"
-          ? {
-              similarUserEvidence: { fitPercent: 88, overlapCount: 7 },
-              visitEvidence: { fitPercent: 90, sampleSize: 3 },
-            }
-          : {}),
-      }),
-  );
-  const publishableCreatorEvidence = selectPublishableCreatorEvidence(
-    CREATOR_EVIDENCE_FIXTURE,
-    DOMAIN_FIXTURE.now,
-  );
-  const creatorVisitSources = publishableCreatorEvidence.map((item) => ({
-    restaurantId: item.evidence.restaurantId,
-    videoId: item.video.youtubeVideoId,
-    videoTitle: item.video.title,
-    videoUrl: `https://www.youtube.com/watch?v=${encodeURIComponent(item.video.youtubeVideoId)}`,
-    channelTitle: item.channel.title,
-    subscriberCount: item.channel.subscriberCount,
-    hiddenSubscriberCount: item.channel.hiddenSubscriberCount,
-    publishedAt: item.video.publishedAt,
-    metadataFetchedAt: item.video.metadataFetchedAt,
-  }));
+export const dynamic = "force-dynamic";
+
+interface HomeProps {
+  searchParams: Promise<{ cycle?: string; snapshot?: string }>;
+}
+
+export default async function Home({ searchParams }: HomeProps) {
+  const { cycle, snapshot } = await searchParams;
+  const snapshotMode = snapshot === "1";
+  const cycleMode = snapshotMode && cycle === "1";
+  const detailHrefSuffix = cycleMode ? "?snapshot=1&cycle=1" : snapshotMode ? "?snapshot=1" : "";
+  let data;
+
+  if (snapshotMode) {
+    data = getFixtureMapExplorerData();
+  } else {
+    try {
+      const restaurants = await createConfiguredPublicRestaurantDependencies()
+        .repository.list();
+      data = toMapExplorerData(restaurants);
+    } catch {
+      return <PublicDataUnavailable retryHref="/" snapshotHref="/?snapshot=1" />;
+    }
+  }
 
   return (
-    <main>
-      <section className="hero" aria-labelledby="page-title">
-        <p className="eyebrow">성수동 · 24시간 해커톤 MVP</p>
-        <h1 id="page-title">반응으로 보는 맛집 지도</h1>
-        <p className="lede">
-          복잡한 평가표 없이 세 반응을 남기고, 내 취향 매칭과 크리에이터의 영상
-          방문 근거를 함께 살펴보는 지도를 준비하고 있습니다.
-        </p>
-        <div className="notice" role="note">
-          현재 화면은 합성 반응과 합성 영상 근거를 사용하는 데모입니다. 방문이나 식당
-          품질을 보장하는 자료가 아닙니다.
-        </div>
-      </section>
-
-      <MapExplorer
-        restaurants={DOMAIN_FIXTURE.restaurants}
-        reactionSummaries={reactionSummaries}
-        personalMatches={personalMatches}
-        creatorVisitSources={creatorVisitSources}
-      />
-
-      <section className="foundation" aria-labelledby="foundation-title">
-        <div>
-          <p className="eyebrow">구현 기반</p>
-          <h2 id="foundation-title">새로운 선택 방식</h2>
-        </div>
-        <ul className="card-grid">
-          {foundationItems.map((item) => (
-            <li key={item.title} className="card">
-              <h3>{item.title}</h3>
-              <p>{item.description}</p>
-            </li>
-          ))}
-        </ul>
-      </section>
-    </main>
+    <MobileAppShell
+      {...data}
+      detailHrefSuffix={detailHrefSuffix}
+      snapshotMode={snapshotMode}
+      cycleMode={cycleMode}
+    />
   );
 }
