@@ -131,6 +131,29 @@
 - 남은 위험과 미해결 항목: 팀에서 `codex/mobile-map-prototype`와 `codex/kakao-map-update`의 활성 여부 또는 통합 담당을 확정하기 전에는 `codex/ui-baseline`을 push·PR로 올리지 않는다. 기존에 노출 가능성이 생긴 YouTube 키도 폐기·재발급 전까지 Preview smoke와 YouTube sync를 재개하지 않는다.
 - 다음 작업에서는 어떻게 해야 하는가: 먼저 팀에 `codex/mobile-map-prototype`의 홈/상세 변경을 폐기할지, UI 기준선에 흡수할지, 별도 통합 담당이 처리할지 결정하도록 공유한다. 동시에 사용자가 Google Cloud Console에서 기존 YouTube 키를 폐기하고 새 서버 전용 키를 준비하면 Preview Config 등록과 실제 30곳 smoke test를 재개한다.
 
+### 2026-08-26 — 스마트폰 체크인 503 원인 진단 및 migration 승인 대기
+
+- 재현 보고: 사용자가 스마트폰에서 위치 권한을 허용한 뒤 `방문 확인 서버에 연결하지 못했어요`를 확인했다. 이 문구는 브라우저 위치 권한 자체가 아니라 체크인 API의 503 계열 응답을 뜻한다.
+- 런타임 증거: Supabase API 로그에서 인증 사용자 조회(`/auth/v1/user`)는 200이었고, 직후 `POST /rest/v1/rpc/enforce_reaction_abuse_guard`가 403이었다. Postgres 로그의 동일 시각 오류는 `permission denied for table users`였다. 좌표·토큰·키 값은 출력하거나 기록하지 않았다.
+- 원인: WU-11/WU-10/WU-09의 서버 전용 RPC가 `service_role` 실행 권한만 갖지만 `auth.users`를 조회하는 동안 `security invoker`로 호출되어 권한이 거부된다. 읽기 전용 catalog 확인에서도 네 RPC 모두 `security_definer=false`, `service_role_execute=true`, `anon/authenticated_execute=false`였다.
+- 준비한 해결: `supabase/migrations/20260826110000_wu_15_server_rpc_security_definer.sql`에서 `enforce_reaction_abuse_guard`, `issue_location_visit_proof`, `save_reaction_selection`, `save_reaction_with_visit_proof`를 `SECURITY DEFINER`로 전환한다. 기존 실행 권한 제한·빈 `search_path`·fully-qualified relation은 유지하며 데이터·RLS·브라우저 키는 변경하지 않는다.
+- 막힌 지점: Production Supabase에서 네 RPC의 실행 보안 모드를 지속 변경하는 작업은 사용자 승인 없이 적용할 수 없어 migration 적용이 차단됐다. 승인 전에는 파일만 준비하고 DB·Vercel·배포를 변경하지 않는다.
+- 다음 작업에서는 어떻게 해야 하는가: 사용자가 위 네 RPC의 `SECURITY DEFINER` migration을 대상 Be-jarvis Supabase 프로젝트에 적용하도록 승인하면 migration 적용 → Postgres/API 로그에서 403 소멸 확인 → 같은 Preview에서 체크인 재시도 → 실제 위치 성공·거리/권한 거부·proof 재사용 경로를 검증한다.
+
+### 2026-08-26 — 서버 RPC 권한 보정 적용 완료
+
+- 외부 변경: 사용자 승인 후 대상 Be-jarvis Supabase 프로젝트에 `wu_15_server_rpc_security_definer` migration을 적용했다. Supabase가 기록한 migration version은 `20260826020142`이다.
+- 검증: `enforce_reaction_abuse_guard`, `issue_location_visit_proof`, `save_reaction_selection`, `save_reaction_with_visit_proof` 모두 `security_definer=true`로 확인했다. `service_role` 실행 권한은 유지되고 `anon`·`authenticated` 실행 권한은 계속 차단됐다.
+- 보안 범위: 함수 내부의 빈 `search_path`, 기존 fully-qualified relation, 데이터·RLS·키·원본 위치 비저장 계약은 변경하지 않았다. secret·토큰·좌표는 기록하지 않았다.
+- 남은 검증: 사용자의 동일 Preview 스마트폰에서 체크인을 재시도한 뒤 API/Postgres 로그에 403이 사라지고, 실제 위치 조건에 따라 성공/거리 초과/권한 거부/복구가 동작하는지 확인해야 한다.
+
+### 2026-08-26 — 권한 보정 후 스마트폰 체크인 재검증
+
+- 수동 검증: 사용자가 스마트폰에서 위치 권한을 허용한 뒤 체크인을 다시 시도했다. 화면에는 `식당 근처에서 다시 체크인해 주세요.`가 표시됐다.
+- 런타임 증거: 같은 시각 Supabase 로그에서 Auth user `200`, `enforce_reaction_abuse_guard` `200`, `issue_location_visit_proof` `200`을 확인했다. 이전 `403 permission denied for table users`는 재현되지 않았다.
+- 결과 해석: 서버 연결·인증·rate guard·위치 증명 RPC 호출은 정상이며, 실제 좌표가 식당 허용 반경(120m) 밖이라 `OUT_OF_RANGE`로 정상 거부된 것이다. 이번 시도로 WU-15의 거리 초과 실패·복구 경로를 확인했다.
+- 남은 검증: 가짜 위치를 사용하지 않고 실제 식당 근처에서 정확도 100m 이하인 기기로 체크인 성공 → 반응 1회 → counted/held 결과 → proof 재사용 거부를 확인한다. 권한 거부 경로도 별도 확인한다.
+
 ### 2026-08-26 — Preview 재배포 및 실제 데이터 연결 재검증
 
 - 추가 작업: `acme/be-jarvis`의 `codex/ui-baseline` Preview에 새 `YOUTUBE_DATA_API_KEY`를 Preview 전용 Secret으로 교체 등록했다. `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`는 Preview 전용 Config로 등록했고, Production 범위는 선택하지 않았다. 같은 커밋 `6dadd3b`을 Preview 환경으로 재배포해 Ready 상태와 배포 URL을 확인했다.
