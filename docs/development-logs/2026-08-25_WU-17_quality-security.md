@@ -74,11 +74,13 @@
 | `tests/app-state-copy.test.ts` | 오류·복구 상태 문구 회귀 방지 |
 | `tests/client-security-boundary.test.ts` | 클라이언트 비밀값 경계 회귀 방지 |
 | `tests/supabase-security-contract.test.ts` | migration RLS·권한·함수·인덱스 계약 고정 |
+| `supabase/seed.sql` | 합성 지도 핀을 성수권 분산 좌표로 재현 |
+| `supabase/migrations/20260826033740_wu_17_spread_synthetic_map_coordinates.sql` | 원격 합성 식당 30개의 일렬 좌표를 분산 좌표로 보정 |
 | `docs/DEVELOPMENT_PRIORITY.md` | WU-17 실제 상태와 재개 조건 반영 |
 | `docs/development-logs/INDEX.md` | WU-17 일지 연결 |
 | `docs/development-logs/2026-08-25_WU-17_quality-security.md` | 사전 검증·막힘·인계 기록 |
 
-보호 대상인 `supabase/seed.sql`, `supabase/migrations`, DB 타입, package 파일은 수정하지 않았다.
+DB 타입과 package 파일은 수정하지 않았다. 합성 지도 좌표 보정을 위해 `supabase/seed.sql`과 신규 migration만 추가로 수정했다.
 
 ## 7. 남은 위험과 미해결 항목
 
@@ -112,3 +114,11 @@
 - 구현 기록: 보안 계약 테스트 파서가 별도 `ALTER FUNCTION` 구문을 독립적으로 검증하도록 보정해 이후 migration에서 함수별 실행 모드가 잘못 귀속되지 않게 했다.
 - 남은 위험: 실제 WU-15 체크인 성공·공개 반응·proof 재사용, 대상 Supabase `test:db`/advisor/Auth 설정과 WU-16 발표 리허설은 미실행이다. 이 조건 전에는 WU-17을 완료로 표시하지 않는다.
 - 다음 작업: 대상 Supabase 원격 보안·DB 검증 권한이 준비되면 pgTAP/advisor/Auth 설정을 확인하고, WU-15·WU-16 결과가 고정된 뒤 390px·1440px·키보드 통합 회귀를 다시 실행한다.
+
+### 2026-08-26 — 합성 지도 핀 분산 보정
+
+- 추가 구현: `synthetic-seongsu-*` 30개 좌표를 같은 증가식 일렬 배치에서 성수권 내부의 결정적 분산 배치로 변경했다. 원격 DB에는 migration으로 적용했고, `supabase/seed.sql`도 같은 식으로 갱신했다.
+- 새 문제 또는 막힘: 엑셀의 4개 후보는 실제 30개 공개 식당 데이터가 아니며, 위도·경도가 비어 있어 해당 값으로 합성 30개를 대체하지 않았다.
+- 해결 또는 시도: 화면 전용 좌표를 만들지 않고 `public.restaurants.latitude/longitude`를 업데이트해 지도와 위치 검증이 같은 좌표를 사용하도록 했다. 합성 데이터는 실제 사업장 좌표라고 주장하지 않는다.
+- 검증 결과: 원격 migration 성공. 원격 합성 식당 30개, 위도 30종·경도 30종, 범위 `37.541735~37.547160 / 127.047480~127.054100` 확인.
+- 현재 재개 지점: 품질 게이트와 Production 지도 재조회 후 WU-15·WU-16 통합 검증을 이어간다.
