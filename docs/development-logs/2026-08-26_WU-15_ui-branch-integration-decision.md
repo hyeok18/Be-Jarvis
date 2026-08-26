@@ -22,6 +22,7 @@
 - `codex/kakao-map-update`를 비활성·보관 브랜치로 지정했다. `main`과 merge-base가 없으므로 merge, cherry-pick, 전체 복사는 금지한다.
 - `codex/mobile-map-prototype`를 비활성·대체됨 브랜치로 지정했다. 홈·상세 UI는 `codex/ui-baseline`이 기준이며, 필요한 변경만 담당자가 선택적으로 반영한다.
 - 두 브랜치는 삭제하지 않고 기록 보존 대상으로 유지한다.
+- push 안전검사가 두 보관 브랜치를 활성 충돌 후보로 다시 해석하지 않도록 명시적 제외 목록을 추가했다.
 
 ## 3. 무엇이 문제였고 어디에서 막혔는가
 
@@ -42,6 +43,7 @@
 | 원격 브랜치·PR 확인 | `git ls-remote --heads origin`, `gh pr list` | 성공 | PR #13만 열려 있으며 작성자는 hyeok18다. |
 | 이력 관계 확인 | `git merge-base`, `git merge-base --is-ancestor` | 성공 | `kakao-map-update`는 main과 공통 merge-base가 없고, UI 기준선은 main 위에 있다. |
 | 문서 일관성 | `git diff --check` | 성공 | 공백 오류 없음. |
+| push 안전검사 | `node scripts/check-push-safety.mjs` | 실행 예정 | 보관 브랜치 제외 후 다시 실행한다. |
 | 애플리케이션 품질 게이트 | 해당 없음 | 미실행 | 코드·의존성·배포 설정을 변경하지 않았다. |
 
 - 통과한 AC: 해당 없음. 이 변경은 WU-15 통합 운영 결정이다.
@@ -57,6 +59,7 @@
 | `docs/HANDOFF_WU-15_WU-16_UI_BASELINE.md` | 담당·비활성 브랜치·보관 규칙을 단일 인계 문서에 반영 |
 | `docs/development-logs/2026-08-26_WU-15_ui-branch-integration-decision.md` | 결정 근거와 재개 규칙 기록 |
 | `docs/development-logs/INDEX.md` | WU-15 최신 통합 재개 지점 동기화 |
+| `scripts/check-push-safety.mjs` | 보관 브랜치를 활성 충돌 검사에서 제외 |
 
 ## 7. 남은 위험과 미해결 항목
 

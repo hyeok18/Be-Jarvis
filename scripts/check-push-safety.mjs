@@ -3,6 +3,10 @@ import { spawnSync } from "node:child_process";
 const remote = process.env.GIT_REMOTE || "origin";
 const baseBranch = process.env.GIT_BASE_BRANCH || "main";
 const baseRef = `${remote}/${baseBranch}`;
+const inactiveBranchNames = new Set([
+  "codex/kakao-map-update",
+  "codex/mobile-map-prototype",
+]);
 
 function runGit(args, { allowFailure = false } = {}) {
   const result = spawnSync("git", args, {
@@ -105,7 +109,21 @@ const remoteBranches = lines(
 )
   .map((ref) => ref.replace(/^\*\s*/u, ""))
   .filter((ref) => !ref.includes(" -> "))
-  .filter((ref) => ref !== baseRef && ref !== upstream);
+  .filter((ref) => ref !== baseRef && ref !== upstream)
+  .filter((ref) => {
+    const branchName = ref.startsWith(`${remote}/`)
+      ? ref.slice(remote.length + 1)
+      : ref;
+    const inactive = inactiveBranchNames.has(branchName);
+
+    if (inactive) {
+      process.stdout.write(
+        `[push-safety] Skipping inactive preserved branch: ${ref}\n`,
+      );
+    }
+
+    return !inactive;
+  });
 
 for (const ref of remoteBranches) {
   const refFiles = changedFiles(`${baseRef}...${ref}`);
