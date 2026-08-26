@@ -43,7 +43,7 @@
 | 원격 브랜치·PR 확인 | `git ls-remote --heads origin`, `gh pr list` | 성공 | PR #13만 열려 있으며 작성자는 hyeok18다. |
 | 이력 관계 확인 | `git merge-base`, `git merge-base --is-ancestor` | 성공 | `kakao-map-update`는 main과 공통 merge-base가 없고, UI 기준선은 main 위에 있다. |
 | 문서 일관성 | `git diff --check` | 성공 | 공백 오류 없음. |
-| push 안전검사 | `node scripts/check-push-safety.mjs` | 실행 예정 | 보관 브랜치 제외 후 다시 실행한다. |
+| push 안전검사 | `node scripts/check-push-safety.mjs` | 차단 | 두 보관 브랜치는 정상 제외됐다. `origin/codex/wu-17-touch-targets`가 `INDEX.md`, `src/app/globals.css`에서 겹쳐 활성 여부 확인 전 push를 차단했다. |
 | 애플리케이션 품질 게이트 | 해당 없음 | 미실행 | 코드·의존성·배포 설정을 변경하지 않았다. |
 
 - 통과한 AC: 해당 없음. 이 변경은 WU-15 통합 운영 결정이다.
@@ -63,12 +63,20 @@
 
 ## 7. 남은 위험과 미해결 항목
 
-- 남은 위험: PR #13 병합 전 `main` 또는 다른 활성 브랜치가 같은 파일을 수정할 수 있다.
+- 남은 위험: `origin/codex/wu-17-touch-targets`의 활성 여부와 UI 기준선과의 `INDEX.md`·전역 스타일 충돌 조정이 확인되기 전에는 문서 커밋을 원격에 push할 수 없다.
 - 후속 작업 후보: 실제 위치 기기에서 WU-15 체크인 성공·실패·복구 smoke, PR #13 검토·병합.
 - 사용자 또는 외부 입력이 필요한 사항: 원격 보관 브랜치의 최종 삭제는 별도 사용자 승인 후에만 수행한다.
 
 ## 8. 다음 작업에서는 어떻게 해야 하는가
 
-1. hyeok18는 PR #13 병합 전 최신 `main`과 열린 PR을 다시 확인하고 push 안전검사를 실행한다.
+1. hyeok18는 `codex/wu-17-touch-targets`의 담당자와 `INDEX.md`·전역 스타일 변경의 흡수 또는 비활성 여부를 확인한 뒤 최신 `main`과 열린 PR을 다시 확인하고 push 안전검사를 실행한다.
 2. `codex/kakao-map-update`와 `codex/mobile-map-prototype`를 직접 merge/cherry-pick하지 않는다.
 3. 실제 위치 기기에서 WU-15의 남은 체크인·반응 smoke를 실행한다.
+
+## 9. 세션 업데이트
+
+### 2026-08-26
+
+- 추가 구현: push 안전검사에 사용자 승인된 보관 브랜치 두 개를 명시적으로 제외하는 목록을 추가했다.
+- 검증 결과: 두 브랜치는 `Skipping inactive preserved branch`로 제외됐지만, `origin/codex/wu-17-touch-targets`와의 공용 파일 겹침 때문에 안전검사는 차단 상태다.
+- 현재 재개 지점: WU-17 브랜치의 활성 상태와 공용 파일 조정 담당을 확인한 뒤에만 문서 커밋을 `codex/ui-baseline`에 push한다.
