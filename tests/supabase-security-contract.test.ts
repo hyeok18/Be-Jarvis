@@ -45,6 +45,10 @@ describe("Supabase security contract", () => {
   it("keeps privileged functions private with explicit search paths and revokes", () => {
     const functionBlocks = migrationSql
       .split(/(?=create or replace function)/iu)
+      // ALTER FUNCTION migrations are separate statements. Keep them out of
+      // the preceding CREATE block so a later security-definer clause cannot
+      // be attributed to the wrong function.
+      .map((block) => block.split(/(?=alter function)/iu)[0])
       .filter((block) => /security definer/iu.test(block));
 
     expect(functionBlocks.length).toBeGreaterThan(0);
@@ -57,6 +61,20 @@ describe("Supabase security contract", () => {
       expect(functionName).toMatch(/^private\./u);
       expect(block).toMatch(/set search_path\s*=\s*''/iu);
       expect(normalizedSql).toContain(`revoke all on function ${functionName}(`);
+    }
+
+    for (const functionName of [
+      "public.enforce_reaction_abuse_guard",
+      "public.issue_location_visit_proof",
+      "public.save_reaction_selection",
+      "public.save_reaction_with_visit_proof",
+    ]) {
+      expect(normalizedSql).toMatch(
+        new RegExp(
+          `alter function ${functionName.replace(".", "\\.")}\\([^)]+\\) security definer;`,
+          "iu",
+        ),
+      );
     }
   });
 
