@@ -172,3 +172,11 @@
 - 접근성 확인: 모바일 상세의 `좋아요` / `그냥 그래요` / `싫어요` 버튼이 role 기반으로 발견됐고, `Tab` 이동 후 `좋아요` 버튼에 키보드 포커스가 실제로 이동했다. 공개 크리에이터 방문 근거와 개인 취향 안내는 존재하며 평균점수 UI는 없음을 확인했다.
 - 오류·복구 확인: 초기 로딩 상태 뒤 실제 데이터 화면으로 전환됐으며, 홈·상세 모두 오류 안내나 Next 오류 오버레이 없이 렌더링됐다. 새 코드·배포 설정은 바꾸지 않았으므로 lint/typecheck/build는 이번 확인에서 재실행하지 않고 이전 성공 결과를 유지한다.
 - 남은 실제 성공 검증: 현재 Preview 도메인에서 기존 테스트 계정 로그인과 위치 권한을 다시 완료한 뒤 체크인→공개 반응 성공, 권한 거부·거리 초과·proof 재사용 실패 및 복구를 확인한다. Kakao 공개 앱 키가 준비되면 SDK 지도 경로만 별도 확인한다.
+
+### 2026-08-26 — Kakao Preview SDK 설정·fallback 진단
+
+- 외부 설정: 사용자 제공 `kakao.env`에서 `NEXT_PUBLIC_KAKAO_MAP_APP_KEY`의 존재만 확인하고, 값을 출력·Git 기록·개발일지에 남기지 않았다. 이를 Vercel `acme-29f2/be-jarvis`의 **Config / Preview 전용** 환경변수로 등록했고 Production은 선택하지 않았다. 같은 `codex/ui-baseline` source commit `a15293d`을 Preview로 재배포했다.
+- 배포 결과: deployment `HjWgtFkSzuxqA6AHC18D1jqyWgt7`가 Ready(34초)였다. URL은 `https://be-jarvis-8xhrbse0q-acme-29f2.vercel.app`, 안정 브랜치 alias는 `https://be-jarvis-git-codex-ui-baseline-acme-29f2.vercel.app`이다.
+- 수동 검증: 두 Preview 도메인 모두 실제 30곳 공개 목록은 정상 표시됐고 Kakao SDK script tag도 포함됐지만, 11초 뒤 SDK load error fallback이 표시됐다. `window.kakao.maps`와 지도 canvas는 생성되지 않았다. 코드의 키 미설정 fallback이 아니라 SDK network error 경로임을 확인했다.
+- 원인과 재개 조건: Kakao 공식 문서에 따라 Web 지도 SDK는 **JavaScript 키**를 사용하고, 해당 키의 **JavaScript SDK 도메인**에 호출 도메인을 등록해야 하며, 앱의 `카카오맵 > 사용 설정`도 ON이어야 한다. 현재 Kakao Developers Console은 로그인 화면이므로 앱 설정을 변경할 권한이 없다. 앱 소유자가 Console에서 위 안정 alias를 JavaScript SDK 도메인으로 등록하고 카카오맵 사용 설정을 ON으로 만든 뒤, 로그인 정보는 공유하지 말고 “도메인 등록 완료”라고만 알려주면 같은 Preview에서 map canvas·marker selection smoke를 재개한다.
+- 범위와 검증: `KAKAO_REST_API_KEY`는 현재 UI가 REST API를 호출하지 않으므로 추가하지 않았다. 코드·Supabase·Production·package/lockfile은 변경하지 않았으며, 외부 환경 설정과 브라우저 smoke만 수행했으므로 lint/typecheck/test/build는 재실행하지 않고 이전 성공 결과를 유지한다.

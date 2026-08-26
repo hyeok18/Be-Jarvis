@@ -152,7 +152,7 @@ WU-20은 기존 ID 사이에 새 번호를 끼우지 않는 운영 규칙에 따
 
 ## 7. 현재 재개 지점
 
-현재 대상은 **WU-15 — 30곳 실제 수직 통합**이며, 상태는 **진행 중**이다. Preview의 새 YouTube 키와 공개 Config·Supabase server secret·`RATE_LIMIT_NETWORK_SALT` 등록 및 재배포가 끝났고, 실제 30곳 공개 목록·상세·confirmed 영상 근거와 비로그인 개인 반응 경로, 390px/1440px 실제 데이터 반응형·키보드 smoke도 성공했다. 다음에는 기존 테스트 계정과 위치 권한으로 체크인→공개 반응 성공, 권한 거부·거리 초과·proof 재사용 실패·복구를 확인하고, Kakao 공개 앱 키가 준비되면 지도 SDK 경로를 확인한다.
+현재 대상은 **WU-15 — 30곳 실제 수직 통합**이며, 상태는 **진행 중**이다. Preview의 새 YouTube 키와 공개 Config·Supabase server secret·`RATE_LIMIT_NETWORK_SALT`·Kakao 공개 앱 키 등록 및 재배포가 끝났고, 실제 30곳 공개 목록·상세·confirmed 영상 근거와 비로그인 개인 반응 경로, 390px/1440px 실제 데이터 반응형·키보드 smoke도 성공했다. Kakao SDK는 앱 소유자가 Developers Console에서 브랜치 Preview 도메인을 JavaScript SDK 도메인에 등록하고 카카오맵 사용 설정을 ON으로 만들 때까지 fallback을 유지한다. 그 뒤 지도 SDK 경로와 기존 테스트 계정·위치 권한의 체크인→공개 반응 성공, 권한 거부·거리 초과·proof 재사용 실패·복구를 확인한다.
 
 WU-11은 `codex/wu-11-abuse-controls`에서 구현했다. 대상 Supabase에 rate limit·held migration 2개를 적용했고, 원 IP·fingerprint 비저장, account/network 제한, 위험 신호 held 격리, 마지막 정상 summary 보존을 rollback pgTAP 18/18과 앱 품질 게이트로 검증했다.
 
