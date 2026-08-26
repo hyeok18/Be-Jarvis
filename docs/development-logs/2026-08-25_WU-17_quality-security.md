@@ -102,3 +102,11 @@
 - 해결 또는 시도: 최신 `main` 기반 UI·접근성·fallback·정적 보안 검증을 완료하고 별도 프로젝트는 건드리지 않았다.
 - 검증 결과: exact 390px·1440px, 키보드, 빈 Kakao 키 fallback, 36개 Vitest, lint·typecheck·production build 통과. 개발 서버도 깨끗하게 재시작해 localhost 200을 확인했다. DB·advisor는 재개 조건으로 남았다.
 - 현재 재개 지점: WU-15·WU-16 완료와 대상 Supabase 연결 후 통합 회귀 실행.
+
+### 2026-08-26 — 발표용 터치 영역·줄바꿈 보완
+
+- 추가 구현: 카테고리 필터, 식당 선택 카드, 크리에이터 영상 근거 링크, 지도 fallback 식당 선택·외부 링크의 최소 높이를 44px(`2.75rem`) 이상으로 통일했다. 길어진 제목·주소·영상 제목·fallback 문구에는 `overflow-wrap: anywhere`를 적용했다.
+- 범위 준수: `src/app/globals.css`만 수정했으며 Production, Deployment Protection, Supabase·YouTube 설정, API, 위치 체크인 흐름은 변경하지 않았다.
+- 정적 확인: `git diff --check` 통과. 클라이언트 코드에서 실제 비밀값은 확인되지 않았고, 서버 환경변수 이름은 `src/lib/env-contract.ts`와 테스트에만 존재함을 확인했다.
+- 미실행: `pnpm run lint`, `pnpm run typecheck`, `pnpm test`, `pnpm run build`는 OneDrive 상위 경로 `stat` 권한 오류(`EPERM`)로 시작하지 못했다. Preview는 Deployment Protection 접근 권한이 없어 390x844·1440x900 시각 검증, Tab/Enter 흐름, 앱 도메인 콘솔 검증을 수행하지 못했다.
+- 현재 재개 지점: 접근 가능한 Preview 또는 로컬 의존성 환경에서 네 품질 명령과 두 viewport·키보드 회귀를 실행한다. 결과가 모두 통과하기 전 WU-17 상태는 `막힘`으로 유지한다.
