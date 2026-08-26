@@ -18,6 +18,23 @@ import { RestaurantMap } from "../map/restaurant-map";
 import styles from "./mobile-app-shell.module.css";
 
 type AppNav = "지도" | "탐색" | "저장" | "내 정보";
+type PreferenceKey = "favorite" | "spicy" | "staple" | "avoid";
+type PreferenceAnswers = Partial<Record<PreferenceKey, string>>;
+
+const PREFERENCES_STORAGE_KEY = "meokbti-preferences:v1";
+
+function readStoredPreferences(): PreferenceAnswers | null {
+  if (typeof window === "undefined") return null;
+  const stored = window.localStorage.getItem(PREFERENCES_STORAGE_KEY);
+  if (!stored) return null;
+
+  try {
+    return JSON.parse(stored) as PreferenceAnswers;
+  } catch {
+    window.localStorage.removeItem(PREFERENCES_STORAGE_KEY);
+    return null;
+  }
+}
 
 interface MobileAppShellProps extends MapExplorerData {
   detailHrefSuffix?: string;
@@ -150,6 +167,69 @@ function RestaurantCard({
   );
 }
 
+function PreferenceView({
+  initialAnswers,
+  onBack,
+  onSave,
+}: {
+  initialAnswers: PreferenceAnswers | null;
+  onBack: () => void;
+  onSave: (answers: PreferenceAnswers) => void;
+}) {
+  const [answers, setAnswers] = useState<PreferenceAnswers>(initialAnswers ?? {});
+  const questions: ReadonlyArray<readonly [PreferenceKey, string, readonly string[]]> = [
+    ["favorite", "어떤 음식을 가장 좋아해요?", ["🍚 한식·찌개", "🍣 일식·초밥", "🍝 양식·파스타", "🍔 분식·간식"]],
+    ["spicy", "매운 음식은 어때요?", ["🌶️ 아주 좋아요", "🙂 적당히 좋아요", "🥛 잘 못 먹어요"]],
+    ["staple", "어떤 메뉴가 끌려요?", ["🍜 국물·면 요리", "🍛 밥·덮밥 요리", "🥩 고기·구이 요리", "🥗 샐러드·가벼운 요리"]],
+    ["avoid", "피하고 싶은 음식이 있나요?", ["🙅 특별히 없어요", "🐟 해산물은 어려워요", "🥜 견과류를 피하고 싶어요", "🥦 채소를 별로 안 좋아해요", "🥩 고기를 별로 안 좋아해요"]],
+  ];
+  const answered = questions.filter(([key]) => answers[key]).length;
+
+  return (
+    <section className={`${styles.subpage} ${styles.preferenceView}`}>
+      <button className={styles.preferenceBack} type="button" onClick={onBack}>
+        ‹ 내 정보
+      </button>
+      <p>나의 먹BTI</p>
+      <h1>내 취향을 알려주세요</h1>
+      <p className={styles.preferenceLead}>선택한 답변으로 맛집마다 나와의 예상 일치율을 보여드릴게요.</p>
+      {questions.map(([key, title, options]) => (
+        <fieldset className={styles.preferenceQuestion} key={key}>
+          <legend>{title}</legend>
+          <div className={styles.preferenceOptions}>
+            {options.map((option) => (
+              <button
+                className={answers[key] === option ? styles.selectedPreference : ""}
+                key={option}
+                type="button"
+                aria-pressed={answers[key] === option}
+                onClick={() => setAnswers((current) => {
+                  if (current[key] === option) {
+                    const next = { ...current };
+                    delete next[key];
+                    return next;
+                  }
+                  return { ...current, [key]: option };
+                })}
+              >
+                {option}
+              </button>
+            ))}
+          </div>
+        </fieldset>
+      ))}
+      <button
+        className={styles.preferenceSave}
+        type="button"
+        disabled={answered < questions.length}
+        onClick={() => onSave(answers)}
+      >
+        {answered < questions.length ? `${questions.length - answered}개 항목을 더 선택해주세요` : "취향 저장하기"}
+      </button>
+    </section>
+  );
+}
+
 export function MobileAppShell({
   restaurants,
   reactionSummaries,
@@ -166,6 +246,8 @@ export function MobileAppShell({
   const [creatorOnly, setCreatorOnly] = useState(false);
   const [query, setQuery] = useState("");
   const [savedIds, setSavedIds] = useState<readonly string[]>([]);
+  const [savedPreferences, setSavedPreferences] = useState<PreferenceAnswers | null>(readStoredPreferences);
+  const [preferenceOpen, setPreferenceOpen] = useState(false);
 
   const categories = useMemo(
     () => ["전체", ...Array.from(new Set(restaurants.map((restaurant) => restaurant.categoryName)))],
@@ -199,6 +281,11 @@ export function MobileAppShell({
     : null;
   const handleSelectRestaurant = (restaurantId: string) => {
     setSelectedRestaurantId((current) => current === restaurantId ? null : restaurantId);
+  };
+  const savePreferences = (answers: PreferenceAnswers) => {
+    setSavedPreferences(answers);
+    window.localStorage.setItem(PREFERENCES_STORAGE_KEY, JSON.stringify(answers));
+    setPreferenceOpen(false);
   };
 
   if (!started) {
@@ -309,10 +396,28 @@ export function MobileAppShell({
           <div className={styles.subpageHeading}><div><p>내가 저장한 맛집</p><h1>다시 가고 싶은 곳</h1></div><span>{savedIds.length}곳</span></div>
           {savedIds.length === 0 ? <div className={styles.savedEmpty}><span>♡</span><h2>아직 저장한 맛집이 없어요.</h2><p>지도나 탐색에서 마음에 드는 맛집을 저장해보세요.</p></div> : <div className={styles.exploreList}>{restaurants.filter((restaurant) => savedIds.includes(restaurant.id)).map((restaurant) => <RestaurantCard key={restaurant.id} restaurant={restaurant} summary={summaryById.get(restaurant.id)} match={matchById.get(restaurant.id)} saved onSelect={() => { setSelectedRestaurantId(restaurant.id); setActiveNav("지도"); }} onToggleSaved={() => setSavedIds((current) => current.filter((id) => id !== restaurant.id))} />)}</div>}
         </section>
+      ) : preferenceOpen ? (
+        <PreferenceView
+          initialAnswers={savedPreferences}
+          onBack={() => setPreferenceOpen(false)}
+          onSave={savePreferences}
+        />
       ) : (
         <section className={styles.subpage}>
           <p>내 정보</p><h1>나의 먹BTI</h1><p className={styles.profileLead}>취향을 설정하면 맛집마다 나와의 매칭을 확인할 수 있어요.</p>
-          <div className={styles.profileNote}><strong>취향 설정 준비 중</strong><span>현재는 공개 반응과 확인된 영상 근거를 먼저 제공하고 있어요.</span></div>
+          <button className={styles.preferenceStart} type="button" onClick={() => setPreferenceOpen(true)}>
+            {savedPreferences ? "취향 다시 설정하기" : "취향 설정 시작하기"}
+          </button>
+          {savedPreferences ? (
+            <div className={styles.savedPreferenceCard}>
+              <strong>저장된 내 취향</strong>
+              <span>{savedPreferences.favorite}</span>
+              <span>{savedPreferences.spicy} · {savedPreferences.staple}</span>
+              <span>{savedPreferences.avoid}</span>
+            </div>
+          ) : (
+            <div className={styles.profileNote}><strong>아직 취향이 저장되지 않았어요</strong><span>간단한 질문에 답하고 나에게 맞는 맛집을 찾아보세요.</span></div>
+          )}
         </section>
       )}
 
