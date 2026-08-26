@@ -202,3 +202,12 @@
 - 실제 위치 재확인: Chrome과 인앱 브라우저에서 실제 위치 권한 요청을 다시 시도했지만 둘 다 위치 응답 시간 초과 복구 경로로 끝났다. 자동화 실행 환경이 위치 값을 제공하지 않는 상태이므로, 가짜 GPS·서버 직접 proof 생성·공개 집계 우회는 하지 않았다.
 - 테스트 데이터 정리: 합성 테스트 계정의 삭제 대상을 Dashboard에서 확인한 뒤 삭제했다. 삭제 dialog가 닫히고 Auth Users 총수가 생성 전 15명으로 돌아온 것을 확인했다. 이메일·비밀번호·UID·토큰·원본 위치는 기록하지 않았다.
 - WU-15의 유일한 미완료: 실제 위치를 반환하는 브라우저에서 120m·정확도 100m 조건을 충족한 체크인 성공 → 반응 1회 → counted/held/private_only 결과 확인 → 같은 proof 재사용 거부를 확인해야 한다. 권한 거부와 거리 초과도 같은 실제 기기에서 복구 안내를 확인한다. 이 외의 Preview 공개 데이터·반응형·Kakao·인증·개인 반응·자동 품질 게이트는 검증됐다.
+
+### 2026-08-26 — 독립 디자인 기준선의 앱 셸 재이식
+
+- 배경과 판단: 사용자가 `origin/codex/kakao-map-update`의 형제 디자인이 현재 Preview에 사실상 반영되지 않았다고 보고했다. 해당 원격은 `main`과 merge-base가 없고 `Be-Jarvis-main/` 중첩 루트를 포함하므로 merge·cherry-pick·전체 폴더 복사는 하지 않았다. 소스의 모바일 앱 셸, 지도 우선 배치, 하단 선택 시트라는 시각 기준만 현재 WU-15 화면에 수동 적용했다.
+- 구현: 홈의 큰 소개형/데스크톱 2열 페이지를 390px 기준의 중앙 앱 카드로 바꾸고, 간결한 상단 브랜드·위치 표시, 지도 우선 영역, 가로 스크롤 식당 카드 구조를 만들었다. 선택한 식당은 지도 안쪽 하단 시트로 표시해 세 반응, 개인 매칭, confirmed-only 영상과 상세 링크를 한 화면에서 제공한다. 식당 상세도 같은 앱 카드 비율과 고정 행동 바로 맞췄다.
+- 보존한 계약: 실제 Supabase 공개 목록·상세 DTO, Kakao 지도/marker 및 `selectedRestaurantId` 동기화, 인증·반응·체크인 UI, confirmed-only YouTube 근거, 공개 반응과 개인 매칭 분리를 그대로 유지했다. mock 식당·엑셀 데이터·점수/별점·새 API 호출·전역 CSS·자산은 추가하지 않았다.
+- 검증: `git diff --check`, `pnpm run lint`, `pnpm run typecheck`, `pnpm test`(146 passed, 2 skipped), `node node_modules/next/dist/bin/next build --webpack`을 통과했다. 실행 중인 로컬 서버의 `/?snapshot=1`은 HTTP 200이며 새 앱 셸 마크업을 반환했다. 이 환경에는 `agent-browser` 실행 파일이 없어 390px/1440px 스크린샷 수동 검증은 미실행으로 남겼다.
+- 변경 파일: `src/app/page.tsx`, `src/app/page.module.css`, `src/app/restaurants/[id]/page.module.css`, `src/components/map/map-explorer.module.css`, `src/components/map/selected-restaurant-sheet.module.css`, 이 일지와 `INDEX.md`.
+- 다음 작업에서는 어떻게 해야 하는가: Preview에 이 커밋을 올린 뒤 실제 390px 및 1440px에서 지도 canvas, 카테고리 재선택 해제, 목록/마커 선택 시트, 상세 반응·체크인 화면을 확인한다. 그 뒤 실제 위치 응답 기기에서 WU-15의 남은 체크인 성공·재사용 거부·권한 거부·거리 초과 smoke를 진행한다. `codex/mobile-map-prototype`와 같은 홈/상세 충돌 브랜치의 통합 담당이 정해지기 전에는 push하지 않는다.

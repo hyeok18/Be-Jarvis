@@ -1,26 +1,31 @@
 .pageShell {
-  width: min(76rem, calc(100% - 2rem));
-  padding: 1.25rem 0 4rem;
+  width: min(100% - 1.5rem, 26rem);
+  min-height: min(52.75rem, calc(100dvh - 1.5rem));
+  margin: 0 auto;
+  padding: 0.75rem;
+  border: 1px solid #e0e8e4;
+  border-radius: 2rem;
+  background: #f4f8f6;
+  box-shadow: 0 1.5rem 3.5rem rgb(29 60 48 / 13%);
 }
 
-.appHeader {
-  display: flex;
-  min-height: 4.5rem;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  padding: 0.65rem 0;
-  border-bottom: 1px solid #dbe6e1;
-}
-
+.appHeader,
 .appHeader > div,
 .appHeader > div > span:last-child {
   display: flex;
   align-items: center;
 }
 
-.appHeader > div {
+.appHeader {
+  min-height: 3.75rem;
+  justify-content: space-between;
   gap: 0.7rem;
+  padding: 0.45rem 0.3rem;
+  border-bottom: 1px solid #e1e9e5;
+}
+
+.appHeader > div {
+  gap: 0.55rem;
 }
 
 .appHeader > div > span:last-child {
@@ -30,201 +35,83 @@
 
 .appHeader strong {
   color: #17231f;
-  font-size: 1rem;
+  font-size: 0.95rem;
   letter-spacing: -0.025em;
 }
 
 .appHeader small {
   color: #6c7a74;
-  font-size: 0.68rem;
+  font-size: 0.65rem;
 }
 
 .brandMark {
   display: grid;
-  width: 2.6rem;
-  height: 2.6rem;
+  width: 2.35rem;
+  height: 2.35rem;
   place-items: center;
-  border-radius: 0.9rem 0.9rem 0.9rem 0.25rem;
-  color: white;
-  background: #176b51;
-  box-shadow: 0 0.6rem 1.3rem rgb(23 107 81 / 18%);
-  font-size: 1.1rem;
-  font-weight: 950;
+  border-radius: 50% 50% 50% 18%;
+  background: #d9f1e7;
+  font-size: 1rem;
 }
 
 .locationBadge {
   display: inline-flex;
-  min-height: 2.5rem;
+  min-height: 2.15rem;
   align-items: center;
-  padding: 0.55rem 0.85rem;
-  border: 1px solid #d7e4de;
+  padding: 0.45rem 0.65rem;
+  border: 1px solid #dce7e1;
   border-radius: 999px;
   color: #32453e;
   background: white;
-  font-size: 0.78rem;
+  font-size: 0.68rem;
   font-weight: 800;
 }
 
 .hero {
   display: grid;
-  grid-template-columns: minmax(0, 1.35fr) minmax(15rem, 0.65fr);
-  gap: 1.5rem 3rem;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.5rem 1rem;
   align-items: end;
-  padding: 3.25rem 0 1.25rem;
+  padding: 1.25rem 0.3rem 0.35rem;
 }
 
 .heroCopy h1 {
-  max-width: 49rem;
-  margin-bottom: 1.1rem;
+  margin-bottom: 0.35rem;
   color: #17231f;
-  font-size: clamp(2.45rem, 6.7vw, 5.25rem);
-  line-height: 0.98;
-  letter-spacing: -0.065em;
+  font-size: clamp(1.55rem, 7.3vw, 2rem);
+  line-height: 1.05;
+  letter-spacing: -0.06em;
 }
 
 .lede {
-  max-width: 42rem;
-  margin-bottom: 0;
+  margin-bottom: 0.25rem;
   color: #5f7069;
-  font-size: clamp(0.98rem, 1.8vw, 1.2rem);
-  line-height: 1.7;
-}
-
-.heroFacts {
-  display: grid;
-  gap: 0.6rem;
-  padding: 1rem;
-  border: 1px solid #d9e6e0;
-  border-radius: 1.5rem;
-  background: rgb(255 255 255 / 82%);
-  box-shadow: 0 1rem 2.5rem rgb(30 68 54 / 7%);
-}
-
-.heroFacts span {
-  display: flex;
-  min-height: 2.9rem;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 1rem;
-  padding: 0.65rem 0.75rem;
-  border-radius: 0.85rem;
-  color: #63736c;
-  background: #f3f8f6;
-  font-size: 0.78rem;
-}
-
-.heroFacts strong {
-  color: #176b51;
-  font-size: 1.1rem;
-}
-
-.notice {
-  grid-column: 1 / -1;
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  gap: 0.75rem;
-  padding: 0.9rem 1rem;
-  border-radius: 1rem;
-  color: #53675f;
-  background: #e4f3ed;
-  font-size: 0.82rem;
+  font-size: 0.73rem;
   line-height: 1.55;
 }
 
-.notice strong {
-  color: #155e48;
-}
-
-.foundation {
-  display: grid;
-  gap: 1.25rem;
-  margin-top: 4.5rem;
-}
-
-.foundation h2 {
-  margin-bottom: 0;
-  font-size: clamp(1.65rem, 4vw, 2.45rem);
-}
-
-.cardGrid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 0.8rem;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.card {
-  min-height: 10rem;
-  padding: 1.3rem;
-  border: 1px solid #dbe6e1;
-  border-radius: 1.25rem;
-  background: rgb(255 255 255 / 84%);
-  box-shadow: 0 0.8rem 2rem rgb(30 68 54 / 6%);
-}
-
-.card h3 {
-  color: #1e352c;
-}
-
-.card p {
-  margin-bottom: 0;
-  color: #61736b;
-  line-height: 1.6;
+.restaurantCount {
+  align-self: center;
+  padding: 0.4rem 0.55rem;
+  border-radius: 999px;
+  color: #176b51;
+  background: #dff2e9;
+  font-size: 0.66rem;
+  font-weight: 850;
+  white-space: nowrap;
 }
 
 @media (max-width: 48rem) {
   .pageShell {
-    width: min(100% - 1.25rem, 32rem);
-    padding: 0.65rem 0 2.5rem;
-  }
-
-  .appHeader small {
-    display: none;
+    width: min(100%, 26rem);
+    min-height: 100dvh;
+    padding: 0.65rem;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
   }
 
   .hero {
-    grid-template-columns: 1fr;
-    gap: 1rem;
-    padding-top: 2rem;
-  }
-
-  .heroCopy h1 {
-    font-size: clamp(2.35rem, 14vw, 4rem);
-  }
-
-  .heroFacts {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 0.35rem;
-    padding: 0.45rem;
-    border-radius: 1.1rem;
-  }
-
-  .heroFacts span {
-    min-height: 4.35rem;
-    align-items: center;
-    justify-content: center;
-    gap: 0.15rem;
-    padding: 0.45rem 0.25rem;
-    flex-direction: column;
-    text-align: center;
-  }
-
-  .notice {
-    grid-template-columns: 1fr;
-    gap: 0.2rem;
-  }
-
-  .foundation {
-    margin-top: 3.25rem;
-  }
-
-  .cardGrid {
-    grid-template-columns: 1fr;
-  }
-
-  .card {
-    min-height: auto;
+    padding-top: 1rem;
   }
 }
