@@ -77,6 +77,8 @@
 | `supabase/seed.sql` | 합성 지도 핀을 성수권 분산 좌표로 재현 |
 | `supabase/migrations/20260826033740_wu_17_spread_synthetic_map_coordinates.sql` | 원격 합성 식당 30개의 일렬 좌표를 분산 좌표로 보정 |
 | `supabase/migrations/20260826034500_wu_17_randomize_synthetic_map_coordinates.sql` | 규칙적인 격자 배치를 결정적 의사랜덤 좌표로 보정 |
+| `supabase/migrations/20260826034955_wu_17_demo_restaurant_names.sql` | 합성 식당 30개에 명확한 데모 이름 부여 |
+| `supabase/tests/wu_04_synthetic_seed_test.sql` | seed 이름 규칙 회귀 검증 |
 | `docs/DEVELOPMENT_PRIORITY.md` | WU-17 실제 상태와 재개 조건 반영 |
 | `docs/development-logs/INDEX.md` | WU-17 일지 연결 |
 | `docs/development-logs/2026-08-25_WU-17_quality-security.md` | 사전 검증·막힘·인계 기록 |
@@ -130,3 +132,9 @@ DB 타입과 package 파일은 수정하지 않았다. 합성 지도 좌표 보�
 - 해결 또는 시도: 완전한 `random()` 대신 재현 가능한 의사랜덤식을 사용해 seed 재실행, 원격 DB, 지도, 체크인 좌표가 계속 일치하도록 했다.
 - 검증 결과: 원격 migration 성공. 합성 식당 30개, 위도 30종·경도 30종, 범위 `37.541976~37.546808 / 127.047427~127.053945` 확인.
 - 현재 재개 지점: Production 지도에서 격자 패턴이 사라졌는지 최종 확인 후 브랜치에 push한다.
+
+### 2026-08-26 — 데모 음식점명 정리
+
+- 추가 구현: 합성 식당 30개의 이름을 `성수 데모 ...` 형식의 자연스러운 가상 이름으로 변경했다. 실제 업장명과 혼동되지 않도록 모든 이름에 `데모` 표기를 유지했다.
+- 검증 결과: 원격 migration 성공. 합성 식당 30개, 고유 이름 30개, `성수 데모` 접두사 30개 확인.
+- 현재 재개 지점: Production 카드·검색·상세에서 데모 이름이 노출되는지 확인 후 브랜치에 push한다.

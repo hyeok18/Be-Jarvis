@@ -15,7 +15,7 @@ select is(
     select count(*)::integer
     from public.restaurants
     where kakao_place_id like 'synthetic-seongsu-%'
-      and name like '합성 %'
+      and name like '성수 데모 %'
       and address_name like '%합성%'
   ),
   30,
