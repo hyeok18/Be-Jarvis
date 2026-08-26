@@ -160,3 +160,8 @@
 - 수동 검증: 실제 식당 상세에서 비로그인 상태로 `좋아요`를 선택하자 브라우저 개인 취향 저장 안내가 표시되고, 방문 확인 공개 분포는 기존 12명(7/3/2)을 유지했다. 즉, 증명 없는 선택이 공개 집계를 0건·새 수치로 바꾸지 않는다.
 - 자동 검증: `pnpm test -- tests/abuse-guard-api.test.ts tests/reaction-api.test.ts tests/visit-proof-api.test.ts tests/reaction-auth-ui.test.ts tests/visit-check-in.test.ts`를 실행해 Vitest 26개 파일 146개 성공·2개 skip을 확인했다. 이번 세션은 외부 환경 설정과 수동 smoke만 변경했으므로 lint/typecheck/build는 이전 성공 결과를 유지하고 재실행하지 않았다.
 - 남은 실제 성공 검증: 계정의 비밀번호·사용자 식별자나 가짜 위치를 새로 만들지 않는다. 팀의 기존 테스트 계정으로 Preview에 직접 로그인하고, 테스트 가능한 실제 위치 권한을 허용한 뒤 체크인 성공→한 번의 반응→counted/held/private_only 결과와 재사용·권한 거부·거리 초과 복구를 확인해야 한다. Production에는 출시 단계에서 별도의 salt를 생성한다.
+
+### 2026-08-26 — 체크인 성공 경로 재개 대기
+
+- 확인: 새 Preview는 deployment별 도메인을 사용하므로 이전 Preview 도메인에서 만든 Supabase 로그인 세션과 브라우저 위치 권한이 새 배포에 자동으로 이어지지 않는다. 현재 Preview URL에서 UI는 로그인되지 않은 상태임을 확인했다.
+- 재개 조건: 사용자가 현재 Preview URL에서 기존 테스트 계정으로 다시 로그인하고 위치 권한을 허용한 뒤 알려주면, 해당 동일 도메인에서 체크인·반응 공개 반영과 거부·재사용 경로를 이어서 검증한다. 자격 증명·원본 위치·가짜 위치는 요청하거나 저장하지 않는다.
