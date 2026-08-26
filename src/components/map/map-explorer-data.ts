@@ -1,6 +1,7 @@
 import type {
   Restaurant,
   RestaurantMatchResult,
+  RestaurantPreferenceProfile,
   RestaurantReactionSummary,
 } from "@/domain/types";
 
@@ -18,5 +19,6 @@ export interface MapExplorerData {
   restaurants: readonly Restaurant[];
   reactionSummaries: readonly RestaurantReactionSummary[];
   personalMatches: readonly RestaurantMatchResult[];
+  restaurantProfiles: readonly RestaurantPreferenceProfile[];
   creatorVisitSources: readonly CreatorVisitSource[];
 }

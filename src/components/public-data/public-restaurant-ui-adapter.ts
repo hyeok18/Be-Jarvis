@@ -73,6 +73,7 @@ export function toMapExplorerData(
     restaurants: restaurants.map(toRestaurant),
     reactionSummaries: restaurants.map((restaurant) => restaurant.reactionSummary),
     personalMatches: restaurants.map(toPersonalMatch),
+    restaurantProfiles: restaurants.map(toPreferenceProfile),
     creatorVisitSources: restaurants.flatMap(toCreatorVisitSources),
   };
 }

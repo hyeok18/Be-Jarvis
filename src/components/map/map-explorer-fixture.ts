@@ -40,6 +40,7 @@ export function getFixtureMapExplorerData(): MapExplorerData {
     restaurants: DOMAIN_FIXTURE.restaurants,
     reactionSummaries,
     personalMatches,
+    restaurantProfiles: DOMAIN_FIXTURE.restaurantProfiles,
     creatorVisitSources: publishableCreatorEvidence.map((item) => ({
       restaurantId: item.evidence.restaurantId,
       videoId: item.video.youtubeVideoId,
