@@ -4,6 +4,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 
+import { preferenceAnswersToProfile, type PreferenceAnswers } from "@/domain/preference-matching";
+import { calculateRestaurantMatch } from "@/domain/signals";
 import type {
   Restaurant,
   RestaurantMatchResult,
@@ -19,7 +21,6 @@ import styles from "./mobile-app-shell.module.css";
 
 type AppNav = "지도" | "탐색" | "저장" | "내 정보";
 type PreferenceKey = "favorite" | "spicy" | "staple" | "avoid";
-type PreferenceAnswers = Partial<Record<PreferenceKey, string>>;
 
 const PREFERENCES_STORAGE_KEY = "meokbti-preferences:v1";
 
@@ -234,6 +235,7 @@ export function MobileAppShell({
   restaurants,
   reactionSummaries,
   personalMatches,
+  restaurantProfiles,
   creatorVisitSources,
   detailHrefSuffix = "",
   snapshotMode = false,
@@ -257,9 +259,17 @@ export function MobileAppShell({
     () => new Map(reactionSummaries.map((summary) => [summary.restaurantId, summary])),
     [reactionSummaries],
   );
+  const activePersonalMatches = useMemo(() => {
+    const profile = preferenceAnswersToProfile(savedPreferences);
+    if (!profile) return personalMatches;
+
+    return restaurantProfiles.map((restaurantProfile) =>
+      calculateRestaurantMatch({ profile, restaurant: restaurantProfile }),
+    );
+  }, [personalMatches, restaurantProfiles, savedPreferences]);
   const matchById = useMemo(
-    () => new Map(personalMatches.map((match) => [match.restaurantId, match])),
-    [personalMatches],
+    () => new Map(activePersonalMatches.map((match) => [match.restaurantId, match])),
+    [activePersonalMatches],
   );
   const creatorById = useMemo(() => {
     const result = new Map<string, CreatorVisitSource[]>();
