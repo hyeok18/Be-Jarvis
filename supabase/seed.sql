@@ -63,19 +63,16 @@ select
   category_name,
   '서울 성동구 성수동 합성길 ' || fixture_no,
   '서울 성동구 합성로 ' || fixture_no || '길 ' || fixture_no,
-  -- Synthetic presentation coordinates are spread across a compact Seongsu
-  -- area so the demo map remains readable. They are not claimed as surveyed
-  -- coordinates for real businesses.
+  -- Deterministic pseudo-random presentation coordinates keep the synthetic
+  -- demo map readable without a visible grid. They are not claimed as
+  -- surveyed coordinates for real businesses.
   round((
     37.541700
-      + (((fixture_no - 1) / 5) * 0.001050)
-      + (mod(fixture_no * 11, 7) * 0.000035)
+      + (mod((fixture_no * 73) + (fixture_no * fixture_no * 17) + 11, 997) / 997.0 * 0.005400)
   )::numeric, 6)::double precision,
   round((
     127.047400
-      + (mod(fixture_no - 1, 5) * 0.001450)
-      + (((fixture_no - 1) / 5) * 0.000180)
-      + (mod(fixture_no * 7, 5) * 0.000040)
+      + (mod((fixture_no * 193) + (fixture_no * fixture_no * 29) + 17, 991) / 991.0 * 0.006700)
   )::numeric, 6)::double precision,
   case category_name
     when '한식' then array['한식', '밥']::text[]

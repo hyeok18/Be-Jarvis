@@ -76,6 +76,7 @@
 | `tests/supabase-security-contract.test.ts` | migration RLS·권한·함수·인덱스 계약 고정 |
 | `supabase/seed.sql` | 합성 지도 핀을 성수권 분산 좌표로 재현 |
 | `supabase/migrations/20260826033740_wu_17_spread_synthetic_map_coordinates.sql` | 원격 합성 식당 30개의 일렬 좌표를 분산 좌표로 보정 |
+| `supabase/migrations/20260826034500_wu_17_randomize_synthetic_map_coordinates.sql` | 규칙적인 격자 배치를 결정적 의사랜덤 좌표로 보정 |
 | `docs/DEVELOPMENT_PRIORITY.md` | WU-17 실제 상태와 재개 조건 반영 |
 | `docs/development-logs/INDEX.md` | WU-17 일지 연결 |
 | `docs/development-logs/2026-08-25_WU-17_quality-security.md` | 사전 검증·막힘·인계 기록 |
@@ -122,3 +123,10 @@ DB 타입과 package 파일은 수정하지 않았다. 합성 지도 좌표 보�
 - 해결 또는 시도: 화면 전용 좌표를 만들지 않고 `public.restaurants.latitude/longitude`를 업데이트해 지도와 위치 검증이 같은 좌표를 사용하도록 했다. 합성 데이터는 실제 사업장 좌표라고 주장하지 않는다.
 - 검증 결과: 원격 migration 성공. 원격 합성 식당 30개, 위도 30종·경도 30종, 범위 `37.541735~37.547160 / 127.047480~127.054100` 확인.
 - 현재 재개 지점: 품질 게이트와 Production 지도 재조회 후 WU-15·WU-16 통합 검증을 이어간다.
+
+### 2026-08-26 — 격자형 핀 의사랜덤 보정
+
+- 추가 구현: 기존 5열×6행 배치식을 제거하고 식당 번호 기반의 결정적 의사랜덤 위도·경도 계산식으로 교체했다.
+- 해결 또는 시도: 완전한 `random()` 대신 재현 가능한 의사랜덤식을 사용해 seed 재실행, 원격 DB, 지도, 체크인 좌표가 계속 일치하도록 했다.
+- 검증 결과: 원격 migration 성공. 합성 식당 30개, 위도 30종·경도 30종, 범위 `37.541976~37.546808 / 127.047427~127.053945` 확인.
+- 현재 재개 지점: Production 지도에서 격자 패턴이 사라졌는지 최종 확인 후 브랜치에 push한다.
