@@ -180,3 +180,10 @@
 - 수동 검증: 두 Preview 도메인 모두 실제 30곳 공개 목록은 정상 표시됐고 Kakao SDK script tag도 포함됐지만, 11초 뒤 SDK load error fallback이 표시됐다. `window.kakao.maps`와 지도 canvas는 생성되지 않았다. 코드의 키 미설정 fallback이 아니라 SDK network error 경로임을 확인했다.
 - 원인과 재개 조건: Kakao 공식 문서에 따라 Web 지도 SDK는 **JavaScript 키**를 사용하고, 해당 키의 **JavaScript SDK 도메인**에 호출 도메인을 등록해야 하며, 앱의 `카카오맵 > 사용 설정`도 ON이어야 한다. 현재 Kakao Developers Console은 로그인 화면이므로 앱 설정을 변경할 권한이 없다. 앱 소유자가 Console에서 위 안정 alias를 JavaScript SDK 도메인으로 등록하고 카카오맵 사용 설정을 ON으로 만든 뒤, 로그인 정보는 공유하지 말고 “도메인 등록 완료”라고만 알려주면 같은 Preview에서 map canvas·marker selection smoke를 재개한다.
 - 범위와 검증: `KAKAO_REST_API_KEY`는 현재 UI가 REST API를 호출하지 않으므로 추가하지 않았다. 코드·Supabase·Production·package/lockfile은 변경하지 않았으며, 외부 환경 설정과 브라우저 smoke만 수행했으므로 lint/typecheck/test/build는 재실행하지 않고 이전 성공 결과를 유지한다.
+
+### 2026-08-26 — Kakao 지도 SDK Preview smoke 성공
+
+- 외부 재개 조건 해소: 앱 소유자가 Kakao Developers에서 카카오맵 사용 설정을 ON으로 바꾸고, JavaScript SDK 도메인에 안정 Preview alias를 등록했다고 알렸다. 자격 증명·키 값은 요청하거나 확인하지 않았다.
+- 수동 검증: 안정 Preview alias를 새로고침한 뒤 지도 network fallback이 사라지고 `성수동 식당 Kakao 지도` region과 map canvas가 생성된 것을 확인했다. 지도 내부의 marker image 47개가 생성됐고, 가로 overflow도 없었다. 브라우저 자동화의 격리 평가에서는 page global인 `window.kakao`를 읽지 못했지만 실제 canvas·marker DOM이 생성돼 SDK 초기화의 사용자 화면 결과를 확인했다.
+- 선택 동기화: `합성 성수 양식 03` 목록 선택 후 선택 시트, 공개 세 반응, confirmed 크리에이터 영상 근거, 상세 이동 링크가 함께 표시됐고 fallback은 계속 없었다. Kakao 마커 자체는 canvas 기반이라 접근성 locator로 직접 click하지 않았지만, 목록 선택과 map component의 동일 `selectedRestaurantId` 계약을 통해 동기화 경로를 확인했다.
+- 남은 실제 성공 검증: WU-15는 기존 테스트 계정·현재 Preview 도메인의 위치 권한으로 체크인→공개 반응 성공, 권한 거부·거리 초과·proof 재사용 실패·복구를 확인할 때까지 `진행 중`이다.
