@@ -428,6 +428,30 @@
 .profileLead { color: #66736e; font-size: 13px; line-height: 1.6; }
 .profileNote { display: grid; gap: 6px; margin-top: 16px; padding: 16px; border-radius: 16px; color: #526661; background: #e4f0eb; font-size: 12px; }
 .profileNote strong { color: #1f2e2b; }
+.preferenceStart,
+.preferenceSave {
+  width: 100%;
+  min-height: 48px;
+  margin-top: 16px;
+  border: 0;
+  border-radius: 16px;
+  color: #fff;
+  background: #1f2e2b;
+  font-size: 13px;
+  font-weight: 850;
+  cursor: pointer;
+}
+.savedPreferenceCard { display: grid; gap: 7px; margin-top: 16px; padding: 16px; border-radius: 16px; color: #526661; background: #e4f0eb; font-size: 12px; }
+.savedPreferenceCard strong { color: #1f2e2b; }
+.preferenceView { padding-bottom: 34px; }
+.preferenceBack { padding: 0; border: 0; color: #1a856b; background: transparent; font-size: 13px; font-weight: 800; cursor: pointer; }
+.preferenceLead { margin: -2px 0 20px; color: #66736e; font-size: 13px; line-height: 1.6; }
+.preferenceQuestion { padding: 0; border: 0; margin: 0 0 20px; }
+.preferenceQuestion legend { margin-bottom: 10px; color: #1f2e2b; font-size: 15px; font-weight: 850; }
+.preferenceOptions { display: grid; gap: 8px; }
+.preferenceOptions button { min-height: 44px; padding: 10px 13px; border: 1px solid #d8e1dc; border-radius: 13px; color: #52615c; background: #fff; font-size: 12px; text-align: left; cursor: pointer; }
+.preferenceOptions button.selectedPreference { border-color: #1a856b; color: #1a856b; background: #e4f0eb; font-weight: 850; }
+.preferenceSave:disabled { color: #98a6a1; background: #d9e1dd; cursor: not-allowed; }
 
 .bottomNav {
   position: absolute;
