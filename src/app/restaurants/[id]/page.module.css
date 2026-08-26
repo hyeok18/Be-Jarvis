@@ -5,31 +5,29 @@
   --detail-green: #176b51;
   --detail-soft: #edf7f2;
 
-  width: min(100% - 1.5rem, 26rem);
-  min-height: min(52.75rem, calc(100dvh - 1.5rem));
+  width: min(100%, 35rem);
+  min-height: 100vh;
   margin: 0 auto;
-  padding: 0.75rem 0.75rem 6.5rem;
-  border: 1px solid #e0e8e4;
-  border-radius: 2rem;
-  background: #f4f8f6;
-  box-shadow: 0 1.5rem 3.5rem rgb(29 60 48 / 13%);
+  padding: 0 0 6.5rem;
+  background: #fffefa;
   color: var(--detail-ink);
 }
 
 .topBar {
   position: sticky;
-  top: 0.35rem;
+  top: 0;
   z-index: 8;
   display: grid;
-  min-height: 3.4rem;
+  height: 4rem;
   grid-template-columns: 3rem 1fr 3rem;
   align-items: center;
-  margin-bottom: 0.65rem;
-  padding: 0.25rem;
-  border: 1px solid #e0e8e4;
-  border-radius: 1.05rem;
-  background: rgb(255 255 255 / 90%);
-  box-shadow: 0 0.75rem 2rem rgb(30 68 54 / 8%);
+  margin-bottom: 0;
+  padding: 0 0.85rem;
+  border: 0;
+  border-bottom: 1px solid var(--detail-line);
+  border-radius: 0;
+  background: rgb(255 254 250 / 94%);
+  box-shadow: none;
   text-align: center;
   backdrop-filter: blur(1rem);
 }
@@ -52,44 +50,49 @@
 }
 
 .hero {
-  min-height: 11.5rem;
-  padding: 1.4rem;
-  border: 1px solid #cfe2d9;
-  border-radius: 1.35rem;
-  background:
-    radial-gradient(circle at 92% 18%, rgb(255 255 255 / 72%) 0 5rem, transparent 5.1rem),
-    linear-gradient(145deg, #d9f0e7, #f2f8f5 65%);
-  box-shadow: 0 1.25rem 3rem rgb(30 68 54 / 9%);
+  display: grid;
+  height: 14.4rem;
+  place-items: center;
+  align-content: center;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: #d2eee4;
+  box-shadow: none;
 }
 
-.hero :global(.restaurant-card-topline) {
-  margin-bottom: 1.25rem;
+.heroEmoji {
+  font-size: 5.2rem;
 }
 
-.hero :global(.category-badge) {
-  color: #155e48;
-  background: rgb(255 255 255 / 78%);
+.heroCaption {
+  margin: 0;
+  color: #4d7467;
+  font-size: 0.8rem;
 }
 
-.hero :global(.creator-badge) {
-  color: #9b442f;
-  background: #fff0ea;
+.identity {
+  padding: 1.25rem;
+  border-bottom: 1px solid var(--detail-line);
 }
 
-.hero h1 {
-  max-width: 42rem;
-  margin-bottom: 0.75rem;
-  font-size: clamp(1.9rem, 10vw, 2.8rem);
-  line-height: 0.98;
+.identity :global(.restaurant-card-topline) {
+  margin-bottom: 0.55rem;
+}
+
+.identity h1 {
+  margin: 0 0 0.45rem;
+  font-size: 2rem;
   letter-spacing: -0.06em;
 }
 
-.hero p {
-  margin-bottom: 0.8rem;
+.identity > p {
+  margin: 0 0 0.5rem;
   color: var(--detail-muted);
+  font-size: 0.9rem;
 }
 
-.hero > a {
+.identity > a {
   display: inline-flex;
   min-height: 2.7rem;
   align-items: center;
@@ -101,6 +104,12 @@
   font-size: 0.8rem;
   font-weight: 800;
   text-decoration: none;
+}
+
+.openStatus {
+  display: block;
+  color: var(--detail-green);
+  font-size: 0.78rem;
 }
 
 .page :global(.detail-demo-notice) {
@@ -168,12 +177,12 @@
   bottom: max(0.75rem, env(safe-area-inset-bottom));
   z-index: 10;
   display: grid;
-  width: min(25rem, calc(100% - 1.5rem));
+  width: min(42rem, calc(100% - 2rem));
   grid-template-columns: 1.3fr 0.7fr;
   gap: 0.6rem;
   padding: 0.65rem;
   border: 1px solid rgb(219 230 225 / 92%);
-  border-radius: 1.05rem;
+  border-radius: 1.35rem;
   background: rgb(255 255 255 / 94%);
   box-shadow: 0 1rem 2.5rem rgb(22 58 47 / 18%);
   transform: translateX(50%);
@@ -186,7 +195,7 @@
   min-height: 2.7rem;
   place-items: center;
   border-radius: 999px;
-  font-size: 0.72rem;
+  font-size: 0.8rem;
   font-weight: 850;
   text-align: center;
   text-decoration: none;
@@ -210,9 +219,9 @@
 
 @media (max-width: 48rem) {
   .page {
-    width: min(100%, 26rem);
+    width: min(100%, 35rem);
     min-height: 100dvh;
-    padding: 0.65rem 0.65rem 6rem;
+    padding: 0 0 6rem;
     border: 0;
     border-radius: 0;
     box-shadow: none;
@@ -223,13 +232,11 @@
   }
 
   .hero {
-    min-height: 11rem;
-    padding: 1.25rem;
-    border-radius: 1.35rem;
+    height: 13rem;
   }
 
   .hero h1 {
-    font-size: clamp(1.9rem, 10vw, 2.8rem);
+    font-size: 1.9rem;
   }
 
   .page :global(.detail-layout) {

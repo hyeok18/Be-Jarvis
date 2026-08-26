@@ -1,0 +1,496 @@
+.welcomeShell {
+  display: grid;
+  min-height: 100dvh;
+  place-items: center;
+  padding: 24px;
+  background: #f6f7f5;
+}
+
+.welcomeCard {
+  position: relative;
+  width: min(390px, 100%);
+  height: min(844px, 100dvh);
+  overflow: hidden;
+  border-radius: 42px;
+  background: #dbe9e5;
+  box-shadow: 0 18px 42px rgb(55 68 62 / 12%);
+}
+
+.welcomeImage {
+  z-index: 0;
+  object-fit: cover;
+}
+
+.welcomeCard h1 {
+  position: absolute;
+  top: 92px;
+  right: 0;
+  left: 0;
+  z-index: 2;
+  margin: 0;
+  color: #171f1d;
+  font-size: 38px;
+  font-weight: 950;
+  letter-spacing: -0.1em;
+  text-align: center;
+  text-shadow: 0 2px 8px rgb(255 255 255 / 55%);
+}
+
+.welcomeStart {
+  position: absolute;
+  right: 28px;
+  bottom: 28px;
+  left: 28px;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  width: calc(100% - 56px);
+  height: 58px;
+  padding: 5px;
+  border: 0;
+  border-radius: 30px;
+  color: #fff;
+  background: rgb(24 34 31 / 92%);
+  font-size: 0.78rem;
+  font-weight: 850;
+}
+
+.welcomeStart span {
+  display: grid;
+  width: 46px;
+  height: 46px;
+  place-items: center;
+  border-radius: 50%;
+  color: #384541;
+  background: #eef1ef;
+  font-size: 1.7rem;
+  line-height: 1;
+}
+
+.welcomeStart strong {
+  flex: 1;
+  text-align: center;
+}
+
+.appShell {
+  position: relative;
+  width: min(390px, 100%);
+  height: min(844px, 100dvh);
+  min-height: 600px;
+  margin: 0 auto;
+  overflow: hidden;
+  border-radius: 32px;
+  color: #1f2424;
+  background: #f2f7f5;
+  box-shadow: 0 18px 50px rgb(26 52 42 / 12%);
+}
+
+.appHeader {
+  position: absolute;
+  inset: 0 0 auto;
+  z-index: 8;
+  height: 104px;
+  background: white;
+}
+
+.statusTime {
+  position: absolute;
+  top: 12px;
+  left: 24px;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.locationSelector {
+  position: absolute;
+  top: 43px;
+  left: 50%;
+  color: #1f2424;
+  font-size: 16px;
+  transform: translateX(-50%);
+}
+
+.mapStage {
+  position: absolute;
+  inset: 104px 0 0;
+  z-index: 1;
+  overflow: hidden;
+  background: #dbe5e3;
+}
+
+.mapControls {
+  position: absolute;
+  top: 0;
+  left: 12px;
+  z-index: 4;
+  width: calc(100% - 24px);
+  height: 90px;
+}
+
+.searchMapToggle {
+  position: absolute;
+  top: 14px;
+  left: 0;
+  display: inline-flex;
+  width: 184px;
+  height: 42px;
+  align-items: center;
+  padding: 0 14px;
+  border-radius: 21px;
+  color: #1f2424;
+  background: white;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.currentLocationButton {
+  position: absolute;
+  top: 12px;
+  right: 0;
+  display: grid;
+  width: 48px;
+  height: 48px;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  color: #142e2b;
+  background: white;
+  font-size: 28px;
+}
+
+.filterRow {
+  position: absolute;
+  top: 92px;
+  left: 22px;
+  z-index: 4;
+  display: flex;
+  max-width: calc(100% - 30px);
+  gap: 8px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.filterRow::-webkit-scrollbar {
+  display: none;
+}
+
+.filterRow button {
+  flex: none;
+  height: 30px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: 15px;
+  color: #1f2e2b;
+  background: #fff;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.filterRow button.activeFilter {
+  color: #fff;
+  background: #1f2e2b;
+}
+
+.mapPanel {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+}
+
+.mapPanel :global(.map-canvas-shell),
+.mapPanel :global(.map-canvas),
+.mapPanel :global(.map-fallback) {
+  min-height: 100%;
+}
+
+.mapPanel :global(.map-loading) {
+  position: absolute;
+  inset: 50% 20px auto;
+  z-index: 3;
+  padding: 12px;
+  border-radius: 14px;
+  background: rgb(255 255 255 / 90%);
+  text-align: center;
+  transform: translateY(-50%);
+}
+
+.snapshotNotice {
+  position: absolute;
+  top: 7px;
+  right: 7px;
+  left: 7px;
+  z-index: 7;
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  color: #52615c;
+  background: rgb(255 255 255 / 92%);
+  font-size: 10px;
+}
+
+.bottomSheet {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 8;
+  height: 218px;
+  box-sizing: border-box;
+  padding: 30px 20px 0;
+  border-radius: 24px 24px 0 0;
+  background: white;
+  box-shadow: 0 -8px 24px rgb(26 52 42 / 10%);
+}
+
+.sheetGrabber {
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  width: 40px;
+  height: 5px;
+  border-radius: 3px;
+  background: #d1d6d4;
+  transform: translateX(-50%);
+}
+
+.sheetTitleRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.sheetTitleRow h2 {
+  margin: 0;
+  font-size: 19px;
+  letter-spacing: -0.04em;
+}
+
+.sheetTitleLink {
+  color: #1f2424;
+  text-decoration: none;
+}
+
+.sheetTitleActions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sheetTitleActions a,
+.sheetTitleActions button {
+  display: grid;
+  width: 30px;
+  height: 30px;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  color: #1f2b29;
+  background: #f1f5f3;
+  font-size: 21px;
+  text-decoration: none;
+}
+
+.sheetTitleActions button {
+  cursor: pointer;
+  font-size: 24px;
+  line-height: 1;
+}
+
+.sheetMeta {
+  margin: 5px 0;
+  overflow: hidden;
+  color: #616e69;
+  font-size: 13px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sheetCreator {
+  margin: 0;
+  color: #1a6e57;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.sheetMatch {
+  position: absolute;
+  top: 33px;
+  right: 14px;
+  padding: 6px 12px;
+  border-radius: 12px;
+  color: #12664f;
+  background: #def5ed;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.sheetReactionsTitle {
+  margin: 10px 0 7px;
+  color: #5c6663;
+  font-size: 12px;
+}
+
+.sheetReactions {
+  display: flex;
+  gap: 8px;
+}
+
+.reactionChip {
+  display: inline-flex;
+  height: 30px;
+  align-items: center;
+  justify-content: center;
+  padding: 0 12px;
+  border-radius: 15px;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.reactionChip b {
+  margin-left: 8px;
+}
+
+.like { background: #e0f5ed; }
+.okay { background: #f2f5f2; }
+.dislike { background: #fae8e5; }
+
+.sheetActions {
+  position: absolute;
+  right: 28px;
+  bottom: 10px;
+  left: 20px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.sheetActions a {
+  display: grid;
+  height: 30px;
+  place-items: center;
+  border-radius: 15px;
+  font-size: 12px;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.sheetPrimaryAction { color: white; background: #1f856b; }
+.sheetSecondaryAction { border: 1px solid #c4ccc9; color: #1f2b29; background: white; }
+
+.selectionHint {
+  position: absolute;
+  right: 20px;
+  bottom: 16px;
+  left: 20px;
+  z-index: 5;
+  display: grid;
+  gap: 4px;
+  padding: 14px 16px;
+  border: 1px solid #d8e5df;
+  border-radius: 16px;
+  background: rgb(255 255 255 / 94%);
+  box-shadow: 0 8px 20px rgb(26 52 42 / 12%);
+  text-align: center;
+}
+
+.selectionHint strong { color: #1f2e2b; font-size: 13px; }
+.selectionHint span { color: #66736e; font-size: 11px; }
+
+.subpage {
+  position: absolute;
+  inset: 104px 0 82px;
+  z-index: 3;
+  overflow-y: auto;
+  padding: 24px 20px 30px;
+  background: #f2f7f5;
+}
+
+.subpage > p:first-child,
+.subpageHeading p {
+  margin: 0 0 8px;
+  color: #1a856b;
+  font-size: 12px;
+  font-weight: 850;
+}
+
+.subpage h1 { margin: 0 0 12px; font-size: 27px; letter-spacing: -0.07em; }
+.subpageHeading { display: flex; align-items: end; justify-content: space-between; margin-bottom: 18px; }
+.subpageHeading h1 { margin: 0; }
+.subpageHeading > span { color: #66736e; font-size: 13px; font-weight: 800; }
+
+.exploreSearch {
+  display: flex;
+  height: 46px;
+  align-items: center;
+  gap: 10px;
+  padding: 0 16px;
+  border-radius: 23px;
+  background: white;
+  box-shadow: 0 4px 14px rgb(41 78 62 / 8%);
+}
+
+.exploreSearch span { color: #1a856b; font-size: 20px; }
+.exploreSearch input { width: 100%; border: 0; outline: 0; background: transparent; font-size: 13px; }
+.exploreList { display: grid; gap: 10px; }
+.exploreCard { position: relative; padding: 16px; border: 1px solid #d8e1dc; border-radius: 18px; background: white; box-shadow: 0 4px 12px rgb(41 78 62 / 5%); }
+.exploreCardMain { display: grid; width: calc(100% - 8px); gap: 5px; padding: 0; border: 0; color: #1f2424; background: transparent; text-align: left; }
+.exploreCardMain span { color: #1a856b; font-size: 11px; font-weight: 850; }
+.exploreCardMain strong { font-size: 17px; letter-spacing: -0.04em; }
+.exploreCardMain small { color: #66736e; font-size: 12px; }
+.exploreCardMeta { display: flex; gap: 14px; margin-top: 13px; color: #66736e; font-size: 11px; }
+.exploreCardMeta b { color: #1a856b; }
+.saveButton { margin-top: 13px; border: 0; color: #b45e54; background: transparent; font-size: 11px; font-weight: 850; }
+.savedEmpty { display: grid; place-items: center; padding: 90px 18px; color: #66736e; text-align: center; }
+.savedEmpty span { color: #1a856b; font-size: 46px; }
+.savedEmpty h2 { margin: 12px 0 4px; color: #1f2424; font-size: 18px; }
+.savedEmpty p { margin: 0; font-size: 12px; }
+.profileLead { color: #66736e; font-size: 13px; line-height: 1.6; }
+.profileNote { display: grid; gap: 6px; margin-top: 16px; padding: 16px; border-radius: 16px; color: #526661; background: #e4f0eb; font-size: 12px; }
+.profileNote strong { color: #1f2e2b; }
+
+.bottomNav {
+  position: absolute;
+  right: 14px;
+  bottom: 14px;
+  left: 14px;
+  z-index: 12;
+  display: grid;
+  height: 68px;
+  grid-template-columns: repeat(4, 1fr);
+  align-items: center;
+  padding: 5px 8px;
+  border-radius: 32px;
+  background: #fff;
+  box-shadow: 0 10px 28px rgb(38 73 57 / 18%);
+}
+
+.bottomNav button {
+  position: relative;
+  display: flex;
+  height: 56px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  border: 0;
+  border-radius: 28px;
+  color: #b9bfbd;
+  background: transparent;
+  font-size: 0;
+  font-weight: 800;
+}
+
+.bottomNav button span { font-size: 21px; line-height: 22px; filter: grayscale(1); opacity: 0.72; }
+.bottomNav button.activeNav { height: 60px; margin-top: -12px; color: #fff; background: #58b69f; box-shadow: 0 7px 14px rgb(65 157 132 / 28%); transform: scale(1.04); }
+.bottomNav button.activeNav span { filter: none; opacity: 1; }
+
+@media (max-width: 390px) {
+  .appShell { border-radius: 0; }
+  .bottomSheet { height: 218px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bottomNav button.activeNav { transform: none; }
+}

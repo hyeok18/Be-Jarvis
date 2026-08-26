@@ -203,6 +203,16 @@
 - 테스트 데이터 정리: 합성 테스트 계정의 삭제 대상을 Dashboard에서 확인한 뒤 삭제했다. 삭제 dialog가 닫히고 Auth Users 총수가 생성 전 15명으로 돌아온 것을 확인했다. 이메일·비밀번호·UID·토큰·원본 위치는 기록하지 않았다.
 - WU-15의 유일한 미완료: 실제 위치를 반환하는 브라우저에서 120m·정확도 100m 조건을 충족한 체크인 성공 → 반응 1회 → counted/held/private_only 결과 확인 → 같은 proof 재사용 거부를 확인해야 한다. 권한 거부와 거리 초과도 같은 실제 기기에서 복구 안내를 확인한다. 이 외의 Preview 공개 데이터·반응형·Kakao·인증·개인 반응·자동 품질 게이트는 검증됐다.
 
+### 2026-08-26 — 원본 앱 디자인 그대로 재이식
+
+- 사용자 피드백: 이전 세션의 스타일 재해석이 형 브랜치의 앱 디자인과 다르다는 지적을 반영해, `origin/codex/kakao-map-update`의 모바일 레이아웃과 시각값을 기준으로 다시 구현했다.
+- 구현: 시작 화면 이미지·브랜드·시작 버튼, 390px 앱 셸, 지도 상단 검색/현재 위치 UI, 원본 간격의 카테고리 칩, 지도 선택 하단 시트, 하단 지도/탐색/저장/내 정보 네비게이션, 탐색·저장·내 정보 화면을 적용했다. 앱의 식당·반응·매칭·확정 영상 데이터는 현재 `MapExplorerData`에서 공급하며, 시작 화면 이후 실제 `RestaurantMap`과 marker 선택을 사용한다.
+- 기능 보존: 형 브랜치의 `mock-ui.ts`, `fixtures.ts`, 엑셀 응답/반응 수, 임시 Kakao SDK 구현은 이식하지 않았다. 카테고리 재선택 해제, 마커/목록 선택 동기화, counted-only 세 반응, 개인 매칭 분리, confirmed-only 영상, 상세 route·인증·체크인 경계는 유지했다. 지도 현재 위치 버튼은 원본 모양만 제공하고 새 geolocation 호출을 만들지 않았다.
+- 상세 화면: 원본 `detail.css`의 대표 이미지 영역·식당 정보 하단 구조와 카드/행동 바 비율을 실제 상세 DTO·반응·체크인 컴포넌트 위에 적용했다. 별점·평균·종합점수 UI는 만들지 않았다.
+- 검증: `pnpm run lint`, `pnpm run typecheck`, `pnpm test`(146 passed, 2 skipped), `node node_modules/next/dist/bin/next build --webpack`, 로컬 `/?snapshot=1` HTTP 200을 확인했다. `agent-browser` 실행 파일이 없어 클릭/스크린샷 기반 390px·1440px 검증은 미실행이며, Preview push 후 팀 브라우저에서 확인해야 한다.
+- 변경 파일: `src/app/page.tsx`, `src/app/restaurants/[id]/page.tsx`, `src/app/restaurants/[id]/page.module.css`, `src/components/app/mobile-app-shell.tsx`, `src/components/app/mobile-app-shell.module.css`, 이전 재해석 스타일 제거, 이 일지와 `INDEX.md`.
+- 다음 작업에서는 어떻게 해야 하는가: 이 커밋을 Preview에 반영한 뒤 시작 버튼→지도→카테고리→marker/선택 시트→상세→하단 네비게이션을 390px/1440px에서 시각 확인한다. 이후 실제 위치 기기에서 WU-15 남은 체크인 성공·권한 거부·거리 초과·proof 재사용 실패 smoke를 진행한다.
+
 ### 2026-08-26 — 독립 디자인 기준선의 앱 셸 재이식
 
 - 배경과 판단: 사용자가 `origin/codex/kakao-map-update`의 형제 디자인이 현재 Preview에 사실상 반영되지 않았다고 보고했다. 해당 원격은 `main`과 merge-base가 없고 `Be-Jarvis-main/` 중첩 루트를 포함하므로 merge·cherry-pick·전체 폴더 복사는 하지 않았다. 소스의 모바일 앱 셸, 지도 우선 배치, 하단 선택 시트라는 시각 기준만 현재 WU-15 화면에 수동 적용했다.

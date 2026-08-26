@@ -78,7 +78,12 @@ export default async function RestaurantDetailPage({
         <span aria-hidden="true" />
       </header>
 
-      <section className={`detail-hero ${styles.hero}`} aria-labelledby="restaurant-title">
+      <section className={`detail-hero ${styles.hero}`} aria-label="대표 음식 이미지">
+        <span className={styles.heroEmoji} aria-hidden="true">🍜</span>
+        <p className={styles.heroCaption}>대표 메뉴 이미지</p>
+      </section>
+
+      <section className={styles.identity} aria-labelledby="restaurant-title">
         {snapshotMode ? (
           <div className="presentation-snapshot-notice" role="note">
             <strong>발표 백업 모드</strong>
@@ -102,6 +107,7 @@ export default async function RestaurantDetailPage({
         </div>
         <h1 id="restaurant-title">{restaurant.name}</h1>
         <p>{address}</p>
+        <strong className={styles.openStatus}>● 영업 정보는 매장에 확인해 주세요</strong>
         <a href={kakaoSearchUrl} target="_blank" rel="noopener noreferrer">
           카카오맵에서 위치 확인 ↗
         </a>
