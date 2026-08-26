@@ -152,3 +152,11 @@
 - 외부 설정: 사용자 승인 후 Vercel `acme/be-jarvis`의 기존 `SUPABASE_SECRET_KEY`를 새 값으로 **Preview 전용 Secret**으로 갱신했다. Vercel이 `Updated`와 Preview 범위를 표시한 것을 확인했고 Production 키·범위는 수정하지 않았다.
 - 배포 및 수동 검증: Preview 환경으로만 재배포한 deployment `BEbHAJzSaBDTHhxFLW7FHWaCMhwc`가 Ready(34초)였다. 실제 홈에서 `30곳 연결된 성수 식당`, counted-only 세 반응, confirmed YouTube 근거를 확인했다. 실제 UUID 상세에서도 세 반응 분포(좋아요/그냥 그래요/싫어요), 개인 반응 분리 안내, 로그인·체크인 전 상태, confirmed 원본 영상만 표시되는 것을 확인했다.
 - 현재 상태: WU-15는 더 이상 Supabase server secret 때문에 막히지 않으며 `진행 중`이다. 남은 실제 smoke는 `RATE_LIMIT_NETWORK_SALT` 설정 후 로그인·반응·체크인 성공/실패·복구 경로, Kakao 공개 앱 키가 준비된 경우 지도 SDK 경로, Preview의 390px/1440px 실제 데이터 회귀다. 현재 키가 없는 상태에서도 지도 fallback과 공개 목록은 정상 동작한다.
+
+### 2026-08-26 — Preview rate limit 및 개인 반응 경로 검증
+
+- 외부 설정: 사용자 승인으로 32바이트 난수 기반 `RATE_LIMIT_NETWORK_SALT`를 생성해 Vercel `acme/be-jarvis`의 **Preview 전용 Secret**으로 등록했다. 값은 로컬 파일·Git·채팅·개발일지에 저장하거나 출력하지 않았고 Production 환경에는 등록하지 않았다.
+- 배포: Preview deployment `aBZzirWwxSr3636UTHzXdoz1Dj3P`가 Ready(43초)였다. 소스는 Vercel이 표시한 `codex/ui-baseline`의 `a15293d`이며, Preview만 선택해 재배포했다.
+- 수동 검증: 실제 식당 상세에서 비로그인 상태로 `좋아요`를 선택하자 브라우저 개인 취향 저장 안내가 표시되고, 방문 확인 공개 분포는 기존 12명(7/3/2)을 유지했다. 즉, 증명 없는 선택이 공개 집계를 0건·새 수치로 바꾸지 않는다.
+- 자동 검증: `pnpm test -- tests/abuse-guard-api.test.ts tests/reaction-api.test.ts tests/visit-proof-api.test.ts tests/reaction-auth-ui.test.ts tests/visit-check-in.test.ts`를 실행해 Vitest 26개 파일 146개 성공·2개 skip을 확인했다. 이번 세션은 외부 환경 설정과 수동 smoke만 변경했으므로 lint/typecheck/build는 이전 성공 결과를 유지하고 재실행하지 않았다.
+- 남은 실제 성공 검증: 계정의 비밀번호·사용자 식별자나 가짜 위치를 새로 만들지 않는다. 팀의 기존 테스트 계정으로 Preview에 직접 로그인하고, 테스트 가능한 실제 위치 권한을 허용한 뒤 체크인 성공→한 번의 반응→counted/held/private_only 결과와 재사용·권한 거부·거리 초과 복구를 확인해야 한다. Production에는 출시 단계에서 별도의 salt를 생성한다.
