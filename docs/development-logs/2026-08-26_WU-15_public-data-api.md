@@ -3,7 +3,7 @@
 | 항목 | 내용 |
 |---|---|
 | 작업 단위 | WU-15 |
-| 상태 | 막힘 |
+| 상태 | 진행 중 — 실제 위치 성공 경로는 후속 검증 |
 | 작업일 | 2026-08-26 |
 | 담당 | 데이터·API + UI 통합 |
 | 대상 AC | AC-01~24 |
@@ -225,6 +225,14 @@
 - 실제 위치 재확인: Chrome과 인앱 브라우저에서 실제 위치 권한 요청을 다시 시도했지만 둘 다 위치 응답 시간 초과 복구 경로로 끝났다. 자동화 실행 환경이 위치 값을 제공하지 않는 상태이므로, 가짜 GPS·서버 직접 proof 생성·공개 집계 우회는 하지 않았다.
 - 테스트 데이터 정리: 합성 테스트 계정의 삭제 대상을 Dashboard에서 확인한 뒤 삭제했다. 삭제 dialog가 닫히고 Auth Users 총수가 생성 전 15명으로 돌아온 것을 확인했다. 이메일·비밀번호·UID·토큰·원본 위치는 기록하지 않았다.
 - WU-15의 유일한 미완료: 실제 위치를 반환하는 브라우저에서 120m·정확도 100m 조건을 충족한 체크인 성공 → 반응 1회 → counted/held/private_only 결과 확인 → 같은 proof 재사용 거부를 확인해야 한다. 권한 거부와 거리 초과도 같은 실제 기기에서 복구 안내를 확인한다. 이 외의 Preview 공개 데이터·반응형·Kakao·인증·개인 반응·자동 품질 게이트는 검증됐다.
+
+### 2026-08-26 — 현장 검증 보류 후 자동 게이트 고정
+
+- 사용자 결정: 실제 위치를 제공하는 기기에서의 체크인 성공 리허설은 후속으로 미루고, 현재 세션에서는 자동 테스트로 검증 가능한 범위를 먼저 확정했다.
+- 자동 검증: `pnpm run check:env`, `pnpm run lint`, `pnpm run typecheck`, `pnpm test -- --run`이 통과했다. Vitest는 26개 파일 146 passed·2 skipped(148 tests)였고, `SECURITY DEFINER` RPC migration 계약도 포함한다.
+- 빌드 검증: 기본 `pnpm run build`는 worktree의 `node_modules` junction을 Turbopack이 filesystem root 밖 링크로 거부해 실패했다. 같은 코드와 Next.js 버전으로 `node node_modules/next/dist/bin/next build --webpack`을 실행해 production build 성공을 확인했다.
+- 서버 경계: 앞서 적용한 RPC 보안 보정 뒤 Auth·abuse guard·위치 증명 호출 200과 `OUT_OF_RANGE` 복구를 확인했다. 실제 성공·공개 반응·proof 재사용은 가짜 위치나 서버 우회 없이 현장 기기 검증 대기다.
+- 다음 재개 지점: WU-17 자동 품질·보안 회귀를 진행하고, 실제 위치 기기가 준비되면 WU-15 성공→반응→재사용 거부를 별도 smoke로 마무리한다.
 
 ### 2026-08-26 — 원본 앱 디자인 그대로 재이식
 

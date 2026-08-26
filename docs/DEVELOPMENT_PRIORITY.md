@@ -46,7 +46,7 @@
 | 15 | WU-14 | P0 | YouTube Cron·인증·동시 실행 방지 | B2 | WU-12 | AC-14, AC-18 | 완료 | `0 18 * * *`, secret 5경로, 실제 DB lock·15분 만료 복구·공개 차단, 전체 55개 테스트·빌드 |
 | 16 | WU-15 | P0 | 30곳 실제 수직 통합 | 공통 | WU-07, WU-11, WU-13 | AC-01~24 | 진행 중 | Preview 실제 30곳 목록·상세·confirmed 근거 smoke 성공. `RATE_LIMIT_NETWORK_SALT` 후 반응·체크인 smoke, Kakao 키가 준비되면 지도 SDK 경로 및 실제 데이터 반응형 회귀 |
 | 17 | WU-16 | P0 | 발표 스냅샷·백업 모드 | B2+A1 | WU-15 | AC-14, AC-28 | 진행 중 | `?snapshot=1` 명시 백업 모드와 `?snapshot=1&cycle=1` 30초 발표 순환 구현. 전체 test 146 passed/2 skipped, typecheck, lint, Webpack build, snapshot·cycle HTTP 200, 390/1440px 확인 통과. 리허설은 사용자 요청으로 나중 진행 |
-| 18 | WU-17 | P0 | 오류·반응형·접근성·보안 | A2+공통 | WU-15, WU-16 | AC-24~26 | **막힘** | 사전 UI·fallback·정적 보안 회귀 완료; WU-15·WU-16과 대상 Supabase 연결 대기 |
+| 18 | WU-17 | P0 | 오류·반응형·접근성·보안 | A2+공통 | WU-15, WU-16 | AC-24~26 | 진행 중 | 자동 환경·lint·typecheck·Vitest 146 passed/2 skipped·Webpack build 및 RPC 보안 계약 회귀 완료; 실제 체크인 성공·발표 리허설·대상 Supabase 원격 검증 잔여 |
 | 19 | WU-18 | P0 | Vercel Preview·Production 배포 | 공통 | WU-14, WU-17 | AC-27 | 대기 | 환경 분리, 같은 artifact, smoke, rollback |
 | 20 | WU-19 | P0 | 전체 AC 검증·기능 동결·발표 리허설 | 공통 | WU-18 | AC-01~28 | 대기 | 전체 게이트, 3회 성공, P0/P1 0개 |
 
@@ -152,7 +152,7 @@ WU-20은 기존 ID 사이에 새 번호를 끼우지 않는 운영 규칙에 따
 
 ## 7. 현재 재개 지점
 
-현재 대상은 **WU-15 — 30곳 실제 수직 통합**이며, 상태는 **진행 중**이다. Preview의 새 YouTube 키와 공개 Config·Supabase server secret·`RATE_LIMIT_NETWORK_SALT`·Kakao 공개 앱 키 등록 및 재배포가 끝났고, 실제 30곳 공개 목록·상세·confirmed 영상 근거와 비로그인 개인 반응 경로, 390px/1440px 실제 데이터 반응형·키보드, Kakao 지도 canvas·marker·선택 시트, 합성 테스트 계정 로그인·인증 후 개인 반응·계정 정리, lint·typecheck·전체 Vitest·Webpack production build도 성공했다. 서버 RPC 권한 보정 후 스마트폰에서 Auth·abuse guard·위치 증명 호출이 모두 200으로 통과했고, `OUT_OF_RANGE` 거리 초과 복구도 확인했다. 다음에는 실제 위치 응답 가능한 브라우저에서 120m·정확도 100m 조건의 체크인 성공→공개 반응, 권한 거부·proof 재사용 실패·복구를 확인한다.
+현재 대상은 **WU-17 — 오류·반응형·접근성·보안**이며, 상태는 **진행 중**이다. 현장 체크인 성공과 발표 리허설은 사용자 결정으로 후속 처리하고, 자동화 가능한 범위에서 환경 계약·lint·typecheck·전체 Vitest(146 passed/2 skipped)·Webpack production build와 RPC 보안 계약 회귀를 완료했다. 기본 Turbopack build는 worktree `node_modules` junction 외부 링크 제한으로 실패했으며 코드 오류가 아닌 환경 제약으로 기록했다. 다음에는 대상 Supabase의 pgTAP/advisor/Auth 설정과 WU-15·WU-16 결과가 고정된 뒤 390px/1440px·키보드 통합 회귀를 재실행한다. WU-15는 실제 위치 성공→공개 반응→proof 재사용 거부가 남아 `진행 중`이다.
 
 WU-11은 `codex/wu-11-abuse-controls`에서 구현했다. 대상 Supabase에 rate limit·held migration 2개를 적용했고, 원 IP·fingerprint 비저장, account/network 제한, 위험 신호 held 격리, 마지막 정상 summary 보존을 rollback pgTAP 18/18과 앱 품질 게이트로 검증했다.
 

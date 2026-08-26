@@ -3,7 +3,7 @@
 | 항목 | 내용 |
 |---|---|
 | 작업 단위 | WU-17 |
-| 상태 | 막힘 — 선행 WU와 대상 Supabase 연결 대기 |
+| 상태 | 진행 중 — 자동 게이트 완료, 통합·원격 검증 잔여 |
 | 작업일 | 2026-08-25 |
 | 담당 | A2+공통 |
 | 대상 AC | AC-24~26 |
@@ -102,3 +102,12 @@
 - 해결 또는 시도: 최신 `main` 기반 UI·접근성·fallback·정적 보안 검증을 완료하고 별도 프로젝트는 건드리지 않았다.
 - 검증 결과: exact 390px·1440px, 키보드, 빈 Kakao 키 fallback, 36개 Vitest, lint·typecheck·production build 통과. 개발 서버도 깨끗하게 재시작해 localhost 200을 확인했다. DB·advisor는 재개 조건으로 남았다.
 - 현재 재개 지점: WU-15·WU-16 완료와 대상 Supabase 연결 후 통합 회귀 실행.
+
+### 2026-08-26 — 자동 품질 게이트 재개
+
+- 작업 범위: 사용자 요청에 따라 현장 체크인 성공과 발표 리허설은 뒤로 미루고, WU-17에서 자동화 가능한 품질·보안 회귀를 먼저 진행했다.
+- 검증 결과: `pnpm run check:env`, `pnpm run lint`, `pnpm run typecheck`, `pnpm test -- --run` 통과. Vitest 26개 파일 146 passed·2 skipped(148 tests)이며 RPC 보안 migration의 `ALTER FUNCTION ... SECURITY DEFINER` 계약 검증을 포함한다.
+- 빌드 결과: Turbopack은 worktree `node_modules` junction 외부 링크 오류로 실패했으나 Webpack production build(`node node_modules/next/dist/bin/next build --webpack`)는 성공했다. package/lockfile과 Next 설정은 수정하지 않았다.
+- 구현 기록: 보안 계약 테스트 파서가 별도 `ALTER FUNCTION` 구문을 독립적으로 검증하도록 보정해 이후 migration에서 함수별 실행 모드가 잘못 귀속되지 않게 했다.
+- 남은 위험: 실제 WU-15 체크인 성공·공개 반응·proof 재사용, 대상 Supabase `test:db`/advisor/Auth 설정과 WU-16 발표 리허설은 미실행이다. 이 조건 전에는 WU-17을 완료로 표시하지 않는다.
+- 다음 작업: 대상 Supabase 원격 보안·DB 검증 권한이 준비되면 pgTAP/advisor/Auth 설정을 확인하고, WU-15·WU-16 결과가 고정된 뒤 390px·1440px·키보드 통합 회귀를 다시 실행한다.
